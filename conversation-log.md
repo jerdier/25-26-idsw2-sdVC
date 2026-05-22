@@ -25,3 +25,57 @@ Mapeo del Diagrama de Estados. Aquí conectamos la Fase 4 con la Fase 3. Hacemos
 Calidad del Software.Probamos el sistema simulando carga (¿qué pasa si 20 profesores pasan lista exactamente a la misma hora?). Refinamos el manejo de errores en el frontend (mostrando alertas rojas si falla la conexión) y preparamos el código para que esté listo para publicarse en internet.
 
 **Decisión:** Como punto de partida inicial para comenzar con el desarrollo del proyecto me parece una buena respuesta a la que puedo ceñirme de momento y ver como va creando cada fase.
+
+## [17:30] Inicio de sesión
+
+**Prompt:** Vamos a empezar con la Fase 1: dime paso a paso cómo estructurar las carpetas en VS Code y qué herramientas base debo instalar para Node.js y React/Vue.
+
+**Resultado:** Sigue estos pasos en orden estricto:
+
+### 1. Preparar las Herramientas Globales:
+Instalaciones en tu sistema operativo.Antes de tocar VS Code, asegúrate de tener instalados en tu computadora:
+- Node.js: Descarga e instala la versión LTS (Long Term Support) desde su web oficial. Es el motor que ejecutará tanto tu servidor como las herramientas del frontend. 
+- PostgreSQL: Descarga el instalador oficial. Durante la instalación, te pedirá crear una contraseña para el usuario postgres. Anótala, la necesitaremos en la Fase 2.
+
+### 2. Crear el Espacio de Trabajo:
+Estructura raíz. Abre Visual Studio Code. Ve al menú superior, selecciona Terminal > New Terminal y ejecuta estos comandos uno por uno para crear la carpeta principal y entrar en ella:
+
+```
+Bash
+
+mkdir plataforma-educativa
+
+cd plataforma-educativa
+```
+### 3. Inicializar el Backend:
+Node.js base.Dentro de esa misma terminal, vamos a crear la carpeta del servidor y dejarla lista para instalar nuestro ORM y base de datos más adelante:
+
+```
+Bash
+
+mkdir backend
+
+cd backend
+
+npm init -y
+
+cd ..
+```
+Nota: El comando ```npm init -y``` crea un archivo ```package.json``` vacío, que es como el "DNI" de tu servidor donde se anotarán las dependencias.4.4. Inicializar el Frontend:Uso de Vite.Para el frontend usaremos Vite, que es la herramienta estándar y más rápida hoy en día para crear proyectos de React o Vue. En la misma terminal, ejecuta: ```Bashnpm create vite@latest frontend```
+
+La terminal te hará dos preguntas interactivas. Aquí es donde decides tu camino: Select a framework: Elige React o Vue (con las flechas del teclado). Select a variant: Elige TypeScript (obligatorio para un proyecto escalable).
+### Tu Arquitectura Base
+Si hiciste los pasos correctamente, en la barra lateral izquierda de tu VS Code (el Explorador) deberías ver exactamente esta estructura:Plaintext/plataforma-educativa
+```
+│
+├── /backend
+│   └── package.json       <-- Aquí instalaremos las herramientas de base de datos luego.
+│
+└── /frontend
+    ├── /src               <-- Aquí vivirá el código de tus pantallas.
+    ├── package.json       <-- Dependencias de Vue/React.
+    └── vite.config.ts     <-- Configuración del empaquetador.
+```
+Con esto, los cimientos están puestos y el entorno está listo para empezar a recibir código real.
+
+**Decisión:** No tiene mucho misterio la instalación de la estructura base para que posteriormente funcione todo correctamente.

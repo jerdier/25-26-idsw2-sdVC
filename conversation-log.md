@@ -26,7 +26,7 @@ Calidad del Software.Probamos el sistema simulando carga (¿qué pasa si 20 prof
 
 **Decisión:** Como punto de partida inicial para comenzar con el desarrollo del proyecto me parece una buena respuesta a la que puedo ceñirme de momento y ver como va creando cada fase.
 
-## [17:30] Inicio de sesión
+## [15:25] Inicio de sesión
 
 **Prompt:** Vamos a empezar con la Fase 1: dime paso a paso cómo estructurar las carpetas en VS Code y qué herramientas base debo instalar para Node.js y React/Vue.
 
@@ -79,3 +79,211 @@ Si hiciste los pasos correctamente, en la barra lateral izquierda de tu VS Code 
 Con esto, los cimientos están puestos y el entorno está listo para empezar a recibir código real.
 
 **Decisión:** No tiene mucho misterio la instalación de la estructura base para que posteriormente funcione todo correctamente.
+
+## [00:00] Inicio de sesión
+
+**Prompt:** Aquí tienes los detalles de mi Diagrama de Clases (Alumnos, Profesores, Asistencias) para que empecemos a escribir el código de las tablas en la base de datos. + (Diagrama de Clases)
+
+**Resultado:** Aquí tienes la Fase 2 completa.
+
+### 1. Instalar e Inicializar Prisma
+Abre tu terminal integrada en VS Code. Asegúrate de estar dentro de tu carpeta /backend y ejecuta:
+
+```
+Bash
+# 1. Instalar Prisma como dependencia de desarrollo
+npm install prisma --save-dev
+
+# 2. Instalar el cliente de Prisma para interactuar con la DB después
+npm install @prisma/client
+
+# 3. Inicializar Prisma (esto crea la carpeta /prisma y el .env)
+npx prisma init
+```
+
+### 2. Configurar el Esquema de Base de Datos
+Abre el archivo recién creado backend/prisma/schema.prisma. Borra todo su contenido y pega exactamente este código. Este es tu UML traducido a un diseño relacional escalable:
+
+```
+Fragmento de código
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================================
+// ACTORES Y ROLES (Identity & Access)
+// ==========================================
+
+model SecretariaAcademica {
+  id         String      @id @default(uuid())
+  nombre     String
+  email      String      @unique
+  matriculas Matricula[]
+  dispensas  Dispensa[]
+  grados     Grado[]
+}
+
+model Profesor {
+  id                     String           @id @default(uuid())
+  nombre                 String
+  email                  String           @unique
+  asignaturas            Asignatura[]
+  asistenciasRegistradas Asistencia[]
+  
+  // Herencia de tu UML: Un Profesor puede ser DirectorDeGrado (1 a 1)
+  directorDeGrado        DirectorDeGrado?
+}
+
+model DirectorDeGrado {
+  id                 String     @id @default(uuid())
+  
+  profesorId         String     @unique
+  profesor           Profesor   @relation(fields: [profesorId], references: [id], onDelete: Cascade)
+  
+  gradosDirigidos    Grado[]
+  dispensasAprobadas Dispensa[]
+}
+
+model Alumno {
+  id             String       @id @default(uuid())
+  numeroRegistro String       @unique
+  nombre         String
+  email          String       @unique
+  
+  asignaturas    Asignatura[] // Relación M:N: Asignatura Tiene Alumno
+  matriculas     Matricula[]
+  dispensas      Dispensa[]
+  asistencias    Asistencia[] // Añadido por lógica de negocio
+}
+
+// ==========================================
+// DOMINIO ACADÉMICO (Core Business)
+// ==========================================
+
+model Grado {
+  id           String               @id @default(uuid())
+  nombre       String
+  
+  directorId   String?
+  director     DirectorDeGrado?     @relation(fields: [directorId], references: [id])
+  
+  secretariaId String?
+  secretaria   SecretariaAcademica? @relation(fields: [secretariaId], references: [id])
+  
+  asignaturas  Asignatura[]
+  matriculas   Matricula[]
+}
+
+model Asignatura {
+  id         String          @id @default(uuid())
+  nombre     String
+  
+  gradoId    String
+  grado      Grado           @relation(fields: [gradoId], references: [id])
+  
+  profesorId String
+  profesor   Profesor        @relation(fields: [profesorId], references: [id])
+  
+  alumnos    Alumno[]        // Relación M:N implicita
+  sesiones   SesionDeClase[]
+}
+
+model Matricula {
+  id           String              @id @default(uuid())
+  fecha        DateTime            @default(now())
+  
+  alumnoId     String
+  alumno       Alumno              @relation(fields: [alumnoId], references: [id])
+  
+  gradoId      String
+  grado        Grado               @relation(fields: [gradoId], references: [id])
+  
+  secretariaId String
+  secretaria   SecretariaAcademica @relation(fields: [secretariaId], references: [id])
+}
+
+// ==========================================
+// ASISTENCIA Y DISPENSAS (Transaccional)
+// ==========================================
+
+model SesionDeClase {
+  id           String       @id @default(uuid())
+  fecha        DateTime
+  
+  asignaturaId String
+  asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id])
+  
+  asistencias  Asistencia[]
+  
+  // Relación M:N: Una dispensa exime de una o más sesiones
+  dispensas    Dispensa[]   
+}
+
+model Asistencia {
+  id         String        @id @default(uuid())
+  presente   Boolean       @default(false)
+  fechaHora  DateTime      @default(now())
+  
+  sesionId   String
+  sesion     SesionDeClase @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  
+  alumnoId   String
+  alumno     Alumno        @relation(fields: [alumnoId], references: [id])
+  
+  profesorId String
+  profesor   Profesor      @relation(fields: [profesorId], references: [id])
+
+  // Restricción: Un alumno solo tiene un registro por sesión
+  @@unique([sesionId, alumnoId])
+}
+
+model Dispensa {
+  id               String              @id @default(uuid())
+  motivo           String
+  estado           EstadoDispensa      @default(PENDIENTE)
+  fechaSolicitud   DateTime            @default(now())
+  
+  alumnoId         String
+  alumno           Alumno              @relation(fields: [alumnoId], references: [id])
+  
+  secretariaId     String
+  secretaria       SecretariaAcademica @relation(fields: [secretariaId], references: [id])
+  
+  directorId       String?
+  director         DirectorDeGrado?    @relation(fields: [directorId], references: [id])
+  
+  sesionesEximidas SesionDeClase[]
+}
+
+enum EstadoDispensa {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+}
+```
+
+### 3. Conectar y Migrar a PostgreSQL
+Ve al archivo .env que se creó en tu carpeta /backend.
+
+Verás una variable llamada DATABASE_URL. Cámbiala por los datos de tu PostgreSQL local. Debe quedar similar a esto (cambia tu_contraseña por la tuya):
+
+```
+Fragmento de código
+DATABASE_URL="postgresql://postgres:tu_contraseña@localhost:5432/gestor_educativo?schema=public"
+```
+
+Ejecuta el comando mágico que leerá tu archivo schema.prisma, creará las tablas físicamente en tu base de datos y generará los tipos de TypeScript:
+
+```
+Bash
+npx prisma migrate dev --name inicializar_dominio
+```
+
+Si todo sale bien, la terminal te dirá “Your database is now in sync with your schema”.
+
+**Decisión:** Se han seguido los pasos de instalación de prisma en en backend para interactuar con la base de datos se intercambió el código de schema_prisma por el vibe code a partir del diagrama de clases

@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ==========================================
+// ACTORES Y ROLES (Identity & Access)
+// ==========================================
+
+model SecretariaAcademica {
+  id         String      @id @default(uuid())
+  nombre     String
+  email      String      @unique
+  matriculas Matricula[]
+  dispensas  Dispensa[]
+  grados     Grado[]
+}
+
+model Profesor {
+  id                     String           @id @default(uuid())
+  nombre                 String
+  email                  String           @unique
+  asignaturas            Asignatura[]
+  asistenciasRegistradas Asistencia[]
+  
+  // Herencia de tu UML: Un Profesor puede ser DirectorDeGrado (1 a 1)
+  directorDeGrado        DirectorDeGrado?
+}
+
+model DirectorDeGrado {
+  id                 String     @id @default(uuid())
+  
+  profesorId         String     @unique
+  profesor           Profesor   @relation(fields: [profesorId], references: [id], onDelete: Cascade)
+  
+  gradosDirigidos    Grado[]
+  dispensasAprobadas Dispensa[]
+}
+
+model Alumno {
+  id             String       @id @default(uuid())
+  numeroRegistro String       @unique
+  nombre         String
+  email          String       @unique
+  
+  asignaturas    Asignatura[] // Relación M:N: Asignatura Tiene Alumno
+  matriculas     Matricula[]
+  dispensas      Dispensa[]
+  asistencias    Asistencia[] // Añadido por lógica de negocio
+}
+
+// ==========================================
+// DOMINIO ACADÉMICO (Core Business)
+// ==========================================
+
+model Grado {
+  id           String               @id @default(uuid())
+  nombre       String
+  
+  directorId   String?
+  director     DirectorDeGrado?     @relation(fields: [directorId], references: [id])
+  
+  secretariaId String?
+  secretaria   SecretariaAcademica? @relation(fields: [secretariaId], references: [id])
+  
+  asignaturas  Asignatura[]
+  matriculas   Matricula[]
+}
+
+model Asignatura {
+  id         String          @id @default(uuid())
+  nombre     String
+  
+  gradoId    String
+  grado      Grado           @relation(fields: [gradoId], references: [id])
+  
+  profesorId String
+  profesor   Profesor        @relation(fields: [profesorId], references: [id])
+  
+  alumnos    Alumno[]        // Relación M:N implicita
+  sesiones   SesionDeClase[]
+}
+
+model Matricula {
+  id           String              @id @default(uuid())
+  fecha        DateTime            @default(now())
+  
+  alumnoId     String
+  alumno       Alumno              @relation(fields: [alumnoId], references: [id])
+  
+  gradoId      String
+  grado        Grado               @relation(fields: [gradoId], references: [id])
+  
+  secretariaId String
+  secretaria   SecretariaAcademica @relation(fields: [secretariaId], references: [id])
+}
+
+// ==========================================
+// ASISTENCIA Y DISPENSAS (Transaccional)
+// ==========================================
+
+model SesionDeClase {
+  id           String       @id @default(uuid())
+  fecha        DateTime
+  
+  asignaturaId String
+  asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id])
+  
+  asistencias  Asistencia[]
+  
+  // Relación M:N: Una dispensa exime de una o más sesiones
+  dispensas    Dispensa[]   
+}
+
+model Asistencia {
+  id         String        @id @default(uuid())
+  presente   Boolean       @default(false)
+  fechaHora  DateTime      @default(now())
+  
+  sesionId   String
+  sesion     SesionDeClase @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  
+  alumnoId   String
+  alumno     Alumno        @relation(fields: [alumnoId], references: [id])
+  
+  profesorId String
+  profesor   Profesor      @relation(fields: [profesorId], references: [id])
+
+  // Restricción: Un alumno solo tiene un registro por sesión
+  @@unique([sesionId, alumnoId])
+}
+
+model Dispensa {
+  id               String              @id @default(uuid())
+  motivo           String
+  estado           EstadoDispensa      @default(PENDIENTE)
+  fechaSolicitud   DateTime            @default(now())
+  
+  alumnoId         String
+  alumno           Alumno              @relation(fields: [alumnoId], references: [id])
+  
+  secretariaId     String
+  secretaria       SecretariaAcademica @relation(fields: [secretariaId], references: [id])
+  
+  directorId       String?
+  director         DirectorDeGrado?    @relation(fields: [directorId], references: [id])
+  
+  sesionesEximidas SesionDeClase[]
+}
+
+enum EstadoDispensa {
+  PENDIENTE
+  APROBADA
+  RECHAZADA
+}

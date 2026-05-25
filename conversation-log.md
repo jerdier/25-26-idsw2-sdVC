@@ -318,17 +318,3 @@ La fase consiste en la transformación de los requisitos abstractos en modelos c
 El sistema está diseñado para resolver la fragmentación de la información académica. La estructura de datos en los diagramas de clases proporciona una base sólida para el posterior diseño de la base de datos (Fase 2 de la hoja de ruta).
 
 **Decisión:** El análisis es exhaustivo y refleja fielmente la documentación de requisitos proporcionada. Esta base documental será la referencia única para las fases de Diseño e Implementación.
-
-## [22:00] Transición a Diseño y Estructuración RUP
-
-**Prompt:** He avanzado con la estructuración del proyecto siguiendo el modelo `pySigHor`. He descargado los diagramas del repositorio `enmabry/25-26-IdSw1-SdR` y los he organizado en una nueva estructura de carpetas RUP. Además, he creado una reflexión técnica sobre la transición de análisis a diseño y he definido los primeros contratos de la API para la Fase 3.
-
-**Resultado:** Se han realizado las siguientes acciones para profesionalizar la estructura del proyecto y avanzar en el desarrollo:
-
-1.  **Estructuración RUP**: Creación de la carpeta `/RUP` con las subcarpetas `01-analisis` y `02-diseño`, emulando el estándar del profesor en `pySigHor`.
-2.  **Incorporación de Activos Visuales**: Descarga automatizada de los diagramas de Clases, Estados, Objetos y Contexto desde el repositorio de diseño original a la carpeta `/images`.
-3.  **Reflexión Técnica**: Redacción de `documents/reflexion-tecnica.md` explicando las decisiones de implementación (UUIDs, mapeo relacional) tomadas durante la fase de base de datos (Prisma).
-4.  **Diseño de API (Fase 3)**: Definición de los endpoints REST en `RUP/02-diseño/API.md`, estableciendo la trazabilidad entre los casos de uso y las futuras rutas del servidor Node.js.
-5.  **Esqueleto del Backend**: Instalación de Express y configuración inicial de `src/index.ts` con una ruta de ejemplo conectada a Prisma, preparando el terreno para la implementación de los controladores.
-
-**Decisión:** La adopción del modelo RUP proporciona un marco de trabajo robusto que asegura que el código desarrollado en la Fase 3 responda directamente a los requisitos analizados, manteniendo la coherencia arquitectónica.

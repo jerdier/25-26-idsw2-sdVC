@@ -329,5 +329,6 @@ El sistema está diseñado para resolver la fragmentación de la información ac
 2.  **Incorporación de Activos Visuales**: Descarga automatizada de los diagramas de Clases, Estados, Objetos y Contexto desde el repositorio de diseño original a la carpeta `/images`.
 3.  **Reflexión Técnica**: Redacción de `documents/reflexion-tecnica.md` explicando las decisiones de implementación (UUIDs, mapeo relacional) tomadas durante la fase de base de datos (Prisma).
 4.  **Diseño de API (Fase 3)**: Definición de los endpoints REST en `RUP/02-diseño/API.md`, estableciendo la trazabilidad entre los casos de uso y las futuras rutas del servidor Node.js.
+5.  **Esqueleto del Backend**: Instalación de Express y configuración inicial de `src/index.ts` con una ruta de ejemplo conectada a Prisma, preparando el terreno para la implementación de los controladores.
 
 **Decisión:** La adopción del modelo RUP proporciona un marco de trabajo robusto que asegura que el código desarrollado en la Fase 3 responda directamente a los requisitos analizados, manteniendo la coherencia arquitectónica.

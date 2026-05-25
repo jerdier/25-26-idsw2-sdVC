@@ -319,7 +319,7 @@ El sistema está diseñado para resolver la fragmentación de la información ac
 
 **Decisión:** El análisis es exhaustivo y refleja fielmente la documentación de requisitos proporcionada. Esta base documental será la referencia única para las fases de Diseño e Implementación.
 
-## [10:30] Transición a Diseño y Estructuración RUP
+## [22:00] Transición a Diseño y Estructuración RUP
 
 **Prompt:** He avanzado con la estructuración del proyecto siguiendo el modelo `pySigHor`. He descargado los diagramas del repositorio `enmabry/25-26-IdSw1-SdR` y los he organizado en una nueva estructura de carpetas RUP. Además, he creado una reflexión técnica sobre la transición de análisis a diseño y he definido los primeros contratos de la API para la Fase 3.
 

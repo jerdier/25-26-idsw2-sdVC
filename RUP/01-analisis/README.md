@@ -4,13 +4,13 @@
 A continuación se presentan los diagramas conceptuales que definen el comportamiento y la estructura del sistema CGU, extraídos del análisis de requisitos.
 
 ### Diagrama de Clases
-![Diagrama de Clases](../../images/DiagramaDeClases.png)
+![Diagrama de Clases](../../images/DiagramaClases.svg)
 
 ### Diagrama de Estados (Dispensas)
-![Diagrama de Estados](../../images/DiagramaDeEstados.png)
+![Diagrama de Estados](../../images/DiagramaDeEstados.svg)
 
 ### Diagrama de Contexto
-![Diagrama de Contexto](../../images/DiagramaDeContexto.png)
+![Diagrama de Contexto](../../images/DiagramaDeContexto.svg)
 
 ## Actores del Sistema
 1. **Secretaría**: Gestión de alumnos y matrículas.

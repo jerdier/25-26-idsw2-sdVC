@@ -80,7 +80,7 @@ Con esto, los cimientos están puestos y el entorno está listo para empezar a r
 
 **Decisión:** No tiene mucho misterio la instalación de la estructura base para que posteriormente funcione todo correctamente.
 
-## [00:00] Inicio de sesión
+## [19:00] Inicio de sesión
 
 **Prompt:** Aquí tienes los detalles de mi Diagrama de Clases (Alumnos, Profesores, Asistencias) para que empecemos a escribir el código de las tablas en la base de datos. + (Diagrama de Clases)
 
@@ -288,7 +288,7 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 
 **Decisión:** Se han seguido los pasos de instalación de prisma en en backend para interactuar con la base de datos se intercambió el código de schema_prisma por el vibe code a partir del diagrama de clases
 
-## [18:00] Fase de Análisis
+## [23:50] Fase de Análisis
 
 **Prompt:** Iniciamos la Fase de Análisis. Por favor, analiza el repositorio `enmabry/25-26-IdSw1-SdR`, que contiene la documentación y diagramas de requisitos del sistema 'Centro de Gestión Universitaria (CGU)'. Resume en qué consistirá esta fase de análisis, identifica los actores principales, los casos de uso clave y la estructura de datos reflejada en sus diagramas UML (clases, estados, etc.). Usa como referencia el estilo de documentación de `pySigHor`.
 

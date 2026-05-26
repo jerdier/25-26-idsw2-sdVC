@@ -153,7 +153,7 @@ model Alumno {
   id             String       @id @default(uuid())
   numeroRegistro String       @unique
   nombre         String
-  email          String       @unique
+  email      String      @unique
   
   asignaturas    Asignatura[] // Relación M:N: Asignatura Tiene Alumno
   matriculas     Matricula[]
@@ -288,33 +288,16 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 
 **Decisión:** Se han seguido los pasos de instalación de prisma en en backend para interactuar con la base de datos se intercambió el código de schema_prisma por el vibe code a partir del diagrama de clases
 
-## [23:50] Fase de Análisis
+## [22:10] Análisis de Objetos y Flujos Críticos
 
-**Prompt:** Iniciamos la Fase de Análisis. Por favor, analiza el repositorio `enmabry/25-26-IdSw1-SdR`, que contiene la documentación y diagramas de requisitos del sistema 'Centro de Gestión Universitaria (CGU)'. Resume en qué consistirá esta fase de análisis, identifica los actores principales, los casos de uso clave y la estructura de datos reflejada en sus diagramas UML (clases, estados, etc.). Usa como referencia el estilo de documentación de `pySigHor`.
+**Prompt:** Vamos a profundizar en la Fase de Análisis del sistema CGU, tomando como referencia los diagramas UML detallados. Analiza específicamente el caso de uso 'Registrar Toma de Asistencia' y 'Crear Solicitud de Dispensa', identificando los componentes de vista, control y lógica necesarios. Organiza también los diagramas analizados para que todo esté en orden.
 
-**Resultado:** Tras analizar el repositorio de referencia, se ha estructurado la Fase de Análisis para el sistema **CGU**. Esta fase se centra en definir el "QUÉ" del sistema, abstrayendo la lógica de negocio de la implementación técnica, siguiendo el modelo de trazabilidad de `pySigHor`.
+**Resultado:** Se ha completado el análisis detallado de los procesos centrales del sistema, transformando los requisitos visuales en una estructura de objetos coherente y preparada para el diseño técnico.
 
-### Resumen de la Fase de Análisis:
-La fase consiste en la transformación de los requisitos abstractos en modelos conceptuales sólidos. Se han analizado los siguientes componentes en `enmabry/25-26-IdSw1-SdR`:
+1.  **Resultados del Análisis**:
+    *   **Gestión de Asistencia**: El análisis ha revelado la necesidad de una sincronización precisa entre la sesión de clase activa y el listado de alumnos. Se han definido las responsabilidades del componente de control para manejar la persistencia inmediata y la validación de roles, asegurando que solo el usuario autorizado pueda realizar modificaciones.
+    *   **Tratamiento de Dispensas**: Se ha mapeado el ciclo de vida completo de una solicitud. El análisis determina que el sistema debe actuar como un gestor de estados, donde la transición inicial requiere no solo el ingreso de datos, sino la vinculación obligatoria con las sesiones de clase afectadas y la validación de la identidad del solicitante.
+2.  **Organización de Activos**: Se han clasificado y organizado todos los diagramas técnicos por categorías funcionales, asegurando que cada fase del análisis cuente con el respaldo visual necesario de los diagramas originales del proyecto.
+3.  **Arquitectura de Objetos**: Se ha consolidado la separación de responsabilidades entre la interfaz de usuario, la lógica de coordinación y las entidades del dominio, garantizando que el sistema sea escalable y robusto.
 
-1.  **Identificación de Actores (`documents/CasosDeUso/Actores`):**
-    *   **Secretaría:** Responsable de la carga administrativa y gestión de inscripciones.
-    *   **Dirección de Grado:** Autoridad para la validación de historiales y aprobación de dispensas.
-    *   **Docentes:** Usuarios operativos que gestionan la asistencia diaria.
-    *   **Estudiantes:** Beneficiarios del sistema y origen de las solicitudes de dispensa.
-
-2.  **Casos de Uso Principales (`documents/CasosDeUso/`):**
-    *   **Gestión de Inscripciones:** Manejo de altas/bajas dinámicas de alumnos.
-    *   **Registro de Asistencia:** Sistema optimizado para múltiples asignaturas.
-    *   **Tramitación de Dispensas:** Flujo de justificación de inasistencias.
-    *   **Validación Académica:** Verificación automática de correlatividades y requisitos.
-
-3.  **Modelo de Dominio y UML (`documents/ModeloDelDominio/`):**
-    *   **Diagrama de Clases:** Define las entidades núcleo (`Estudiante`, `Profesor`, `Asignatura`, `Asistencia`, `Dispensa`) y sus relaciones relacionales.
-    *   **Diagrama de Estados:** Define el ciclo de vida crítico de las **Dispensas** (ej. *Pendiente -> Revisada -> Aprobada/Rechazada*).
-    *   **Diagrama de Contexto:** Establece los límites del CGU con otros sistemas institucionales.
-
-### Conclusión del Análisis:
-El sistema está diseñado para resolver la fragmentación de la información académica. La estructura de datos en los diagramas de clases proporciona una base sólida para el posterior diseño de la base de datos (Fase 2 de la hoja de ruta).
-
-**Decisión:** El análisis es exhaustivo y refleja fielmente la documentación de requisitos proporcionada. Esta base documental será la referencia única para las fases de Diseño e Implementación.
+**Decisión:** Con el análisis de estos flujos críticos terminado, se establece una base conceptual sólida. El siguiente paso es extender este rigor al resto de funcionalidades para cerrar el mapa completo del sistema antes de pasar a la fase de diseño técnico.

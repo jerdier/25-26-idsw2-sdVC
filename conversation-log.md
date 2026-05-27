@@ -316,3 +316,20 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
     *   Se ha verificado la trazabilidad entre el modelo de dominio original y todas las clases de análisis identificadas. El sistema ahora cuenta con un mapa completo de responsabilidades (MVC-A) para cada actor, garantizando que no existan lagunas funcionales.
 
 **Decisión:** La Fase de Análisis se da por concluida. El sistema está conceptualmente cerrado y validado. La siguiente etapa obligatoria es la **Transición al Diseño Técnico**, donde transformaremos estos modelos abstractos en especificaciones de implementación (contratos de API, tipos de datos y diagramas de secuencia de diseño).
+
+## [22:35] Inicio de la Fase de Diseño Técnico
+
+**Prompt:** Vamos a comenzar la siguiente fase tras el análisis. Divide esta nueva etapa en partes estructuradas y comienza con la primera de ellas para avanzar en el desarrollo.
+
+**Resultado:** Se ha dado inicio formal a la **Fase de Diseño Técnico**, el puente crítico entre el análisis conceptual y la codificación final. Esta fase se ha estructurado en tres bloques fundamentales:
+
+1.  **Parte 1: Especificación de Contratos de API**: Definición de los endpoints REST, métodos y estructuras de datos (JSON) para todos los casos de uso analizados.
+2.  **Parte 2: Diseño de la Capa de Datos y Tipado**: Refinamiento del esquema de Prisma y definición de los tipos de TypeScript para asegurar la integridad de extremo a extremo.
+3.  **Parte 3: Arquitectura de Software y Lógica de Negocio**: Diseño de los servicios y controladores reales, estableciendo el flujo de datos entre el servidor Express y la base de datos PostgreSQL.
+
+**Ejecución de la Parte 1**:
+*   Se ha creado el directorio `documents/diseno/` para centralizar los artefactos técnicos.
+*   Se ha redactado el archivo `API.md` con la especificación técnica de los módulos de **Asistencia**, **Dispensas** y **Secretaría**.
+*   Se han definido los contratos para acciones clave como el registro de asistencia mediante `upsert` y la gestión transaccional de solicitudes de dispensa vinculadas a múltiples sesiones.
+
+**Decisión:** Con los contratos de la API definidos, el equipo tiene ahora un "plano" exacto de qué servicios debe exponer el backend. La siguiente sub-fase se centrará en el diseño detallado de los tipos de datos y las validaciones de esquema necesarias antes de la implementación.

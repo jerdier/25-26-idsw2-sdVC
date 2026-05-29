@@ -333,3 +333,19 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 *   Se han definido los contratos para acciones clave como el registro de asistencia mediante `upsert` y la gestión transaccional de solicitudes de dispensa vinculadas a múltiples sesiones.
 
 **Decisión:** Con los contratos de la API definidos, el equipo tiene ahora un "plano" exacto de qué servicios debe exponer el backend. La siguiente sub-fase se centrará en el diseño detallado de los tipos de datos y las validaciones de esquema necesarias antes de la implementación.
+
+## [12:10] Finalización de la Parte 2 del Diseño Técnico (Capa de Datos y Tipado)
+
+**Prompt:** Continúa con la parte 2 del Diseño Técnico.
+
+**Resultado:** Se ha completado el diseño y refinamiento de la capa de datos y el sistema de tipado:
+
+1.  **Refinamiento de Prisma**:
+    *   Se han añadido campos de auditoría (`createdAt`, `updatedAt`) a todos los modelos principales.
+    *   Se han definido reglas de integridad referencial: `onDelete: Cascade` para relaciones dependientes (ej. Alumno -> Matrícula) y `onDelete: Restrict` para relaciones maestras (ej. Profesor -> Asignatura).
+    *   Se ha corregido la configuración del datasource para usar variables de entorno.
+2.  **Especificación de Tipado (DTOs)**:
+    *   Se ha creado `documents/diseño/Tipos.md` con la definición técnica de los Data Transfer Objects para peticiones y respuestas.
+    *   Se ha implementado físicamente el archivo `backend/src/types/index.ts` con estas interfaces para su uso inmediato en el código.
+
+**Decisión:** Con la base de datos y los tipos de datos blindados, el proyecto está listo para la **Parte 3: Arquitectura de Software y Lógica de Negocio**, donde se definirán los servicios y controladores reales del backend.

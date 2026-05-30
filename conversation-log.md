@@ -362,5 +362,17 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 
 **Decisión:** La arquitectura base está lista para empezar a recibir reglas de negocio complejas y validaciones avanzadas en la siguiente fase.
 
+## [16:20] Inicio de sesión
+
+**Prompt:** ahora la parte 4
+
+**Resultado:** Fase 4 (Frontend) iniciada.
+- Instalación de dependencias base: vue-router y axios.
+- Configuración de arquitectura de carpetas (views, services, router).
+- Implementación de sistema de rutas base y navegación por roles simulada.
+
+**Decisión:** El frontend está estructurado y listo para empezar a consumir los servicios del backend creados en la fase anterior.
+
+
 
 

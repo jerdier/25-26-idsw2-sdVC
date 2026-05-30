@@ -1,24 +1,27 @@
-import express from 'express';
-import { PrismaClient } from '@prisma/client';
+import express, { Request, Response, NextFunction } from 'express';
+import attendanceRoutes from './routes/attendanceRoutes';
+import dispensaRoutes from './routes/dispensaRoutes';
 
 const app = express();
-const prisma = new PrismaClient();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 
-// Placeholder route for Alumnos (Fase 3: Diseño de API)
-app.get('/api/alumnos', async (req, res) => {
-  try {
-    const alumnos = await prisma.alumno.findMany();
-    res.json(alumnos);
-  } catch (error) {
-    res.status(500).json({ error: 'Error al obtener alumnos' });
-  }
+// --- Rutas ---
+app.use('/api/attendance', attendanceRoutes);
+app.use('/api/dispensas', dispensaRoutes);
+
+app.get('/', (req: Request, res: Response) => {
+  res.send('API de CGU funcionando (Fase 3: Arquitectura Implementada)');
 });
 
-app.get('/', (req, res) => {
-  res.send('API de CGU funcionando (Fase 3)');
+// --- Middleware de Manejo de Errores Global ---
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Ha ocurrido un error inesperado en el servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 app.listen(PORT, () => {

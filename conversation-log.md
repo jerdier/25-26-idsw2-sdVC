@@ -364,14 +364,22 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 
 ## [16:20] Inicio de sesión
 
-**Prompt:** ahora la parte 4
-
 **Resultado:** Fase 4 (Frontend) iniciada.
 - Instalación de dependencias base: vue-router y axios.
 - Configuración de arquitectura de carpetas (views, services, router).
 - Implementación de sistema de rutas base y navegación por roles simulada.
 
 **Decisión:** El frontend está estructurado y listo para empezar a consumir los servicios del backend creados en la fase anterior.
+
+## [19:00] Inicio de Implementación Vertical
+
+**Prompt:** Prepara la conexión del frontend con la API para el módulo de asistencias. Asegúrate de que el frontend conozca la estructura de datos que usa el backend y crea un servicio que envíe y reciba los datos de las clases.
+
+**Resultado:** Se recomienda realizar una **"Vertical Slice"** (Rebanada Vertical) comenzando por el módulo de Asistencia. Esto permite validar la arquitectura completa (DB -> API -> Frontend) con una funcionalidad real antes de escalar al resto del sistema.
+1. **Sincronización de Tipado:** Se han replicado las interfaces de TypeScript del backend en el frontend (`frontend/src/types/index.ts`) para garantizar la seguridad de tipos.
+2. **Servicio de Asistencia (Frontend):** Se ha creado `attendanceService.ts` para gestionar las llamadas a la API.
+
+**Decisión:** Iniciar la conexión del flujo completo de toma de asistencia, identificando como paso previo necesario la creación de un servicio de sesiones en el backend.
 
 
 

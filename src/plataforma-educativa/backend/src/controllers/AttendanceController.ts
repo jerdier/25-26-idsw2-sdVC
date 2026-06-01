@@ -17,7 +17,7 @@ export class AttendanceController {
   async getAttendanceBySession(req: Request, res: Response) {
     try {
       const { sesionId } = req.params;
-      const attendance = await attendanceService.getAttendanceBySession(sesionId);
+      const attendance = await attendanceService.getAttendanceBySession(sesionId as string);
       res.status(200).json(attendance);
     } catch (error: any) {
       res.status(500).json({ 

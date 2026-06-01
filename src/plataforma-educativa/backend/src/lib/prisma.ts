@@ -1,7 +1,21 @@
+import { Pool } from 'pg';
+import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 
 const prismaClientSingleton = () => {
-  return new PrismaClient();
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    throw new Error('DATABASE_URL is not defined');
+  }
+
+  // Usamos el connectionString directamente, que es lo más fiable para pg
+  const pool = new Pool({ 
+    connectionString,
+    ssl: false 
+  });
+
+  const adapter = new PrismaPg(pool);
+  return new PrismaClient({ adapter });
 };
 
 type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
 import attendanceRoutes from './routes/attendanceRoutes';
 import dispensaRoutes from './routes/dispensaRoutes';

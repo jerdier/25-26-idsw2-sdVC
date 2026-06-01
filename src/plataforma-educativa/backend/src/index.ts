@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import attendanceRoutes from './routes/attendanceRoutes';
 import dispensaRoutes from './routes/dispensaRoutes';
+import academicRoutes from './routes/academicRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -10,6 +11,7 @@ app.use(express.json());
 // --- Rutas ---
 app.use('/api/attendance', attendanceRoutes);
 app.use('/api/dispensas', dispensaRoutes);
+app.use('/api/academic', academicRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('API de CGU funcionando (Fase 3: Arquitectura Implementada)');

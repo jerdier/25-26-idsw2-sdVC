@@ -381,6 +381,17 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 
 **Decisión:** Iniciar la conexión del flujo completo de toma de asistencia, identificando como paso previo necesario la creación de un servicio de sesiones en el backend.
 
+## [16:30] Lunes, 1 de junio de 2026 - Finalización de la Vertical Slice de Asistencia
 
+**Prompt:** Implementa la conexión completa del módulo de asistencia, incluyendo la lógica de sesiones y la interfaz del profesor.
 
+**Resultado:** Se ha completado el primer flujo funcional de extremo a extremo (Vertical Slice) del sistema CGU:
+1.  **Backend (Core Académico):** Se ha creado `AcademicService.ts` y sus rutas correspondientes para gestionar la relación entre Profesores, Asignaturas, Alumnos y Sesiones de Clase.
+2.  **Frontend (UI Funcional):** Se ha transformado el `ProfessorDashboard.vue` de un placeholder a una herramienta real. Ahora permite:
+    *   Seleccionar asignaturas asignadas al profesor.
+    *   Crear nuevas sesiones de clase dinámicamente.
+    *   Visualizar el listado de alumnos inscritos.
+    *   Registrar la asistencia mediante un sistema de persistencia inmediata (upsert).
+3.  **Integración:** Se ha verificado la comunicación entre Vue 3 y la API de Express, asegurando que los tipos de datos (DTOs) coincidan en ambos extremos.
 
+**Decisión:** Con la arquitectura validada mediante este flujo real, el sistema está listo para escalar al módulo de **Dispensas** y la gestión de **Secretaría**. Se ha demostrado que el patrón de Servicios/Controladores es efectivo para la lógica del negocio.

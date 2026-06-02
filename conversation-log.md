@@ -395,3 +395,21 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 3.  **Integración:** Se ha verificado la comunicación entre Vue 3 y la API de Express, asegurando que los tipos de datos (DTOs) coincidan en ambos extremos.
 
 **Decisión:** Con la arquitectura validada mediante este flujo real, el sistema está listo para escalar al módulo de **Dispensas** y la gestión de **Secretaría**. Se ha demostrado que el patrón de Servicios/Controladores es efectivo para la lógica del negocio.
+
+## [21:50] Mantenimiento de Infraestructura y Módulo de Dispensas
+
+**Prompt:** Realiza una estabilización técnica del entorno corrigiendo los errores de tipos de Node en TypeScript, vacía la base de datos para limpiar el entorno de pruebas y comienza con el desarrollo del Módulo de Dispensas, implementando el servicio en el frontend y la interfaz de solicitud para el alumno.
+
+**Resultado:** Se ha realizado una estabilización técnica profunda y se ha iniciado el siguiente módulo crítico:
+
+1.  **Estabilización del Entorno (Node/TS)**:
+    *   Se ha resuelto el conflicto de tipos de Node en el backend instalando `@types/node` y ajustando `tsconfig.json`.
+    *   Se han corregido errores de ejecución en scripts de terminal causados por la sintaxis de PowerShell.
+2.  **Limpieza de Datos**:
+    *   Se ha vaciado completamente la base de datos PostgreSQL mediante un script de limpieza controlado, eliminando todos los registros de prueba para iniciar una fase de datos reales/limpios.
+    *   Se ha regenerado el Cliente de Prisma para asegurar la integridad de las consultas.
+3.  **Inicio del Módulo de Dispensas**:
+    *   **Backend**: Validación del `DispensaService` y controladores existentes.
+    *   **Frontend**: Implementación del `dispensaService.ts` para gestionar las solicitudes, consultas y cambios de estado desde la UI.
+
+**Decisión:** Con la infraestructura "saneada" y el servicio de conexión listo, el siguiente paso es la creación de la interfaz de usuario para que el alumno pueda solicitar dispensas y el director gestionarlas, aplicando la lógica de estados (PENDIENTE, APROBADA, RECHAZADA).

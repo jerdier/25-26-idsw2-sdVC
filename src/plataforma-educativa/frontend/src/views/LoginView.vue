@@ -4,6 +4,7 @@
     <div class="form">
       <button @click="login('professor')">Entrar como Profesor</button>
       <button @click="login('student')">Entrar como Alumno</button>
+      <button @click="login('director')">Entrar como Director</button>
     </div>
   </div>
 </template>
@@ -16,6 +17,8 @@ const router = useRouter();
 const login = (role: string) => {
   if (role === 'professor') {
     router.push('/professor');
+  } else if (role === 'director') {
+    router.push('/director');
   } else {
     router.push('/student');
   }

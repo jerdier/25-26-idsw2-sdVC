@@ -38,6 +38,7 @@ async function main() {
 
   const prof2 = await prisma.profesor.create({
     data: {
+      id: 'mock-director-prof-id',
       nombre: 'Dra. María García',
       email: 'maria.garcia@universidad.edu',
     },
@@ -46,6 +47,7 @@ async function main() {
   // 3. Crear Director de Grado
   const director = await prisma.directorDeGrado.create({
     data: {
+      id: 'mock-director-id',
       profesorId: prof2.id,
     },
   });

@@ -64,6 +64,36 @@ export interface UpdateDispensaStatusDTO {
   directorId: string;
 }
 
+// Secretaria DTOs
+export interface CreateAlumnoDTO {
+  nombre: string;
+  email: string;
+  numeroRegistro: string;
+}
+
+export interface CreateProfesorDTO {
+  nombre: string;
+  email: string;
+}
+
+export interface CreateGradoDTO {
+  nombre: string;
+  directorId?: string;
+}
+
+export interface CreateMatriculaDTO {
+  alumnoId: string;
+  gradoId: string;
+  secretariaId: string;
+}
+
+export interface SecretariaStats {
+  alumnos: number;
+  profesores: number;
+  grados: number;
+  dispensasPendientes: number;
+}
+
 // ==========================================
 // DTOs DE SALIDA (Responses)
 // ==========================================

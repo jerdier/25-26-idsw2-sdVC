@@ -29,6 +29,11 @@ const router = createRouter({
       name: 'director-dashboard',
       component: () => import('../views/DirectorDashboard.vue'),
     },
+    {
+      path: '/secretaria',
+      name: 'secretaria-dashboard',
+      component: () => import('../views/SecretariaDashboard.vue'),
+    },
   ],
 });
 

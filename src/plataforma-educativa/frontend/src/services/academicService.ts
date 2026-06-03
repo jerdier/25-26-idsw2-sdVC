@@ -18,6 +18,14 @@ export const academicService = {
   },
 
   /**
+   * Obtiene las sesiones de una asignatura (alias para compatibilidad)
+   */
+  async getSesionesByAsignatura(asignaturaId: string) {
+    const response = await api.get(`/academic/asignatura/${asignaturaId}/sessions`);
+    return response.data;
+  },
+
+  /**
    * Obtiene las sesiones de una asignatura
    */
   async getSessions(asignaturaId: string) {

@@ -1,5 +1,5 @@
 import api from './api';
-import { CreateDispensaDTO, Dispensa } from '../types';
+import type { CreateDispensaDTO, Dispensa } from '../types';
 
 export class DispensaService {
   /**

@@ -1,5 +1,5 @@
 import api from './api';
-import { CreateAttendanceDTO, AttendanceResponseDTO } from '../types';
+import type { CreateAttendanceDTO, AttendanceResponseDTO } from '../types';
 
 export const attendanceService = {
   /**

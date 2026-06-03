@@ -1,0 +1,13 @@
+{
+  "name": "cgu-root",
+  "version": "1.0.0",
+  "description": "Lanzador global para el proyecto CGU",
+  "scripts": {
+    "dev:backend": "npm run dev --prefix src/plataforma-educativa/backend",
+    "dev:frontend": "npm run dev --prefix src/plataforma-educativa/frontend",
+    "dev": "npm run dev:backend & npm run dev:frontend"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

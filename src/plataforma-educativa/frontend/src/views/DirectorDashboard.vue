@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { dispensaService } from '../services/dispensaService';
-import { Dispensa } from '../types';
+import type { Dispensa } from '../types';
 
 const MOCK_DIRECTOR_ID = 'mock-director-id';
 

@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { academicService } from '../services/academicService';
 import { dispensaService } from '../services/dispensaService';
-import { SesionDeClase, CreateDispensaDTO } from '../types';
+import type { SesionDeClase, CreateDispensaDTO } from '../types';
 
 // IDs de prueba (Normalmente vendrían de un sistema de Auth)
 const MOCK_ALUMNO_ID = 'mock-alumno-id'; 

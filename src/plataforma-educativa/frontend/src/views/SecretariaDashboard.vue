@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { secretariaService } from '../services/secretariaService';
-import { Alumno, Profesor, SecretariaStats } from '../types';
+import type { Alumno, Profesor, SecretariaStats, CreateAlumnoDTO } from '../types';
 
+// Estado del Dashboard
 const stats = ref<SecretariaStats>({
   alumnos: 0,
   profesores: 0,
@@ -12,11 +13,18 @@ const stats = ref<SecretariaStats>({
 
 const alumnos = ref<Alumno[]>([]);
 const profesores = ref<Profesor[]>([]);
+const grados = ref<any[]>([]);
 const activeTab = ref('overview');
 const loading = ref(true);
 
-const nuevoAlumno = ref({ nombre: '', email: '', numeroRegistro: '' });
+// Formularios
+const nuevoAlumno = ref<CreateAlumnoDTO>({ nombre: '', email: '', numeroRegistro: '' });
 const mensaje = ref({ texto: '', tipo: '' });
+
+// Datos para Matrículas (Simulados o cargados de la DB)
+const selectedAlumno = ref('');
+const selectedGrado = ref('');
+const MOCK_SECRETARIA_ID = 'mock-secretaria-id';
 
 const cargarDatos = async () => {
   loading.value = true;
@@ -29,6 +37,12 @@ const cargarDatos = async () => {
     stats.value = s;
     alumnos.value = a;
     profesores.value = p;
+    
+    // Grados de ejemplo (En una app real vendrían del servicio)
+    grados.value = [
+      { id: '1', nombre: 'Ingeniería de Software' },
+      { id: '2', nombre: 'Administración de Empresas' }
+    ];
   } catch (error) {
     console.error('Error cargando datos de secretaría:', error);
   } finally {
@@ -48,68 +62,118 @@ const registrarAlumno = async () => {
     mensaje.value = { texto: 'Error al registrar alumno', tipo: 'error' };
   }
 };
+
+const matricular = async () => {
+  if (!selectedAlumno.value || !selectedGrado.value) return;
+  try {
+    await secretariaService.createMatricula({
+      alumnoId: selectedAlumno.value,
+      gradoId: selectedGrado.value,
+      secretariaId: MOCK_SECRETARIA_ID
+    });
+    mensaje.value = { texto: 'Matrícula realizada correctamente', tipo: 'success' };
+    await cargarDatos();
+  } catch (error) {
+    mensaje.value = { texto: 'Error al matricular', tipo: 'error' };
+  }
+};
+
+const handleImport = () => {
+  alert('Funcionalidad de importación masiva: Seleccionando archivo CSV/Excel...');
+};
 </script>
 
 <template>
   <div class="secretaria-dashboard">
     <header class="header">
-      <h1>Panel de Secretaría Académica</h1>
-      <p>Gestión centralizada de alumnos, profesores y matrículas</p>
+      <div class="header-content">
+        <h1>Centro de Gestión Universitaria</h1>
+        <p class="role-badge">SECRETARÍA ACADÉMICA</p>
+      </div>
+      <div class="actions">
+        <button @click="handleImport" class="btn-secondary">Importar Alumnos (CSV)</button>
+        <button @click="cargarDatos" class="btn-refresh">Actualizar</button>
+      </div>
     </header>
 
     <nav class="tabs">
       <button @click="activeTab = 'overview'" :class="{ active: activeTab === 'overview' }">Vista General</button>
-      <button @click="activeTab = 'alumnos'" :class="{ active: activeTab === 'alumnos' }">Alumnos</button>
-      <button @click="activeTab = 'profesores'" :class="{ active: activeTab === 'profesores' }">Profesores</button>
+      <button @click="activeTab = 'alumnos'" :class="{ active: activeTab === 'alumnos' }">Gestión de Alumnos</button>
+      <button @click="activeTab = 'matriculas'" :class="{ active: activeTab === 'matriculas' }">Matriculaciones</button>
+      <button @click="activeTab = 'profesores'" :class="{ active: activeTab === 'profesores' }">Docentes</button>
     </nav>
 
     <main class="content">
-      <!-- VISTA GENERAL -->
+      <div v-if="loading" class="loading-overlay">Cargando información del sistema...</div>
+
+      <!-- VISTA GENERAL (PROTOTIPO DASHBOARD) -->
       <section v-if="activeTab === 'overview'" class="stats-grid">
         <div class="stat-card">
-          <h3>Alumnos</h3>
-          <p class="value">{{ stats.alumnos }}</p>
+          <div class="icon">👥</div>
+          <div class="info">
+            <span class="label">Alumnos Totales</span>
+            <span class="value">{{ stats.alumnos }}</span>
+          </div>
         </div>
         <div class="stat-card">
-          <h3>Profesores</h3>
-          <p class="value">{{ stats.profesores }}</p>
+          <div class="icon">👨‍🏫</div>
+          <div class="info">
+            <span class="label">Cuerpo Docente</span>
+            <span class="value">{{ stats.profesores }}</span>
+          </div>
         </div>
         <div class="stat-card">
-          <h3>Grados</h3>
-          <p class="value">{{ stats.grados }}</p>
+          <div class="icon">🎓</div>
+          <div class="info">
+            <span class="label">Grados Activos</span>
+            <span class="value">{{ stats.grados }}</span>
+          </div>
         </div>
-        <div class="stat-card warning">
-          <h3>Dispensas Pendientes</h3>
-          <p class="value">{{ stats.dispensasPendientes }}</p>
+        <div class="stat-card alert-stat" :class="{ 'has-pending': stats.dispensasPendientes > 0 }">
+          <div class="icon">📝</div>
+          <div class="info">
+            <span class="label">Dispensas Pendientes</span>
+            <span class="value">{{ stats.dispensasPendientes }}</span>
+          </div>
         </div>
       </section>
 
-      <!-- GESTIÓN DE ALUMNOS -->
-      <section v-if="activeTab === 'alumnos'" class="management-section">
+      <!-- GESTIÓN DE ALUMNOS (RegistroMatriculaView parcial) -->
+      <section v-if="activeTab === 'alumnos'" class="management-grid">
         <div class="card form-card">
-          <h2>Registrar Nuevo Alumno</h2>
-          <form @submit.prevent="registrarAlumno" class="form">
-            <input v-model="nuevoAlumno.nombre" placeholder="Nombre completo" required />
-            <input v-model="nuevoAlumno.email" type="email" placeholder="Correo electrónico" required />
-            <input v-model="nuevoAlumno.numeroRegistro" placeholder="Número de Registro (Ej: ALU001)" required />
-            <button type="submit" class="btn-primary">Registrar Alumno</button>
+          <h3>Registro de Identidad</h3>
+          <p class="form-desc">Alta de nuevos estudiantes en la base de datos central.</p>
+          <form @submit.prevent="registrarAlumno" class="form-vertical">
+            <div class="field">
+              <label>Nombre Completo</label>
+              <input v-model="nuevoAlumno.nombre" placeholder="Ej: Juan Pérez" required />
+            </div>
+            <div class="field">
+              <label>Email Académico</label>
+              <input v-model="nuevoAlumno.email" type="email" placeholder="email@universidad.edu" required />
+            </div>
+            <div class="field">
+              <label>Número de Registro</label>
+              <input v-model="nuevoAlumno.numeroRegistro" placeholder="ALUXXXX" required />
+            </div>
+            <button type="submit" class="btn-primary">Añadir a Base de Datos</button>
           </form>
           <div v-if="mensaje.texto" :class="['alert', mensaje.tipo]">{{ mensaje.texto }}</div>
         </div>
 
-        <div class="card list-card">
-          <h2>Listado de Alumnos</h2>
+        <div class="card table-card">
+          <h3>Registros Recientes</h3>
           <table class="data-table">
             <thead>
               <tr>
-                <th>Registro</th>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Email</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="alumno in alumnos" :key="alumno.id">
-                <td>{{ alumno.numeroRegistro }}</td>
+                <td class="code">{{ alumno.numeroRegistro }}</td>
                 <td>{{ alumno.nombre }}</td>
                 <td>{{ alumno.email }}</td>
               </tr>
@@ -118,25 +182,52 @@ const registrarAlumno = async () => {
         </div>
       </section>
 
-      <!-- GESTIÓN DE PROFESORES -->
-      <section v-if="activeTab === 'profesores'" class="management-section">
-        <div class="card list-card">
-          <h2>Listado de Profesores</h2>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="profesor in profesores" :key="profesor.id">
-                <td>{{ profesor.nombre }}</td>
-                <td>{{ profesor.email }}</td>
-              </tr>
-            </tbody>
-          </table>
+      <!-- MATRICULACIONES (GestionarMatriculas logic) -->
+      <section v-if="activeTab === 'matriculas'" class="matriculas-section">
+        <div class="card wide-card">
+          <h3>Vincular Alumno a Grado (Matriculación)</h3>
+          <div class="matricula-controls">
+            <div class="field">
+              <label>Seleccionar Estudiante</label>
+              <select v-model="selectedAlumno">
+                <option value="">Seleccione un alumno...</option>
+                <option v-for="a in alumnos" :key="a.id" :value="a.id">{{ a.nombre }} ({{ a.numeroRegistro }})</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Grado Académico</label>
+              <select v-model="selectedGrado">
+                <option value="">Seleccione un grado...</option>
+                <option v-for="g in grados" :key="g.id" :value="g.id">{{ g.nombre }}</option>
+              </select>
+            </div>
+            <button @click="matricular" class="btn-action" :disabled="!selectedAlumno || !selectedGrado">
+              Confirmar Matrícula
+            </button>
+          </div>
+          <div v-if="mensaje.texto" :class="['alert', mensaje.tipo]">{{ mensaje.texto }}</div>
         </div>
+      </section>
+
+      <!-- DOCENTES -->
+      <section v-if="activeTab === 'profesores'" class="card">
+        <h3>Listado del Cuerpo Docente</h3>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="profesor in profesores" :key="profesor.id">
+              <td>{{ profesor.nombre }}</td>
+              <td>{{ profesor.email }}</td>
+              <td><span class="status-active">Activo</span></td>
+            </tr>
+          </tbody>
+        </table>
       </section>
     </main>
   </div>
@@ -146,110 +237,157 @@ const registrarAlumno = async () => {
 .secretaria-dashboard {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  color: #2c3e50;
 }
 
 .header {
-  margin-bottom: 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 0;
   border-bottom: 2px solid #eee;
+  margin-bottom: 2rem;
+}
+
+.header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; color: #1a2a6c; }
+.role-badge { 
+  margin: 5px 0 0; 
+  background: #34495e; 
+  color: white; 
+  display: inline-block; 
+  padding: 2px 10px; 
+  border-radius: 4px; 
+  font-size: 0.75rem; 
+  font-weight: bold;
+  letter-spacing: 1px;
 }
 
 .tabs {
   display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
+  gap: 15px;
+  margin-bottom: 2rem;
 }
 
 .tabs button {
-  padding: 10px 20px;
+  padding: 12px 24px;
   border: none;
-  background: #f0f0f0;
+  background: #f8f9fa;
+  color: #7f8c8d;
+  font-weight: 600;
+  border-radius: 8px;
   cursor: pointer;
-  border-radius: 4px;
+  transition: all 0.3s ease;
 }
 
 .tabs button.active {
-  background: #2c3e50;
+  background: #1a2a6c;
   color: white;
+  box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 20px;
-  margin-bottom: 30px;
 }
 
 .stat-card {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  text-align: center;
-}
-
-.stat-card.warning {
-  border-top: 4px solid #f39c12;
-}
-
-.value {
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #2c3e50;
-  margin: 10px 0 0;
-}
-
-.management-section {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  padding: 1.5rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
   gap: 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  border: 1px solid #eee;
+}
+
+.stat-card .icon { font-size: 2.5rem; }
+.stat-card .label { display: block; color: #7f8c8d; font-size: 0.9rem; }
+.stat-card .value { font-size: 2rem; font-weight: 800; color: #2c3e50; }
+
+.alert-stat.has-pending {
+  border-left: 5px solid #e74c3c;
+  background: #fff5f5;
+}
+
+.management-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 25px;
 }
 
 .card {
   background: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
+.form-desc { color: #95a5a6; font-size: 0.9rem; margin-bottom: 20px; }
 
-.form input {
+.form-vertical .field { margin-bottom: 15px; }
+.field label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: #34495e; }
+.field input, .field select {
+  width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  border: 1px solid #dcdde1;
+  border-radius: 6px;
+  font-size: 1rem;
 }
 
 .btn-primary {
+  width: 100%;
   background: #3498db;
   color: white;
   border: none;
-  padding: 10px;
-  border-radius: 4px;
+  padding: 12px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  background: #2ecc71;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 0.85rem; }
+.data-table td { padding: 12px; border-bottom: 1px solid #f1f2f6; }
+.code { font-family: monospace; font-weight: bold; color: #e67e22; }
+
+.status-active { background: #e3fcef; color: #00875a; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+
+.matricula-controls {
+  display: flex;
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.btn-action {
+  background: #1a2a6c;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
 }
 
-.data-table {
-  width: 100%;
-  border-collapse: collapse;
-}
+.btn-action:disabled { background: #bdc3c7; cursor: not-allowed; }
 
-.data-table th, .data-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
+.alert { margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; }
+.alert.success { background: #dff9fb; color: #130f40; border-left: 5px solid #2ecc71; }
+.alert.error { background: #fab1a0; color: #d63031; border-left: 5px solid #ff7675; }
 
-.alert {
-  margin-top: 15px;
-  padding: 10px;
-  border-radius: 4px;
-}
-
-.alert.success { background: #d4edda; color: #155724; }
-.alert.error { background: #f8d7da; color: #721c24; }
+.loading-overlay { text-align: center; padding: 50px; color: #7f8c8d; font-style: italic; }
 </style>

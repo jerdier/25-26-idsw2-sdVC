@@ -59,7 +59,34 @@ export class AcademicService {
   async getSessionsByAsignatura(asignaturaId: string) {
     return await prisma.sesionDeClase.findMany({
       where: { asignaturaId },
+      include: { asignatura: true },
       orderBy: { fecha: 'desc' },
+    });
+  }
+
+  /**
+   * Obtiene todas las sesiones de las asignaturas en las que el alumno está matriculado.
+   */
+  async getSessionsForAlumno(alumnoId: string) {
+    // 1. Encontrar los grados en los que está el alumno
+    const matriculas = await prisma.matricula.findMany({
+      where: { alumnoId },
+      select: { gradoId: true }
+    });
+
+    const gradoIds = matriculas.map(m => m.gradoId);
+
+    // 2. Obtener sesiones de asignaturas de esos grados
+    return await prisma.sesionDeClase.findMany({
+      where: {
+        asignatura: {
+          gradoId: { in: gradoIds }
+        }
+      },
+      include: {
+        asignatura: true
+      },
+      orderBy: { fecha: 'desc' }
     });
   }
 }

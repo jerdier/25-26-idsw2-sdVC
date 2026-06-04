@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
+import { useAuth } from '../services/authService';
 import academicService from '../services/academicService';
 import attendanceService from '../services/attendanceService';
 import type { Alumno, SesionDeClase } from '../types';
 
-// Mock del ID del profesor (esto vendría del login/auth en el futuro)
-const PROFESOR_ID = 'mock-profesor-id'; 
+const { state } = useAuth();
+const PROFESOR_ID = state.user?.id; 
 
 const asignaturas = ref<any[]>([]);
 const selectedAsignatura = ref<string | null>(null);
@@ -18,11 +19,13 @@ const loading = ref(false);
 const mensaje = ref({ texto: '', tipo: '' });
 
 onMounted(async () => {
+  if (!PROFESOR_ID) return;
   loading.value = true;
   try {
+    // CARGA REAL: Solo las asignaturas del profesor logueado
     asignaturas.value = await academicService.getTeacherAsignaturas(PROFESOR_ID);
   } catch (error) {
-    console.error('Error cargando asignaturas:', error);
+    console.error('Error cargando asignaturas personalizadas:', error);
   } finally {
     loading.value = false;
   }
@@ -74,7 +77,7 @@ const createSession = async () => {
 };
 
 const toggleAsistencia = async (alumnoId: string) => {
-  if (!selectedSesion.value) return;
+  if (!selectedSesion.value || !PROFESOR_ID) return;
   
   const nuevoEstado = !asistenciaMap.value[alumnoId];
   try {
@@ -104,8 +107,8 @@ const formatDate = (dateStr: string) => {
   <div class="professor-dashboard">
     <header class="header">
       <div class="header-info">
-        <h1>Panel Docente</h1>
-        <p class="role-tag">PROFESORADO</p>
+        <h1>Panel de {{ state.user?.nombre }}</h1>
+        <p class="role-tag">DOCENTE</p>
       </div>
     </header>
 
@@ -125,6 +128,7 @@ const formatDate = (dateStr: string) => {
             <span class="asig-name">{{ asig.nombre }}</span>
             <span class="asig-grado">{{ asig.grado?.nombre }}</span>
           </div>
+          <p v-if="asignaturas.length === 0" class="empty-msg">No tiene asignaturas asignadas.</p>
         </div>
       </section>
 
@@ -195,136 +199,47 @@ const formatDate = (dateStr: string) => {
 </template>
 
 <style scoped>
-.professor-dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Inter', system-ui, sans-serif;
-}
+.professor-dashboard { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: 'Inter', system-ui, sans-serif; }
+.header { margin-bottom: 30px; border-bottom: 2px solid #f1f2f6; padding-bottom: 15px; }
+.header h1 { font-size: 1.5rem; margin: 0; color: #1a2a6c; }
+.role-tag { display: inline-block; background: #3498db; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
 
-.header {
-  margin-bottom: 30px;
-  border-bottom: 2px solid #f1f2f6;
-  padding-bottom: 15px;
-}
-
-.header h1 { font-size: 1.5rem; margin: 0; color: #2f3542; }
-.role-tag { 
-  display: inline-block; 
-  background: #747d8c; 
-  color: white; 
-  padding: 2px 8px; 
-  border-radius: 4px; 
-  font-size: 0.7rem; 
-  font-weight: bold;
-}
-
-.grid-layout {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 25px;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border: 1px solid #f1f2f6;
-}
-
+.grid-layout { display: grid; grid-template-columns: 300px 1fr; gap: 25px; }
+.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f2f6; }
 .card h3 { margin-top: 0; font-size: 1.1rem; color: #57606f; }
 
 .asignatura-list { display: flex; flex-direction: column; gap: 10px; }
-.asig-item {
-  padding: 15px;
-  border: 1px solid #eee;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
+.asig-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
 .asig-item:hover { background: #f1f2f6; }
-.asig-item.selected { 
-  background: #1e90ff; 
-  color: white; 
-  border-color: #1e90ff;
-  box-shadow: 0 4px 10px rgba(30, 144, 255, 0.3);
-}
+.asig-item.selected { background: #1a2a6c; color: white; border-color: #1a2a6c; box-shadow: 0 4px 10px rgba(26, 42, 108, 0.3); }
 .asig-name { display: block; font-weight: bold; }
 .asig-grado { font-size: 0.8rem; opacity: 0.8; }
 
 .main-content { display: flex; flex-direction: column; gap: 25px; }
-
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 
-.btn-new {
-  background: #2ed573;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.sesiones-scroll {
-  display: flex;
-  gap: 10px;
-  overflow-x: auto;
-  padding-bottom: 10px;
-}
-.sesion-pill {
-  padding: 8px 15px;
-  background: #f1f2f6;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  white-space: nowrap;
-  border: 2px solid transparent;
-}
-.sesion-pill.active {
-  background: #e1f5fe;
-  color: #0288d1;
-  border-color: #0288d1;
-}
+.btn-new { background: #2ecc71; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
+.sesiones-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
+.sesion-pill { padding: 8px 15px; background: #f1f2f6; border-radius: 20px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; border: 2px solid transparent; }
+.sesion-pill.active { background: #e1f5fe; color: #0288d1; border-color: #0288d1; }
 
 .attendance-table { width: 100%; border-collapse: collapse; }
 .attendance-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; }
 .attendance-table td { padding: 12px 10px; border-bottom: 1px solid #f1f2f6; }
-
 .alumno-name { font-weight: 600; color: #2f3542; }
 .alumno-id { font-size: 0.75rem; color: #a4b0be; }
 
-/* Switch Toggle CSS */
 .switch { position: relative; display: inline-block; width: 46px; height: 24px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #ccc; transition: .4s; border-radius: 24px;
-}
-.slider:before {
-  position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px;
-  background-color: white; transition: .4s; border-radius: 50%;
-}
-input:checked + .slider { background-color: #2ed573; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #2ecc71; }
 input:checked + .slider:before { transform: translateX(22px); }
 
-.empty-state-card {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8f9fa;
-  border: 2px dashed #eee;
-  border-radius: 12px;
-  color: #a4b0be;
-  padding: 40px;
-  text-align: center;
-}
-
+.empty-state-card { flex: 1; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 2px dashed #eee; border-radius: 12px; color: #a4b0be; padding: 40px; text-align: center; }
 .mini-alert { font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; }
 .mini-alert.success { background: #e3fcef; color: #00875a; }
 .mini-alert.error { background: #ffebe6; color: #bf2600; }
-
-.loading { text-align: center; color: #1e90ff; font-weight: bold; margin-bottom: 20px; }
+.loading { text-align: center; color: #1a2a6c; font-weight: bold; margin-bottom: 20px; }
+.empty-msg { color: #95a5a6; font-style: italic; font-size: 0.9rem; }
 </style>

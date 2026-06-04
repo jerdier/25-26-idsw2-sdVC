@@ -34,6 +34,14 @@ export const academicService = {
   },
 
   /**
+   * Obtiene todas las sesiones de las asignaturas en las que el alumno está matriculado
+   */
+  async getSessionsForAlumno(alumnoId: string) {
+    const response = await api.get(`/academic/alumno/${alumnoId}/sessions`);
+    return response.data;
+  },
+
+  /**
    * Crea una nueva sesión
    */
   async createSession(asignaturaId: string, fecha: string) {

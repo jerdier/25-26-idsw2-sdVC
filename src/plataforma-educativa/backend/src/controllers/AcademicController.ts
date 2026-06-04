@@ -41,6 +41,16 @@ export class AcademicController {
       res.status(500).json({ message: error.message });
     }
   }
+
+  async getSessionsForAlumno(req: Request, res: Response) {
+    try {
+      const { alumnoId } = req.params;
+      const sessions = await academicService.getSessionsForAlumno(alumnoId as string);
+      res.json(sessions);
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  }
 }
 
 export const academicController = new AcademicController();

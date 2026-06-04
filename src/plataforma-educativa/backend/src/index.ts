@@ -1,13 +1,16 @@
 import 'dotenv/config';
 import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
 import attendanceRoutes from './routes/attendanceRoutes';
 import dispensaRoutes from './routes/dispensaRoutes';
 import academicRoutes from './routes/academicRoutes';
 import secretariaRoutes from './routes/secretariaRoutes';
+import authRoutes from './routes/authRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(cors());
 app.use(express.json());
 
 // --- Rutas ---
@@ -32,6 +35,4 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
-});
-T}`);
 });

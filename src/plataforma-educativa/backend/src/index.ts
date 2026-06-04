@@ -15,6 +15,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/dispensas', dispensaRoutes);
 app.use('/api/academic', academicRoutes);
 app.use('/api/secretaria', secretariaRoutes);
+app.use('/api/auth', authRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('API de CGU funcionando (Fase 3: Arquitectura Implementada)');
@@ -31,4 +32,6 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
+});
+T}`);
 });

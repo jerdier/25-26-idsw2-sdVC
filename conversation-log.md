@@ -444,3 +444,19 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 3.  **Navegación:** Se ha actualizado el Login y el Router para dar soporte al nuevo rol de Secretaría.
 
 **Decisión:** Con la Secretaría operativa, el sistema ya puede alimentarse de datos reales. El siguiente paso será implementar la lógica de importación masiva y el sistema de matrículas detallado para cerrar el ciclo de vida administrativo.
+
+## [13:10] Implementación de Autenticación Real por Email
+
+**Prompt:** El sistema de login por botones ya no me sirve, quiero que sea real. Implementa un sistema de autenticación donde cada uno meta su email y el sistema le lleve a su panel correspondiente (alumno, profe, secretaria o director) según lo que diga la base de datos. Haz que el sistema recuerde quién eres aunque refresques la página y pon un botón de salir.
+
+**Resultado:** Se ha transformado el sistema de acceso estático en uno dinámico y persistente:
+1.  **Backend (Seguridad Básica):**
+    *   Creado `authRoutes.ts` y `AuthController.ts` con lógica de búsqueda multi-tabla.
+    *   El sistema ahora identifica automáticamente el rol (Alumno, Profesor, Director) consultando la base de datos por email.
+2.  **Frontend (Persistencia y Sesión):**
+    *   Implementado `authService.ts` utilizando una arquitectura de Store reactiva con `localStorage`. La sesión se mantiene tras refrescar el navegador.
+    *   Refactorizada la `LoginView.vue` para incluir un formulario real y atajos de prueba con cuentas del seed.
+    *   Actualizada la barra de navegación global (`App.vue`) para mostrar el nombre del usuario logueado y un botón de "Cerrar Sesión".
+3.  **Integración de Roles:** Se ha unificado la lógica de Director y Profesor, detectando si un profesor posee el cargo de dirección para redirigirlo al panel correcto.
+
+**Decisión:** Con la identidad de usuario resuelta, el siguiente hito es la personalización de los dashboards para que los datos mostrados (clases, alumnos, dispensas) se filtren automáticamente por el ID del usuario autenticado.

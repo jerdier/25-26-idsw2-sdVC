@@ -1,3 +1,16 @@
+<script setup lang="ts">
+import { useAuth } from './services/authService';
+import { useRouter } from 'vue-router';
+
+const { state, logout: performLogout } = useAuth();
+const router = useRouter();
+
+const handleLogout = () => {
+  performLogout();
+  router.push('/login');
+};
+</script>
+
 <template>
   <div id="app-container">
     <header class="navbar">
@@ -7,7 +20,13 @@
       </div>
       <nav class="nav-links">
         <router-link to="/">Inicio</router-link>
-        <router-link to="/login" class="login-btn">Acceso</router-link>
+        <template v-if="!state.isAuthenticated">
+          <router-link to="/login" class="login-btn">Acceso</router-link>
+        </template>
+        <template v-else>
+          <span class="user-info">{{ state.user?.nombre }} ({{ state.role }})</span>
+          <button @click="handleLogout" class="logout-btn">Salir</button>
+        </template>
       </nav>
     </header>
     
@@ -52,6 +71,7 @@ body {
 .brand h1 { font-size: 1.2rem; margin: 0; letter-spacing: 1px; }
 .logo { font-size: 1.5rem; }
 
+.nav-links { display: flex; align-items: center; }
 .nav-links a {
   color: #e0e0e0;
   text-decoration: none;
@@ -69,6 +89,25 @@ body {
   border-radius: 4px;
   font-weight: bold;
 }
+
+.user-info {
+  font-size: 0.85rem;
+  color: #bdc3c7;
+  margin-left: 20px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid #bdc3c7;
+  color: white;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.logout-btn:hover { background: rgba(255,255,255,0.1); }
 
 .viewport {
   min-height: calc(100vh - 140px);

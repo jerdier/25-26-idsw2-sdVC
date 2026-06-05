@@ -460,3 +460,17 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 3.  **Integración de Roles:** Se ha unificado la lógica de Director y Profesor, detectando si un profesor posee el cargo de dirección para redirigirlo al panel correcto.
 
 **Decisión:** Con la identidad de usuario resuelta, el siguiente hito es la personalización de los dashboards para que los datos mostrados (clases, alumnos, dispensas) se filtren automáticamente por el ID del usuario autenticado.
+
+## [22:40] Conectividad CORS y Personalización de Datos
+
+**Prompt:** Arregla el error de "usuario no encontrado" (CORS) y haz que los dashboards sean personales. El alumno solo debe ver sus clases y el profesor sus asignaturas reales según su ID de login. Guarda todo en memoria para la próxima vez.
+
+**Resultado:** Se ha completado la integración profunda del sistema:
+1.  **Infraestructura de Red:** Habilitado `cors` en el backend para permitir la comunicación segura entre el frontend (5173) y la API (3000).
+2.  **Lógica Académica Personalizada:**
+    *   Creado el endpoint `GET /api/academic/alumno/:id/sessions` para filtrar sesiones por matrícula.
+    *   Dashboard del Alumno ahora carga dinámicamente las sesiones de *sus* asignaturas.
+    *   Dashboard del Profesor filtra automáticamente las materias que imparte el docente logueado.
+3.  **Persistencia del Contexto:** Actualizada la memoria del proyecto con los hitos alcanzados y la hoja de ruta pendiente.
+
+**Decisión:** El sistema ha alcanzado un estado de madurez técnica elevado. El núcleo de identidad y personalización está cerrado. La próxima sesión se centrará en la automatización administrativa (Importación CSV) y la inteligencia de negocio (Justificación automática de faltas).

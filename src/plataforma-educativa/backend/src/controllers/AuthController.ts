@@ -7,11 +7,11 @@ export class AuthController {
    */
   async login(req: Request, res: Response) {
     try {
-      const { email } = req.body;
+      const { email, password } = req.body;
       console.log(`[AUTH] Intento de login para: ${email}`);
 
-      if (!email) {
-        return res.status(400).json({ message: 'El email es obligatorio' });
+      if (!email || !password) {
+        return res.status(400).json({ message: 'Email y contraseña son obligatorios' });
       }
 
       // 1. Buscar si es Alumno
@@ -20,6 +20,9 @@ export class AuthController {
         include: { matriculas: true }
       });
       if (alumno) {
+        if (alumno.password !== password) {
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
         console.log(`[AUTH] Alumno encontrado: ${alumno.nombre}`);
         return res.json({ user: alumno, role: 'student' });
       }
@@ -34,19 +37,27 @@ export class AuthController {
       });
 
       if (profesor) {
+        if (profesor.password !== password) {
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
         console.log(`[AUTH] Profesor encontrado: ${profesor.nombre}`);
-        // Si es profesor, verificar si también es director
         if (profesor.directorDeGrado) {
-          console.log(`[AUTH] El profesor es también Director`);
           return res.json({ user: profesor, role: 'director', directorId: profesor.directorDeGrado.id });
         }
         return res.json({ user: profesor, role: 'professor' });
       }
 
       // 3. Buscar si es Secretaría
-      if (email.includes('secretaria')) {
-        console.log(`[AUTH] Entrando como Secretaría (Mock)`);
-        return res.json({ user: { nombre: 'Personal de Secretaría', email }, role: 'secretaria' });
+      const secretaria = await prisma.secretariaAcademica.findUnique({
+        where: { email }
+      });
+
+      if (secretaria) {
+        if (secretaria.password !== password) {
+          return res.status(401).json({ message: 'Contraseña incorrecta' });
+        }
+        console.log(`[AUTH] Secretaría encontrada: ${secretaria.nombre}`);
+        return res.json({ user: secretaria, role: 'secretaria' });
       }
 
       console.warn(`[AUTH] Usuario no encontrado para: ${email}`);

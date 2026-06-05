@@ -16,4 +16,6 @@ router.post('/grados', secretariaController.createGrado);
 
 router.post('/matriculas', secretariaController.createMatricula);
 
+router.post('/import/alumnos', secretariaController.importAlumnos);
+
 export default router;

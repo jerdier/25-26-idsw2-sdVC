@@ -73,6 +73,15 @@ export class SecretariaController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async importAlumnos(req: Request, res: Response) {
+    try {
+      const result = await secretariaService.importAlumnos(req.body);
+      res.status(201).json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export const secretariaController = new SecretariaController();

@@ -38,6 +38,11 @@ export class SecretariaService {
     const response = await api.post('/secretaria/matriculas', data);
     return response.data;
   }
+
+  async importAlumnos(data: { alumnos: CreateAlumnoDTO[], gradoId: string, secretariaId: string }): Promise<any> {
+    const response = await api.post('/secretaria/import/alumnos', data);
+    return response.data;
+  }
 }
 
 export const secretariaService = new SecretariaService();

@@ -14,6 +14,7 @@ model SecretariaAcademica {
   id         String      @id @default(uuid())
   nombre     String
   email      String      @unique
+  password   String      @default("password123")
   matriculas Matricula[]
   dispensas  Dispensa[]
   grados     Grado[]
@@ -25,6 +26,7 @@ model Profesor {
   id                     String           @id @default(uuid())
   nombre                 String
   email                  String           @unique
+  password               String           @default("password123")
   asignaturas            Asignatura[]
   asistenciasRegistradas Asistencia[]
   directorDeGrado        DirectorDeGrado?
@@ -47,6 +49,7 @@ model Alumno {
   numeroRegistro String       @unique
   nombre         String
   email          String       @unique
+  password       String       @default("password123")
   asignaturas    Asignatura[]
   matriculas     Matricula[]
   dispensas      Dispensa[]

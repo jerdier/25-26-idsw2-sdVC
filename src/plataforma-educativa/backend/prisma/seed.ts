@@ -30,17 +30,19 @@ async function main() {
   // 2. Crear Profesores
   const prof1 = await prisma.profesor.create({
     data: {
-      id: 'mock-profesor-id', // Forzamos el ID que usamos en el frontend para la prueba
-      nombre: 'Dr. Javier Pérez',
-      email: 'javier.perez@universidad.edu',
+      id: 'mock-profesor-id',
+      nombre: 'Test Docente 1',
+      email: 'test.docente1@universidad.edu',
+      password: 'password123',
     },
   });
 
   const prof2 = await prisma.profesor.create({
     data: {
       id: 'mock-director-prof-id',
-      nombre: 'Dra. María García',
-      email: 'maria.garcia@universidad.edu',
+      nombre: 'Test Director 1',
+      email: 'test.director1@universidad.edu',
+      password: 'password123',
     },
   });
 
@@ -55,22 +57,22 @@ async function main() {
   // 4. Crear Grado
   const grado = await prisma.grado.create({
     data: {
-      nombre: 'Ingeniería de Software',
+      nombre: 'Grado de Prueba 1',
       directorId: director.id,
     },
   });
 
   // 5. Crear Alumnos
   const alumnos = await Promise.all([
-    prisma.alumno.create({ data: { nombre: 'Juan Manuel Ortiz', numeroRegistro: 'ALU001', email: 'juan@mail.com' } }),
-    prisma.alumno.create({ data: { nombre: 'Elena Rodríguez', numeroRegistro: 'ALU002', email: 'elena@mail.com' } }),
-    prisma.alumno.create({ data: { nombre: 'Carlos Ruiz', numeroRegistro: 'ALU003', email: 'carlos@mail.com' } }),
+    prisma.alumno.create({ data: { nombre: 'Test Alumno 1', numeroRegistro: 'ALU001', email: 'test.alumno1@mail.com', password: 'password123' } }),
+    prisma.alumno.create({ data: { nombre: 'Test Alumno 2', numeroRegistro: 'ALU002', email: 'test.alumno2@mail.com', password: 'password123' } }),
+    prisma.alumno.create({ data: { nombre: 'Test Alumno 3', numeroRegistro: 'ALU003', email: 'test.alumno3@mail.com', password: 'password123' } }),
   ]);
 
   // 6. Crear Asignaturas
   const asig1 = await prisma.asignatura.create({
     data: {
-      nombre: 'Diseño de Sistemas II',
+      nombre: 'Asignatura Test A',
       gradoId: grado.id,
       profesorId: prof1.id,
       alumnos: {
@@ -79,22 +81,13 @@ async function main() {
     },
   });
 
-  const asig2 = await prisma.asignatura.create({
-    data: {
-      nombre: 'Arquitectura de Software',
-      gradoId: grado.id,
-      profesorId: prof1.id,
-      alumnos: {
-        connect: alumnos.map((a: any) => ({ id: a.id })),
-      },
-    },
-  });
-
-  // 7. Crear Matrículas (Necesarias para que el AcademicService encuentre a los alumnos)
+  // 7. Crear Matrículas
   const secretaria = await prisma.secretariaAcademica.create({
     data: {
-      nombre: 'Secretaría Central',
-      email: 'secretaria@universidad.edu',
+      id: 'mock-secretaria-id',
+      nombre: 'Test Secretaria 1',
+      email: 'test.secretaria1@universidad.edu',
+      password: 'password123',
     },
   });
 
@@ -110,7 +103,7 @@ async function main() {
 
   console.log('--- Sembrado completado con éxito ---');
   console.log(`Profesor ID para prueba: ${prof1.id}`);
-  console.log(`Asignaturas creadas: ${asig1.nombre}, ${asig2.nombre}`);
+  console.log(`Asignatura creada: ${asig1.nombre}`);
 }
 
 main()

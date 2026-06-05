@@ -19,7 +19,21 @@ const loading = ref(true);
 
 // Formularios
 const nuevoAlumno = ref<CreateAlumnoDTO>({ nombre: '', email: '', numeroRegistro: '' });
+const nuevoProfesor = ref({ nombre: '', email: '' });
 const mensaje = ref({ texto: '', tipo: '' });
+
+// ... (other refs)
+
+const registrarProfesor = async () => {
+  try {
+    await secretariaService.createProfesor(nuevoProfesor.value);
+    mensaje.value = { texto: 'Docente registrado con éxito', tipo: 'success' };
+    nuevoProfesor.value = { nombre: '', email: '' };
+    await cargarDatos();
+  } catch (error) {
+    mensaje.value = { texto: 'Error al registrar docente', tipo: 'error' };
+  }
+};
 
 // Datos para Matrículas (Simulados o cargados de la DB)
 const selectedAlumno = ref('');
@@ -78,8 +92,38 @@ const matricular = async () => {
   }
 };
 
-const handleImport = () => {
-  alert('Funcionalidad de importación masiva: Seleccionando archivo CSV/Excel...');
+const handleImport = async () => {
+  // Simulación de parseo de un CSV/Excel para el prototipo
+  const alumnosSimulados: CreateAlumnoDTO[] = [
+    { nombre: 'Test Alumno A', email: 'test.alumno.a@example.com', numeroRegistro: 'ALU_A' },
+    { nombre: 'Test Alumno B', email: 'test.alumno.b@example.com', numeroRegistro: 'ALU_B' },
+    { nombre: 'Test Alumno C', email: 'test.alumno.c@example.com', numeroRegistro: 'ALU_C' }
+  ];
+
+  if (grados.value.length === 0) {
+    mensaje.value = { texto: 'No hay grados disponibles para matricular', tipo: 'error' };
+    return;
+  }
+
+  const gradoId = grados.value[0].id; // Matriculamos al primer grado por defecto en la simulación
+
+  try {
+    loading.value = true;
+    const result = await secretariaService.importAlumnos({
+      alumnos: alumnosSimulados,
+      gradoId: gradoId,
+      secretariaId: MOCK_SECRETARIA_ID
+    });
+    mensaje.value = { 
+      texto: `Importación exitosa: ${result.count} alumnos creados y matriculados.`, 
+      tipo: 'success' 
+    };
+    await cargarDatos();
+  } catch (error) {
+    mensaje.value = { texto: 'Error en la importación masiva', tipo: 'error' };
+  } finally {
+    loading.value = false;
+  }
 };
 </script>
 
@@ -210,24 +254,43 @@ const handleImport = () => {
       </section>
 
       <!-- DOCENTES -->
-      <section v-if="activeTab === 'profesores'" class="card">
-        <h3>Listado del Cuerpo Docente</h3>
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Estado</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="profesor in profesores" :key="profesor.id">
-              <td>{{ profesor.nombre }}</td>
-              <td>{{ profesor.email }}</td>
-              <td><span class="status-active">Activo</span></td>
-            </tr>
-          </tbody>
-        </table>
+      <section v-if="activeTab === 'profesores'" class="management-grid">
+        <div class="card form-card">
+          <h3>Alta de Docentes</h3>
+          <p class="form-desc">Registrar un nuevo profesor en el sistema.</p>
+          <form @submit.prevent="registrarProfesor" class="form-vertical">
+            <div class="field">
+              <label>Nombre del Docente</label>
+              <input v-model="nuevoProfesor.nombre" placeholder="Ej: Dr. García" required />
+            </div>
+            <div class="field">
+              <label>Email Académico</label>
+              <input v-model="nuevoProfesor.email" type="email" placeholder="prof@universidad.edu" required />
+            </div>
+            <button type="submit" class="btn-primary">Registrar Profesor</button>
+          </form>
+          <div v-if="mensaje.texto" :class="['alert', mensaje.tipo]">{{ mensaje.texto }}</div>
+        </div>
+
+        <div class="card table-card">
+          <h3>Cuerpo Docente</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="profesor in profesores" :key="profesor.id">
+                <td>{{ profesor.nombre }}</td>
+                <td>{{ profesor.email }}</td>
+                <td><span class="status-active">Activo</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </section>
     </main>
   </div>
@@ -235,141 +298,293 @@ const handleImport = () => {
 
 <style scoped>
 .secretaria-dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-  color: #2c3e50;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1e293b;
 }
 
 .header {
+  background: white;
+  padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 2rem 0;
-  border-bottom: 2px solid #eee;
-  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.header h1 { margin: 0; font-size: 1.8rem; font-weight: 800; color: #1a2a6c; }
-.role-badge { 
-  margin: 5px 0 0; 
-  background: #34495e; 
-  color: white; 
-  display: inline-block; 
-  padding: 2px 10px; 
-  border-radius: 4px; 
-  font-size: 0.75rem; 
-  font-weight: bold;
-  letter-spacing: 1px;
+.header-content h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a2a6c;
+  letter-spacing: -0.5px;
+}
+
+.role-badge {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-secondary {
+  background: white;
+  color: #1a2a6c;
+  border: 2px solid #1a2a6c;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.btn-refresh {
+  background: #1a2a6c;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
 }
 
 .tabs {
+  background: white;
+  padding: 0 2rem;
   display: flex;
-  gap: 15px;
-  margin-bottom: 2rem;
+  gap: 2rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .tabs button {
-  padding: 12px 24px;
+  padding: 1rem 0;
   border: none;
-  background: #f8f9fa;
-  color: #7f8c8d;
+  background: transparent;
+  color: #64748b;
   font-weight: 600;
-  border-radius: 8px;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  position: relative;
+  transition: color 0.2s;
+}
+
+.tabs button:hover {
+  color: #1a2a6c;
 }
 
 .tabs button.active {
+  color: #1a2a6c;
+}
+
+.tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
   background: #1a2a6c;
-  color: white;
-  box-shadow: 0 4px 15px rgba(26, 42, 108, 0.3);
+  border-radius: 3px 3px 0 0;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 2rem auto;
+  padding: 0 2rem;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
 }
 
 .stat-card {
   background: white;
   padding: 1.5rem;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-4px);
+}
+
+.stat-card .icon {
+  width: 56px;
+  height: 56px;
+  background: #f1f5f9;
   border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  border: 1px solid #eee;
+  justify-content: center;
+  font-size: 1.5rem;
 }
 
-.stat-card .icon { font-size: 2.5rem; }
-.stat-card .label { display: block; color: #7f8c8d; font-size: 0.9rem; }
-.stat-card .value { font-size: 2rem; font-weight: 800; color: #2c3e50; }
+.stat-card .label {
+  display: block;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.stat-card .value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #0f172a;
+}
 
 .alert-stat.has-pending {
-  border-left: 5px solid #e74c3c;
-  background: #fff5f5;
+  border: 2px solid #fee2e2;
+  background: #fffcfc;
 }
+
+.alert-stat.has-pending .icon { background: #fee2e2; }
+.alert-stat.has-pending .value { color: #b91c1c; }
 
 .management-grid {
   display: grid;
-  grid-template-columns: 350px 1fr;
-  gap: 25px;
+  grid-template-columns: 380px 1fr;
+  gap: 2rem;
 }
 
 .card {
   background: white;
   padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
 }
 
-.form-desc { color: #95a5a6; font-size: 0.9rem; margin-bottom: 20px; }
+.card h3 {
+  margin: 0 0 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
 
-.form-vertical .field { margin-bottom: 15px; }
-.field label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: #34495e; }
+.form-desc {
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-bottom: 2rem;
+}
+
+.field {
+  margin-bottom: 1.25rem;
+}
+
+.field label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: #475569;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
 .field input, .field select {
   width: 100%;
-  padding: 10px;
-  border: 1px solid #dcdde1;
-  border-radius: 6px;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 1rem;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+.field input:focus, .field select:focus {
+  background: white;
+  border-color: #1a2a6c;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(26, 42, 108, 0.1);
 }
 
 .btn-primary {
   width: 100%;
-  background: #3498db;
+  background: #1a2a6c;
   color: white;
   border: none;
-  padding: 12px;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
   cursor: pointer;
-  margin-top: 10px;
+  transition: all 0.2s;
 }
 
-.btn-secondary {
-  background: #2ecc71;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 6px;
-  font-weight: bold;
-  cursor: pointer;
-  margin-right: 10px;
+.btn-primary:hover {
+  background: #243b55;
 }
 
-.data-table { width: 100%; border-collapse: collapse; }
-.data-table th { text-align: left; padding: 12px; border-bottom: 2px solid #eee; color: #7f8c8d; font-size: 0.85rem; }
-.data-table td { padding: 12px; border-bottom: 1px solid #f1f2f6; }
-.code { font-family: monospace; font-weight: bold; color: #e67e22; }
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
 
-.status-active { background: #e3fcef; color: #00875a; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+.data-table th {
+  text-align: left;
+  padding: 1rem;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.data-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.data-table tr:last-child td {
+  border-bottom: none;
+}
+
+.code {
+  font-family: 'JetBrains Mono', monospace;
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.85rem;
+}
 
 .matricula-controls {
-  display: flex;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 1.5rem;
   align-items: flex-end;
 }
 
@@ -377,17 +592,30 @@ const handleImport = () => {
   background: #1a2a6c;
   color: white;
   border: none;
-  padding: 12px 25px;
-  border-radius: 6px;
-  font-weight: bold;
+  padding: 12px 32px;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-.btn-action:disabled { background: #bdc3c7; cursor: not-allowed; }
+.alert {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
 
-.alert { margin-top: 20px; padding: 15px; border-radius: 6px; font-weight: bold; }
-.alert.success { background: #dff9fb; color: #130f40; border-left: 5px solid #2ecc71; }
-.alert.error { background: #fab1a0; color: #d63031; border-left: 5px solid #ff7675; }
+.alert.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-.loading-overlay { text-align: center; padding: 50px; color: #7f8c8d; font-style: italic; }
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  color: #64748b;
+  font-weight: 500;
+}
 </style>

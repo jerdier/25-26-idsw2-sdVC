@@ -28,6 +28,11 @@ export class DispensaService {
     });
     return response.data;
   }
+
+  async getDispensasByAlumno(alumnoId: string): Promise<Dispensa[]> {
+    const response = await api.get<Dispensa[]>(`/dispensas/alumno/${alumnoId}`);
+    return response.data;
+  }
 }
 
 export const dispensaService = new DispensaService();

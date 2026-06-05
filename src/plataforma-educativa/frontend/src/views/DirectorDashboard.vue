@@ -108,93 +108,174 @@ const formatDate = (dateStr: string) => {
 
 <style scoped>
 .director-dashboard {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1e293b;
 }
 
 .header {
-  margin-bottom: 30px;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 10px;
+  background: white;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a2a6c;
+  letter-spacing: -0.5px;
+}
+
+.header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
 }
 
 .card {
   background: white;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  border: 1px solid #eee;
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
+
+.card h2 {
+  margin: 0 0 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .dispensas-table {
   width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-.dispensas-table th, .dispensas-table td {
-  text-align: left;
-  padding: 12px;
-  border-bottom: 1px solid #eee;
+  border-collapse: separate;
+  border-spacing: 0;
 }
 
 .dispensas-table th {
-  background-color: #f8f9fa;
-  font-weight: bold;
+  text-align: left;
+  padding: 1rem;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.dispensas-table td {
+  padding: 1.25rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.95rem;
+}
+
+.alumno-info .name {
+  display: block;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 .sesiones-mini {
+  list-style: none;
+  padding: 0;
   margin: 0;
-  padding-left: 15px;
-  font-size: 0.85em;
-  color: #666;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sesiones-mini li {
+  font-size: 0.8rem;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
 }
 
 .status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8em;
-  font-weight: bold;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
   text-transform: uppercase;
 }
 
-.status-badge.pendiente { background-color: #ffeaa7; color: #d6a316; }
-.status-badge.aprobada { background-color: #55efc4; color: #00b894; }
-.status-badge.rechazada { background-color: #ff7675; color: #d63031; }
+.status-badge.pendiente { background: #fef9c3; color: #713f12; }
+.status-badge.aprobada { background: #dcfce7; color: #166534; }
+.status-badge.rechazada { background: #fee2e2; color: #991b1b; }
 
 .actions-btns {
   display: flex;
   gap: 8px;
 }
 
-button {
-  padding: 6px 12px;
+.btn-approve {
+  background: #166534;
+  color: white;
   border: none;
-  border-radius: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
   cursor: pointer;
-  font-weight: bold;
-  transition: opacity 0.2s;
+  transition: all 0.2s;
 }
 
-button:hover { opacity: 0.8; }
+.btn-reject {
+  background: #991b1b;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
-.btn-approve { background-color: #2ecc71; color: white; }
-.btn-reject { background-color: #e74c3c; color: white; }
+.btn-approve:hover, .btn-reject:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
 
 .alert {
-  padding: 12px;
-  border-radius: 4px;
-  margin-bottom: 20px;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
 }
 
-.alert.success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-.alert.error { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+.alert.success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.alert.error { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
-.empty-state, .loading {
+.empty-state {
   text-align: center;
-  padding: 40px;
-  color: #999;
+  color: #94a3b8;
+  padding: 4rem;
+  font-weight: 500;
+}
+
+.loading {
+  text-align: center;
+  color: #1a2a6c;
+  padding: 4rem;
+  font-weight: 700;
 }
 </style>

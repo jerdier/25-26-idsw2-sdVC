@@ -36,6 +36,23 @@ export class DispensaService {
   }
 
   /**
+   * Obtiene todas las dispensas de un alumno específico.
+   */
+  async getDispensasByAlumno(alumnoId: string) {
+    return await prisma.dispensa.findMany({
+      where: { alumnoId },
+      include: {
+        sesionesEximidas: {
+          include: {
+            asignatura: true,
+          },
+        },
+      },
+      orderBy: { fechaSolicitud: 'desc' },
+    });
+  }
+
+  /**
    * Obtiene todas las dispensas para revisión de secretaría o dirección.
    */
   async getAllDispensas() {

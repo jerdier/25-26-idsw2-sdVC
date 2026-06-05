@@ -27,6 +27,19 @@ export class DispensaController {
     }
   }
 
+  async getByAlumno(req: Request, res: Response) {
+    try {
+      const { alumnoId } = req.params;
+      const dispensas = await dispensaService.getDispensasByAlumno(alumnoId as string);
+      res.status(200).json(dispensas);
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: 'Error al obtener las dispensas del alumno',
+        error: error.message 
+      });
+    }
+  }
+
   async getAllDispensas(req: Request, res: Response) {
     try {
       const dispensas = await dispensaService.getAllDispensas();

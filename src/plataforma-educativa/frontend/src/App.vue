@@ -24,8 +24,11 @@ const handleLogout = () => {
           <router-link to="/login" class="login-btn">Acceso</router-link>
         </template>
         <template v-else>
-          <span class="user-info">{{ state.user?.nombre }} ({{ state.role }})</span>
-          <button @click="handleLogout" class="logout-btn">Salir</button>
+          <div class="user-info">
+            <span>{{ state.user?.nombre }}</span>
+            <span class="role-tag-small">{{ state.role }}</span>
+            <button @click="handleLogout" class="logout-btn">Salir</button>
+          </div>
         </template>
       </nav>
     </header>
@@ -43,11 +46,14 @@ const handleLogout = () => {
 <style>
 :root {
   --primary: #1a2a6c;
+  --primary-dark: #0f172a;
   --secondary: #b21f1f;
   --accent: #fdbb2d;
-  --bg: #f8f9fa;
-  --text: #2c3e50;
+  --bg: #f8fafc;
+  --text: #1e293b;
+  --text-light: #64748b;
   --white: #ffffff;
+  --border: #e2e8f0;
 }
 
 body {
@@ -55,91 +61,99 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg);
   color: var(--text);
+  line-height: 1.5;
 }
 
 .navbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.8rem 2rem;
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  padding: 0 2rem;
+  height: 72px;
+  background: var(--white);
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.brand { display: flex; align-items: center; gap: 10px; }
-.brand h1 { font-size: 1.2rem; margin: 0; letter-spacing: 1px; }
-.logo { font-size: 1.5rem; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand h1 { font-size: 1.25rem; margin: 0; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
+.logo { font-size: 1.75rem; }
 
-.nav-links { display: flex; align-items: center; }
+.nav-links { display: flex; align-items: center; gap: 1.5rem; }
 .nav-links a {
-  color: #e0e0e0;
+  color: var(--text-light);
   text-decoration: none;
-  margin-left: 20px;
-  font-weight: 500;
-  transition: color 0.2s;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
 
-.nav-links a:hover, .nav-links a.router-link-active { color: var(--accent); }
+.nav-links a:hover, .nav-links a.router-link-active { color: var(--primary); }
 
 .login-btn {
-  background: var(--accent);
-  color: var(--primary) !important;
-  padding: 6px 15px;
-  border-radius: 4px;
-  font-weight: bold;
+  background: var(--primary);
+  color: white !important;
+  padding: 8px 20px;
+  border-radius: 8px;
+  font-weight: 700;
 }
 
+.login-btn:hover { background: var(--primary-dark); }
+
 .user-info {
-  font-size: 0.85rem;
-  color: #bdc3c7;
-  margin-left: 20px;
+  font-size: 0.9rem;
+  color: var(--text-light);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.role-tag-small {
+  background: #f1f5f9;
+  color: #475569;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .logout-btn {
-  background: transparent;
-  border: 1px solid #bdc3c7;
-  color: white;
-  margin-left: 10px;
-  padding: 4px 10px;
-  border-radius: 4px;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 14px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.logout-btn:hover { background: rgba(255,255,255,0.1); }
+.logout-btn:hover { background: #f8fafc; border-color: var(--text-light); }
 
 .viewport {
-  min-height: calc(100vh - 140px);
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+  min-height: calc(100vh - 72px - 80px);
+  padding: 0;
 }
 
 .footer {
   text-align: center;
-  padding: 1.5rem;
-  background: #e9ecef;
-  font-size: 0.85rem;
-  color: #6c757d;
+  padding: 2rem;
+  background: var(--white);
+  font-size: 0.875rem;
+  color: var(--text-light);
+  border-top: 1px solid var(--border);
 }
 
 /* Clases globales para dashboards */
 .card {
   background: var(--white);
-  border-radius: 10px;
-  padding: 1.5rem;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  margin-bottom: 1.5rem;
-}
-
-.btn-primary {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 </style>

@@ -51,6 +51,39 @@ export class SecretariaService {
     return await prisma.matricula.create({ data });
   }
 
+  // --- Importación Masiva ---
+  async importAlumnos(data: { alumnos: CreateAlumnoDTO[], gradoId: string, secretariaId: string }) {
+    const { alumnos, gradoId, secretariaId } = data;
+    
+    // Usamos una transacción para asegurar que o se crean todos o ninguno
+    return await prisma.$transaction(async (tx) => {
+      const createdAlumnos = [];
+      
+      for (const alumnoData of alumnos) {
+        // 1. Crear el Alumno
+        const alumno = await tx.alumno.create({
+          data: alumnoData
+        });
+        
+        // 2. Crear la Matrícula asociada al Grado
+        await tx.matricula.create({
+          data: {
+            alumnoId: alumno.id,
+            gradoId: gradoId,
+            secretariaId: secretariaId
+          }
+        });
+        
+        createdAlumnos.push(alumno);
+      }
+      
+      return {
+        count: createdAlumnos.length,
+        alumnos: createdAlumnos
+      };
+    });
+  }
+
   // --- Consultas Consolidadas ---
   async getDashboardStats() {
     const [alumnos, profesores, grados, dispensas] = await Promise.all([

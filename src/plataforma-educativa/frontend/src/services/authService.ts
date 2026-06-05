@@ -16,9 +16,9 @@ const state = reactive<UserState>({
 });
 
 export const useAuth = () => {
-  const login = async (email: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      const response = await api.post('/auth/login', { email });
+      const response = await api.post('/auth/login', { email, password });
       const { user, role, directorId } = response.data;
 
       state.user = user;

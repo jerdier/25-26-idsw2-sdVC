@@ -474,3 +474,16 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 3.  **Persistencia del Contexto:** Actualizada la memoria del proyecto con los hitos alcanzados y la hoja de ruta pendiente.
 
 **Decisión:** El sistema ha alcanzado un estado de madurez técnica elevado. El núcleo de identidad y personalización está cerrado. La próxima sesión se centrará en la automatización administrativa (Importación CSV) y la inteligencia de negocio (Justificación automática de faltas).
+
+## [22:30] Inicio de sesión
+
+**Prompt:** Vamos a profesionalizar el sistema: anonimiza los datos de prueba usando perfiles genéricos (Test 1, Test 2, etc.), añade un sistema de contraseñas real en la base de datos y el login, y mejora el diseño de todos los dashboards para que tengan un acabado más profesional y corporativo.
+
+**Resultado:** Se ha profesionalizado el sistema CGU aplicando los siguientes cambios:
+
+1. **Seguridad de Acceso:** Se ha modificado el esquema de la base de datos para incluir campos de contraseña en todos los tipos de usuario. El backend ahora valida las credenciales (Email + Password) y el frontend ha sido actualizado con un formulario de login completo.
+2. **Anonimización de Datos:** Se han sustituido todos los nombres reales y datos de prueba por perfiles genéricos ("Test Docente 1", "Test Alumno 1", etc.) en el sembrado de datos (seed) y en las simulaciones de importación.
+3. **Refinamiento de UI:** Se ha rediseñado la vista de Login con una estética corporativa, degradados modernos y una estructura de doble panel más profesional. Se han mejorado los componentes visuales de los dashboards para garantizar coherencia estética.
+4. **Validación Transaccional:** El sistema de autenticación ahora consulta directamente la base de datos para todos los roles, eliminando cualquier lógica de "mock" en el proceso de identificación.
+
+**Decisión:** Estos cambios elevan el prototipo a un nivel de madurez cercano a un MVP real, garantizando la privacidad de los datos y la seguridad básica del sistema.

@@ -199,47 +199,262 @@ const formatDate = (dateStr: string) => {
 </template>
 
 <style scoped>
-.professor-dashboard { max-width: 1200px; margin: 0 auto; padding: 20px; font-family: 'Inter', system-ui, sans-serif; }
-.header { margin-bottom: 30px; border-bottom: 2px solid #f1f2f6; padding-bottom: 15px; }
-.header h1 { font-size: 1.5rem; margin: 0; color: #1a2a6c; }
-.role-tag { display: inline-block; background: #3498db; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
+.professor-dashboard {
+  min-height: 100vh;
+  background-color: #f0f2f5;
+  font-family: 'Inter', -apple-system, sans-serif;
+  color: #1e293b;
+}
 
-.grid-layout { display: grid; grid-template-columns: 300px 1fr; gap: 25px; }
-.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #f1f2f6; }
-.card h3 { margin-top: 0; font-size: 1.1rem; color: #57606f; }
+.header {
+  background: white;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  margin-bottom: 2rem;
+}
 
-.asignatura-list { display: flex; flex-direction: column; gap: 10px; }
-.asig-item { padding: 15px; border: 1px solid #eee; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
-.asig-item:hover { background: #f1f2f6; }
-.asig-item.selected { background: #1a2a6c; color: white; border-color: #1a2a6c; box-shadow: 0 4px 10px rgba(26, 42, 108, 0.3); }
-.asig-name { display: block; font-weight: bold; }
-.asig-grado { font-size: 0.8rem; opacity: 0.8; }
+.header h1 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #1a2a6c;
+  letter-spacing: -0.5px;
+}
 
-.main-content { display: flex; flex-direction: column; gap: 25px; }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.role-tag {
+  display: inline-block;
+  background: #f1f5f9;
+  color: #475569;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+}
 
-.btn-new { background: #2ecc71; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; cursor: pointer; }
-.sesiones-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; }
-.sesion-pill { padding: 8px 15px; background: #f1f2f6; border-radius: 20px; font-size: 0.85rem; cursor: pointer; white-space: nowrap; border: 2px solid transparent; }
-.sesion-pill.active { background: #e1f5fe; color: #0288d1; border-color: #0288d1; }
+.grid-layout {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 2rem 2rem;
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2rem;
+}
 
-.attendance-table { width: 100%; border-collapse: collapse; }
-.attendance-table th { text-align: left; border-bottom: 2px solid #eee; padding: 10px; }
-.attendance-table td { padding: 12px 10px; border-bottom: 1px solid #f1f2f6; }
-.alumno-name { font-weight: 600; color: #2f3542; }
-.alumno-id { font-size: 0.75rem; color: #a4b0be; }
+.card {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f1f5f9;
+}
 
-.switch { position: relative; display: inline-block; width: 46px; height: 24px; }
+.card h3 {
+  margin: 0 0 1.25rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #475569;
+}
+
+.asignatura-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.asig-item {
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asig-item:hover {
+  background: #f1f5f9;
+  transform: translateX(4px);
+}
+
+.asig-item.selected {
+  background: #1a2a6c;
+  color: white;
+  border-color: #1a2a6c;
+  box-shadow: 0 10px 15px -3px rgba(26, 42, 108, 0.2);
+}
+
+.asig-name {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.asig-grado {
+  display: block;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.btn-new {
+  background: #1a2a6c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-new:hover {
+  background: #243b55;
+  transform: translateY(-1px);
+}
+
+.sesiones-scroll {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+}
+
+.sesion-pill {
+  padding: 10px 20px;
+  background: #f1f5f9;
+  color: #64748b;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.sesion-pill:hover {
+  background: #e2e8f0;
+}
+
+.sesion-pill.active {
+  background: #f0fdf4;
+  color: #166534;
+  border-color: #bbf7d0;
+}
+
+.attendance-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.attendance-table th {
+  text-align: left;
+  padding: 1rem;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.attendance-table td {
+  padding: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.alumno-name {
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.alumno-id {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 24px;
+}
+
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 24px; }
-.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-input:checked + .slider { background-color: #2ecc71; }
-input:checked + .slider:before { transform: translateX(22px); }
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #e2e8f0;
+  transition: .4s;
+  border-radius: 24px;
+}
 
-.empty-state-card { flex: 1; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border: 2px dashed #eee; border-radius: 12px; color: #a4b0be; padding: 40px; text-align: center; }
-.mini-alert { font-size: 0.8rem; padding: 4px 10px; border-radius: 4px; }
-.mini-alert.success { background: #e3fcef; color: #00875a; }
-.mini-alert.error { background: #ffebe6; color: #bf2600; }
-.loading { text-align: center; color: #1a2a6c; font-weight: bold; margin-bottom: 20px; }
-.empty-msg { color: #95a5a6; font-style: italic; font-size: 0.9rem; }
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+input:checked + .slider { background-color: #1a2a6c; }
+input:checked + .slider:before { transform: translateX(24px); }
+
+.empty-state-card {
+  height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  border: 2px dashed #e2e8f0;
+  border-radius: 20px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.empty-state-card.full { height: 600px; }
+
+.mini-alert {
+  font-size: 0.8rem;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.mini-alert.success { background: #f0fdf4; color: #166534; }
+.mini-alert.error { background: #fef2f2; color: #991b1b; }
+
+.loading {
+  text-align: center;
+  color: #1a2a6c;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
 </style>

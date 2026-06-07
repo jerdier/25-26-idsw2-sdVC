@@ -1,0 +1,34 @@
+@startuml editarSolicitudDispensa
+title Diagrama de Secuencia - Editar Solicitud de Dispensa (Diseño)
+
+actor "Alumno" as Student
+participant "Frontend (React)" as FE
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+participant "DispensaRepository" as Repository
+
+Student -> FE: Actualizar Solicitud
+activate FE
+
+FE -> Controller: PUT /api/dispensas/{id}
+activate Controller
+
+Controller -> Service: actualizarDispensa(id, dispensaDTO)
+activate Service
+
+alt Estado no permite edición
+    Service --> Controller: throws IllegalStateException
+    Controller --> FE: 403 Forbidden
+else Edición permitida
+    Service -> Repository: save(dispensaModificada)
+    activate Repository
+    Repository --> Service: Dispensa
+    deactivate Repository
+    Service --> Controller: DispensaDTO
+    Controller --> FE: 200 OK
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

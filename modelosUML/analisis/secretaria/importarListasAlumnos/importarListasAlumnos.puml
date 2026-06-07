@@ -1,0 +1,22 @@
+@startuml importarListasAlumnos
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_SECRETARIA" as PanelSecretaria
+rectangle #CDEBA5 ":ALUMNOS_IMPORTADOS_SISTEMA" as AlumnosImportados
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package importarListasAlumnos as "importarListasAlumnos()" {
+    rectangle #629EF9 ImportarListasView
+    rectangle #b5bd68 ImportacionController
+    rectangle #F2AC4E AlumnoRepository
+}
+
+PanelSecretaria --> ImportarListasView: importarListasAlumnos()
+
+ImportarListasView -d-> ImportacionController: procesarArchivoAlumnos(streamArchivo)
+ImportacionController --> AlumnoRepository: guardarLoteAlumnos(listaAlumnos)
+
+ImportarListasView ..> AlumnosImportados: <<include>> [éxito]
+ImportarListasView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

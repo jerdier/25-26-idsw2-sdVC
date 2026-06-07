@@ -1,0 +1,22 @@
+@startuml exportarDispensas
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_SECRETARIA" as PanelSecretaria
+rectangle #CDEBA5 ":REPORTE_DISPENSAS_DESCARGADO" as ReporteDescargado
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package exportarDispensas as "exportarDispensas()" {
+    rectangle #629EF9 ExportarDispensasView
+    rectangle #b5bd68 ReporteController
+    rectangle #F2AC4E SolicitudDispensaRepository
+}
+
+PanelSecretaria --> ExportarDispensasView: exportarDispensas()
+
+ExportarDispensasView -d-> ReporteController: estructurarFicheroDispensas(filtros)
+ReporteController --> SolicitudDispensaRepository: extraerDispensasFiltradas(filtros)
+
+ExportarDispensasView ..> ReporteDescargado: <<include>> [éxito]
+ExportarDispensasView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

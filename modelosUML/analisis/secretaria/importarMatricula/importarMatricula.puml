@@ -1,0 +1,22 @@
+@startuml importarMatricula
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_SECRETARIA" as PanelSecretaria
+rectangle #CDEBA5 ":MATRICULAS_CARGADAS_EXITO" as MatriculasCargadas
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package importarMatricula as "importarMatricula()" {
+    rectangle #629EF9 ImportarMatriculaView
+    rectangle #b5bd68 ImportacionController
+    rectangle #F2AC4E MatriculaRepository
+}
+
+PanelSecretaria --> ImportarMatriculaView: importarMatricula()
+
+ImportarMatriculaView -d-> ImportacionController: procesarExcelMatriculas(fichero)
+ImportacionController --> MatriculaRepository: registrarMatriculasMasivas(listaMatriculas)
+
+ImportarMatriculaView ..> MatriculasCargadas: <<include>> [éxito]
+ImportarMatriculaView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

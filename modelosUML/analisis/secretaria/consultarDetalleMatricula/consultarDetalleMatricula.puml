@@ -1,0 +1,22 @@
+@startuml consultarDetalleMatricula
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_SECRETARIA" as PanelSecretaria
+rectangle #CDEBA5 ":DETALLE_MATRICULA_MOSTRADO" as DetalleMatricula
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package consultarDetalleMatricula as "consultarDetalleMatricula()" {
+    rectangle #629EF9 MatriculaView
+    rectangle #b5bd68 MatriculaController
+    rectangle #F2AC4E MatriculaRepository
+}
+
+PanelSecretaria --> MatriculaView: consultarDetalleMatricula()
+
+MatriculaView -d-> MatriculaController: obtenerEstadoMatricula(alumnoId)
+MatriculaController --> MatriculaRepository: buscarRegistroCompleto(alumnoId)
+
+MatriculaView ..> DetalleMatricula: <<include>> [éxito]
+MatriculaView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

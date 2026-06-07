@@ -1,0 +1,22 @@
+@startuml consultarSolicitudDispensa
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_SECRETARIA" as PanelSecretaria
+rectangle #CDEBA5 ":HISTORIAL_DISPENSAS_MOSTRADO" as HistorialDispensas
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package consultarSolicitudDispensa as "consultarSolicitudDispensa()" {
+    rectangle #629EF9 ConsultarDispensasView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E SolicitudDispensaRepository
+}
+
+PanelSecretaria --> ConsultarDispensasView: consultarSolicitudDispensa()
+
+ConsultarDispensasView -d-> DispensaController: listarTodasLasDispensas()
+DispensaController --> SolicitudDispensaRepository: obtenerCatalogoTotalDispensas()
+
+ConsultarDispensasView ..> HistorialDispensas: <<include>> [éxito]
+ConsultarDispensasView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

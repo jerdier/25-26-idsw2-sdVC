@@ -1,0 +1,34 @@
+@startuml crearUsuario
+title Diagrama de Secuencia - Crear Usuario (Diseño)
+
+actor "Administrador" as Admin
+participant "Frontend (React)" as FE
+participant "UsuarioController" as Controller
+participant "UsuarioService" as Service
+participant "UsuarioRepository" as Repository
+
+Admin -> FE: Confirmar Creación
+activate FE
+
+FE -> Controller: POST /api/usuarios
+activate Controller
+
+Controller -> Service: registrarUsuario(usuarioDTO)
+activate Service
+
+alt Datos inválidos
+    Service --> Controller: throws ValidationException
+    Controller --> FE: 400 Bad Request
+else Datos correctos
+    Service -> Repository: save(usuario)
+    activate Repository
+    Repository --> Service: Usuario
+    deactivate Repository
+    Service --> Controller: UsuarioDTO
+    Controller --> FE: 201 Created
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

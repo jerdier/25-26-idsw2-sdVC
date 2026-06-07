@@ -1,0 +1,28 @@
+@startuml consultarDetalleAlumno
+title Diagrama de Secuencia - Consultar Detalle Alumno (Diseño)
+
+actor "Profesor" as Teacher
+participant "Frontend (React)" as FE
+participant "AlumnoController" as Controller
+participant "AlumnoService" as Service
+participant "AlumnoRepository" as Repository
+
+Teacher -> FE: Ver Ficha del Alumno
+activate FE
+
+FE -> Controller: GET /api/alumnos/{id}/detalle
+activate Controller
+
+Controller -> Service: obtenerFichaCompleta(id)
+activate Service
+Service -> Repository: findDetalleCompletoById(id)
+activate Repository
+Repository --> Service: AlumnoDetalleProjection
+deactivate Repository
+Service --> Controller: AlumnoDetalleDTO
+deactivate Service
+
+Controller --> FE: 200 OK
+deactivate Controller
+deactivate FE
+@enduml

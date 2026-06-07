@@ -1,0 +1,28 @@
+@startuml consultarSolicitudDispensa
+title Diagrama de Secuencia - Consultar Solicitudes (Diseño)
+
+actor "DirectorDeGrado" as Director
+participant "Frontend (React)" as FE
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+participant "DispensaRepository" as Repository
+
+Director -> FE: Ver Solicitudes Pendientes
+activate FE
+
+FE -> Controller: GET /api/dispensas/estado/pendientes
+activate Controller
+
+Controller -> Service: obtenerDispensasPendientes()
+activate Service
+Service -> Repository: findByEstado("PENDIENTE")
+activate Repository
+Repository --> Service: List<Dispensa>
+deactivate Repository
+Service --> Controller: List<DispensaDTO>
+deactivate Service
+
+Controller --> FE: 200 OK
+deactivate Controller
+deactivate FE
+@enduml

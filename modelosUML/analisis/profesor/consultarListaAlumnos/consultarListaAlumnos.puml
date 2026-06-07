@@ -1,0 +1,22 @@
+@startuml consultarListaAlumnos
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_PROFESOR" as PanelProfesor
+rectangle #CDEBA5 ":LISTA_ALUMNOS_MOSTRADA" as ListaMostrada
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package consultarListaAlumnos as "consultarListaAlumnos()" {
+    rectangle #629EF9 ListaAlumnosView
+    rectangle #b5bd68 GrupoController
+    rectangle #F2AC4E AlumnoRepository
+}
+
+PanelProfesor --> ListaAlumnosView: consultarListaAlumnos()
+
+ListaAlumnosView -d-> GrupoController: buscarAlumnosPorAsignatura(asignaturaId, grupoId)
+GrupoController --> AlumnoRepository: filtrarPorGrupoYAsignatura(asignaturaId, grupoId)
+
+ListaAlumnosView ..> ListaMostrada: <<include>> [éxito]
+ListaAlumnosView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

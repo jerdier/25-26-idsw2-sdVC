@@ -1,0 +1,24 @@
+@startuml registrarTomaAsistencia
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":SESION_CLASE_ACTIVA" as SesionActiva
+rectangle #CDEBA5 ":TOMA_ASISTENCIA_CONCLUIDA" as TomaConcluida
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package registrarTomaAsistencia as "registrarTomaAsistencia()" {
+    rectangle #629EF9 RegistrarAsistenciaView
+    rectangle #b5bd68 AsistenciaController
+    rectangle #F2AC4E AsistenciaRepository
+    rectangle #F2AC4E AlumnoRepository
+}
+
+SesionActiva --> RegistrarAsistenciaView: registrarTomaAsistencia()
+
+RegistrarAsistenciaView -d-> AsistenciaController: procesarListadoPresentes(alumnosEstados)
+AsistenciaController --> AlumnoRepository: verificarInscripcionesValidas(alumnosIds)
+AsistenciaController --> AsistenciaRepository: registrarMarquesAsistencia(asistencias)
+
+RegistrarAsistenciaView ..> TomaConcluida: <<include>> [éxito]
+RegistrarAsistenciaView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

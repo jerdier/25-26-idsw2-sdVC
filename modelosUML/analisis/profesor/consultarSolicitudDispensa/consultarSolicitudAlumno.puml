@@ -1,0 +1,22 @@
+@startuml consultarSolicitudDispensa
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_PROFESOR" as PanelProfesor
+rectangle #CDEBA5 ":DISPENSAS_GRUPO_LISTADAS" as DispensasListadas
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package consultarSolicitudDispensa as "consultarSolicitudDispensa()" {
+    rectangle #629EF9 ConsultarDispensasView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E SolicitudDispensaRepository
+}
+
+PanelProfesor --> ConsultarDispensasView: consultarSolicitudDispensa()
+
+ConsultarDispensasView -d-> DispensaController: obtenerDispensasAfectanClase(profesorId)
+DispensaController --> SolicitudDispensaRepository: buscarAprobadasPorProfesor(profesorId)
+
+ConsultarDispensasView ..> DispensasListadas: <<include>> [éxito]
+ConsultarDispensasView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

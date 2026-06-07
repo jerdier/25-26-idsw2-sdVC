@@ -1,0 +1,22 @@
+@startuml cerrarSesionClase
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":SESION_CLASE_ACTIVA" as SesionActiva
+rectangle #CDEBA5 ":SESION_CLASE_CERRADA" as SesionCerrada
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package cerrarSesionClase as "cerrarSesionClase()" {
+    rectangle #629EF9 CerrarSesionView
+    rectangle #b5bd68 SesionClaseController
+    rectangle #F2AC4E SesionClaseRepository
+}
+
+SesionActiva --> CerrarSesionView: cerrarSesionClase()
+
+CerrarSesionView -d-> SesionClaseController: finalizarSesion(sesionId)
+SesionClaseController --> SesionClaseRepository: actualizarEstadoCierre(sesionId)
+
+CerrarSesionView ..> SesionCerrada: <<include>> [éxito]
+CerrarSesionView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

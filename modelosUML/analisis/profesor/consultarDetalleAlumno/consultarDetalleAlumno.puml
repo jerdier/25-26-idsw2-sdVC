@@ -1,0 +1,24 @@
+@startuml consultarDetalleAlumno
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":LISTA_ALUMNOS_MOSTRADA" as ListaMostrada
+rectangle #CDEBA5 ":HISTORIAL_ALUMNO_DETALLADO" as HistorialDetallado
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package consultarDetalleAlumno as "consultarDetalleAlumno()" {
+    rectangle #629EF9 DetalleAlumnoView
+    rectangle #b5bd68 AlumnoController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E AsistenciaRepository
+}
+
+ListaMostrada --> DetalleAlumnoView: consultarDetalleAlumno()
+
+DetalleAlumnoView -d-> AlumnoController: obtenerFichaCompleta(alumnoId)
+AlumnoController --> AlumnoRepository: buscarDatosPersonales(alumnoId)
+AlumnoController --> AsistenciaRepository: calcularPorcentajeAsistencias(alumnoId)
+
+DetalleAlumnoView ..> HistorialDetallado: <<include>> [éxito]
+DetalleAlumnoView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

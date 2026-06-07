@@ -1,0 +1,28 @@
+@startuml consultarListaAlumnos
+title Diagrama de Secuencia - Consultar Lista Alumnos (Diseño)
+
+actor "Secretaría" as AdminUser
+participant "Frontend (React)" as FE
+participant "AlumnoController" as Controller
+participant "AlumnoService" as Service
+participant "AlumnoRepository" as Repository
+
+AdminUser -> FE: Ver Catálogo Alumnos
+activate FE
+
+FE -> Controller: GET /api/alumnos/global
+activate Controller
+
+Controller -> Service: listarTodosLosAlumnos()
+activate Service
+Service -> Repository: findAll()
+activate Repository
+Repository --> Service: List<Alumno>
+deactivate Repository
+Service --> Controller: List<AlumnoDTO>
+deactivate Service
+
+Controller --> FE: 200 OK
+deactivate Controller
+deactivate FE
+@enduml

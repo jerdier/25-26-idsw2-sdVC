@@ -1,0 +1,28 @@
+@startuml editarSolicitudDispensa
+title Diagrama de Secuencia - Editar Dispensa (Diseño)
+
+actor "Secretaría" as AdminUser
+participant "Frontend (React)" as FE
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+participant "DispensaRepository" as Repository
+
+AdminUser -> FE: Rectificar Registro
+activate FE
+
+FE -> Controller: PUT /api/dispensas/{id}/rectificar
+activate Controller
+
+Controller -> Service: corregirDatosDispensa(id, dispensaDTO)
+activate Service
+Service -> Repository: save(dispensaCorregida)
+activate Repository
+Repository --> Service: Dispensa
+deactivate Repository
+Service --> Controller: DispensaDTO
+deactivate Service
+
+Controller --> FE: 200 OK
+deactivate Controller
+deactivate FE
+@enduml

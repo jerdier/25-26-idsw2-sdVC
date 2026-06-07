@@ -1,0 +1,24 @@
+@startuml crearSolicitudDispensa
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":PANEL_ALUMNO" as PanelAlumno
+rectangle #CDEBA5 ":SOLICITUD_DISPENSA_REGISTRADA" as SolicitudRegistrada
+rectangle #CDEBA5 ":Collaboration CompletarGestion" as CompletarGestion
+
+package crearSolicitudDispensa as "crearSolicitudDispensa()" {
+    rectangle #629EF9 CrearDispensaView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E SolicitudDispensaRepository
+    rectangle #F2AC4E AlumnoRepository
+}
+
+PanelAlumno --> CrearDispensaView: crearSolicitudDispensa()
+
+CrearDispensaView -d-> DispensaController: registrarSolicitud(datosDispensa, alumnoId)
+DispensaController --> AlumnoRepository: validarEstadoMatricula(alumnoId)
+DispensaController --> SolicitudDispensaRepository: guardarSolicitud(solicitud)
+
+CrearDispensaView ..> SolicitudRegistrada: <<include>> [éxito]
+CrearDispensaView ..> CompletarGestion: <<include>> completarGestion() [cancelación/error]
+
+@enduml

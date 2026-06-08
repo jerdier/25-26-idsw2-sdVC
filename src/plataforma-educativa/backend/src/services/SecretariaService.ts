@@ -24,12 +24,21 @@ export class SecretariaService {
   }
 
   // --- Gestión de Profesores ---
-  async createProfesor(data: CreateProfesorDTO) {
+  async createProfesor(data: any) {
     return await prisma.profesor.create({ data });
   }
 
   async getAllProfesores() {
     return await prisma.profesor.findMany();
+  }
+
+  // --- Gestión de Directores ---
+  async createDirector(data: any) {
+    return await prisma.directorDeGrado.create({ data });
+  }
+
+  async getAllDirectores() {
+    return await prisma.directorDeGrado.findMany();
   }
 
   // --- Gestión Académica ---
@@ -39,8 +48,17 @@ export class SecretariaService {
 
   async getAllGrados() {
     return await prisma.grado.findMany({
-      include: { director: { include: { profesor: true } } }
+      include: { director: true }
     });
+  }
+
+  // --- Gestión de Secretarías (Solo para el Administrador Global) ---
+  async createSecretaria(data: any) {
+    return await prisma.secretariaAcademica.create({ data });
+  }
+
+  async getAllSecretarias() {
+    return await prisma.secretariaAcademica.findMany();
   }
 
   async createAsignatura(data: CreateAsignaturaDTO) {

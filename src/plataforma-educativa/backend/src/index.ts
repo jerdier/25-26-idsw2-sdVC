@@ -5,6 +5,7 @@ import attendanceRoutes from './routes/attendanceRoutes';
 import dispensaRoutes from './routes/dispensaRoutes';
 import academicRoutes from './routes/academicRoutes';
 import secretariaRoutes from './routes/secretariaRoutes';
+import usuarioRoutes from './routes/usuarioRoutes';
 import authRoutes from './routes/authRoutes';
 
 const app = express();
@@ -18,6 +19,7 @@ app.use('/api/attendance', attendanceRoutes);
 app.use('/api/dispensas', dispensaRoutes);
 app.use('/api/academic', academicRoutes);
 app.use('/api/secretaria', secretariaRoutes);
+app.use('/api/usuarios', usuarioRoutes);
 app.use('/api/auth', authRoutes);
 
 app.get('/', (req: Request, res: Response) => {

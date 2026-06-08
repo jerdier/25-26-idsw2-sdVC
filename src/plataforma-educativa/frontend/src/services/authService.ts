@@ -3,7 +3,7 @@ import api from '../services/api';
 
 interface UserState {
   user: any | null;
-  role: 'student' | 'professor' | 'director' | 'secretaria' | null;
+  role: 'student' | 'professor' | 'director' | 'secretaria' | 'administrador' | null;
   isAuthenticated: boolean;
   directorId?: string;
 }
@@ -31,9 +31,10 @@ export const useAuth = () => {
       if (directorId) localStorage.setItem('cgu_director_id', directorId);
 
       return { success: true, role };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login failed:', error);
-      return { success: false, message: 'Credenciales inválidas' };
+      const message = error.response?.data?.message || 'Error de conexión con el servidor';
+      return { success: false, message };
     }
   };
 

@@ -47,6 +47,42 @@ export class SecretariaController {
     }
   }
 
+  async createDirector(req: Request, res: Response) {
+    try {
+      const director = await secretariaService.createDirector(req.body);
+      res.status(201).json(director);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getDirectores(req: Request, res: Response) {
+    try {
+      const directores = await secretariaService.getAllDirectores();
+      res.json(directores);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async createSecretaria(req: Request, res: Response) {
+    try {
+      const secretaria = await secretariaService.createSecretaria(req.body);
+      res.status(201).json(secretaria);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async getSecretarias(req: Request, res: Response) {
+    try {
+      const secretarias = await secretariaService.getAllSecretarias();
+      res.json(secretarias);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   async createGrado(req: Request, res: Response) {
     try {
       const grado = await secretariaService.createGrado(req.body);

@@ -26,6 +26,19 @@ export class AttendanceController {
       });
     }
   }
+
+  async getHistory(req: Request, res: Response) {
+    try {
+      const { asignaturaId } = req.params;
+      const history = await attendanceService.getAttendanceHistoryByGroup(asignaturaId as string);
+      res.status(200).json(history);
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: 'Error al obtener historial de asistencia',
+        error: error.message 
+      });
+    }
+  }
 }
 
 export const attendanceController = new AttendanceController();

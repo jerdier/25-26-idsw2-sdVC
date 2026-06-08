@@ -52,6 +52,28 @@ export class AttendanceService {
       },
     });
   }
+
+  /**
+   * Obtiene el historial de asistencia de una asignatura completa.
+   */
+  async getAttendanceHistoryByGroup(asignaturaId: string) {
+    return await prisma.asistencia.findMany({
+      where: {
+        sesion: {
+          asignaturaId: asignaturaId
+        }
+      },
+      include: {
+        alumno: true,
+        sesion: true
+      },
+      orderBy: {
+        sesion: {
+          fecha: 'desc'
+        }
+      }
+    });
+  }
 }
 
 export const attendanceService = new AttendanceService();

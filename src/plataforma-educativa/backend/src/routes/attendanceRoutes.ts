@@ -3,10 +3,8 @@ import { attendanceController } from '../controllers/AttendanceController';
 
 const router = Router();
 
-// POST /api/attendance
-router.post('/', attendanceController.recordAttendance);
-
-// GET /api/attendance/session/:sesionId
+router.post('/record', attendanceController.recordAttendance);
 router.get('/session/:sesionId', attendanceController.getAttendanceBySession);
+router.get('/history/:asignaturaId', attendanceController.getHistory);
 
 export default router;

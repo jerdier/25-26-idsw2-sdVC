@@ -24,13 +24,34 @@ export class AcademicController {
 
   async createSession(req: Request, res: Response) {
     try {
-      const { asignaturaId, fecha } = req.body;
-      const session = await academicService.createSession(asignaturaId as string, new Date(fecha));
+      const { asignaturaId, fecha, aula, duracion } = req.body;
+      const session = await academicService.createSession(asignaturaId, new Date(fecha), aula, duracion);
       res.status(201).json(session);
     } catch (error: any) {
-      res.status(500).json({ message: error.message });
+      res.status(500).json({ error: error.message });
     }
   }
+
+  async updateSession(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const session = await academicService.updateSession(id as string, req.body);
+      res.json(session);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
+  async closeSession(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const session = await academicService.closeSession(id as string);
+      res.json(session);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
 
   async getSessionsByAsignatura(req: Request, res: Response) {
     try {

@@ -1,38 +1,54 @@
 import api from './api';
-import type { CreateDispensaDTO, Dispensa } from '../types';
+import type { CreateDispensaDTO, UpdateDispensaStatusDTO } from '../types';
 
-export class DispensaService {
+export const dispensaService = {
   /**
-   * Obtiene todas las dispensas (útil para administración/secretaría)
+   * Crea una nueva dispensa
    */
-  async getAllDispensas(): Promise<Dispensa[]> {
-    const response = await api.get<Dispensa[]>('/dispensas');
+  async createDispensa(data: CreateDispensaDTO) {
+    const response = await api.post('/dispensas', data);
     return response.data;
-  }
-
-  /**
-   * Crea una nueva solicitud de dispensa por parte del alumno
-   */
-  async createDispensa(data: CreateDispensaDTO): Promise<Dispensa> {
-    const response = await api.post<Dispensa>('/dispensas', data);
-    return response.data;
-  }
+  },
 
   /**
-   * Actualiza el estado de una dispensa (Aprobada/Rechazada)
+   * Rectifica una dispensa
    */
-  async updateDispensaStatus(id: string, estado: 'APROBADA' | 'RECHAZADA', directorId: string): Promise<Dispensa> {
-    const response = await api.patch<Dispensa>(`/dispensas/${id}/status`, {
-      estado,
-      directorId
-    });
+  async updateDispensa(id: string, data: Partial<CreateDispensaDTO>) {
+    const response = await api.put(`/dispensas/${id}/rectificar`, data);
+    return response.data;
+  },
+
+  /**
+   * Actualiza el estado (Director)
+   */
+  async updateStatus(id: string, data: UpdateDispensaStatusDTO) {
+    const response = await api.patch(`/dispensas/${id}/status`, data);
+    return response.data;
+  },
+
+  /**
+   * Listado para el alumno
+   */
+  async getDispensasByAlumno(alumnoId: string) {
+    const response = await api.get(`/dispensas/alumno/${alumnoId}`);
+    return response.data;
+  },
+
+  /**
+   * Listado para el profesor
+   */
+  async getDispensasByProfesor(profesorId: string) {
+    const response = await api.get(`/dispensas/profesor/${profesorId}`);
+    return response.data;
+  },
+
+  /**
+   * Catálogo total (Secretaría)
+   */
+  async getAllDispensas() {
+    const response = await api.get('/dispensas');
     return response.data;
   }
+};
 
-  async getDispensasByAlumno(alumnoId: string): Promise<Dispensa[]> {
-    const response = await api.get<Dispensa[]>(`/dispensas/alumno/${alumnoId}`);
-    return response.data;
-  }
-}
-
-export const dispensaService = new DispensaService();
+export default dispensaService;

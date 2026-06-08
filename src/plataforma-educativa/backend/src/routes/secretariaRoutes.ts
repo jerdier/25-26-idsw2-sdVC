@@ -11,6 +11,12 @@ router.post('/alumnos', secretariaController.createAlumno);
 router.get('/profesores', secretariaController.getProfesores);
 router.post('/profesores', secretariaController.createProfesor);
 
+router.get('/directores', secretariaController.getDirectores);
+router.post('/directores', secretariaController.createDirector);
+
+router.get('/secretarias', secretariaController.getSecretarias);
+router.post('/secretarias', secretariaController.createSecretaria);
+
 router.get('/grados', secretariaController.getGrados);
 router.post('/grados', secretariaController.createGrado);
 

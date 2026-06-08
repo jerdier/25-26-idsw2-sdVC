@@ -44,11 +44,38 @@ export class AcademicService {
   /**
    * Crea una nueva sesión de clase.
    */
-  async createSession(asignaturaId: string, fecha: Date) {
+  async createSession(asignaturaId: string, fecha: Date, aula?: string, duracion?: number) {
     return await prisma.sesionDeClase.create({
       data: {
         asignaturaId,
         fecha,
+        aula,
+        duracion,
+      },
+    });
+  }
+
+  /**
+   * Actualiza los parámetros de una sesión de clase.
+   */
+  async updateSession(id: string, data: { aula?: string, duracion?: number }) {
+    return await prisma.sesionDeClase.update({
+      where: { id },
+      data: {
+        aula: data.aula,
+        duracion: data.duracion,
+      },
+    });
+  }
+
+  /**
+   * Cierra una sesión de clase.
+   */
+  async closeSession(id: string) {
+    return await prisma.sesionDeClase.update({
+      where: { id },
+      data: {
+        estado: 'CERRADA'
       },
     });
   }

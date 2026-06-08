@@ -3,6 +3,7 @@ import { ref, onMounted, watch } from 'vue';
 import { useAuth } from '../services/authService';
 import academicService from '../services/academicService';
 import attendanceService from '../services/attendanceService';
+import dispensaService from '../services/dispensaService';
 import type { Alumno, SesionDeClase } from '../types';
 
 const { state } = useAuth();
@@ -14,6 +15,7 @@ const sesiones = ref<SesionDeClase[]>([]);
 const selectedSesion = ref<string | null>(null);
 const alumnos = ref<Alumno[]>([]);
 const asistenciaMap = ref<Record<string, boolean>>({});
+const dispensasProfesor = ref<any[]>([]);
 
 const loading = ref(false);
 const mensaje = ref({ texto: '', tipo: '' });
@@ -22,16 +24,19 @@ onMounted(async () => {
   if (!PROFESOR_ID) return;
   loading.value = true;
   try {
-    // CARGA REAL: Solo las asignaturas del profesor logueado
-    asignaturas.value = await academicService.getTeacherAsignaturas(PROFESOR_ID);
+    const [asig, disp] = await Promise.all([
+      academicService.getTeacherAsignaturas(PROFESOR_ID),
+      dispensaService.getDispensasByProfesor(PROFESOR_ID)
+    ]);
+    asignaturas.value = asig;
+    dispensasProfesor.value = disp;
   } catch (error) {
-    console.error('Error cargando asignaturas personalizadas:', error);
+    console.error('Error cargando datos iniciales:', error);
   } finally {
     loading.value = false;
   }
 });
 
-// Al cambiar la asignatura, cargamos sus sesiones y alumnos
 watch(selectedAsignatura, async (newVal) => {
   if (newVal) {
     loading.value = true;
@@ -40,15 +45,12 @@ watch(selectedAsignatura, async (newVal) => {
       alumnos.value = await academicService.getAsignaturaAlumnos(newVal);
       selectedSesion.value = null;
       asistenciaMap.value = {};
-    } catch (error) {
-      console.error('Error cargando datos de asignatura:', error);
     } finally {
       loading.value = false;
     }
   }
 });
 
-// Al cambiar la sesión, cargamos la asistencia ya registrada
 watch(selectedSesion, async (newVal) => {
   if (newVal) {
     try {
@@ -67,23 +69,38 @@ const createSession = async () => {
   if (!selectedAsignatura.value) return;
   try {
     const fecha = new Date().toISOString();
-    const newSession = await academicService.createSession(selectedAsignatura.value, fecha);
+    const newSession = await academicService.createSession(selectedAsignatura.value, fecha, 'Aula Virtual', 90);
     sesiones.value.unshift(newSession);
     selectedSesion.value = newSession.id;
-    mensaje.value = { texto: 'Sesión creada para hoy', tipo: 'success' };
+    mensaje.value = { texto: 'Sesión creada correctamente', tipo: 'success' };
   } catch (error) {
     mensaje.value = { texto: 'Error al crear sesión', tipo: 'error' };
   }
 };
 
+const closeSession = async (sesionId: string) => {
+  if (!confirm('¿Estás seguro de cerrar esta sesión?')) return;
+  try {
+    await academicService.closeSession(sesionId);
+    const sesion = sesiones.value.find(s => s.id === sesionId);
+    if (sesion) sesion.estado = 'CERRADA';
+    mensaje.value = { texto: 'Sesión cerrada', tipo: 'success' };
+  } catch (error) {
+    mensaje.value = { texto: 'Error al cerrar sesión', tipo: 'error' };
+  }
+};
+
 const toggleAsistencia = async (alumnoId: string) => {
+  const currentSesion = sesiones.value.find(s => s.id === selectedSesion.value);
+  if (currentSesion?.estado === 'CERRADA') return;
+  
   if (!selectedSesion.value || !PROFESOR_ID) return;
   
   const nuevoEstado = !asistenciaMap.value[alumnoId];
   try {
     await attendanceService.recordAttendance({
       sesionId: selectedSesion.value,
-      alumnoId: alumnoId,
+      alumnoId,
       profesorId: PROFESOR_ID,
       presente: nuevoEstado
     });
@@ -95,72 +112,77 @@ const toggleAsistencia = async (alumnoId: string) => {
 
 const formatDate = (dateStr: string) => {
   return new Date(dateStr).toLocaleString('es-ES', {
-    day: '2-digit',
-    month: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
+    day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
   });
 };
 </script>
 
 <template>
   <div class="professor-dashboard">
-    <header class="header">
-      <div class="header-info">
-        <h1>Panel de {{ state.user?.nombre }}</h1>
-        <p class="role-tag">DOCENTE</p>
-      </div>
-    </header>
+    <div v-if="loading" class="loading-overlay">Sincronizando...</div>
 
-    <div v-if="loading" class="loading">Sincronizando con el servidor...</div>
-
-    <main class="grid-layout">
-      <!-- Selector de Asignatura -->
-      <section class="card selector-card">
+    <aside class="sidebar">
+      <div class="sidebar-header">
         <h3>Mis Asignaturas</h3>
-        <div class="asignatura-list">
-          <div 
-            v-for="asig in asignaturas" 
-            :key="asig.id" 
-            :class="['asig-item', { selected: selectedAsignatura === asig.id }]"
-            @click="selectedAsignatura = asig.id"
-          >
-            <span class="asig-name">{{ asig.nombre }}</span>
-            <span class="asig-grado">{{ asig.grado?.nombre }}</span>
-          </div>
-          <p v-if="asignaturas.length === 0" class="empty-msg">No tiene asignaturas asignadas.</p>
+      </div>
+      <div class="asignatura-list">
+        <div 
+          v-for="asig in asignaturas" 
+          :key="asig.id" 
+          :class="['asig-item', { selected: selectedAsignatura === asig.id }]"
+          @click="selectedAsignatura = asig.id"
+        >
+          <span class="asig-name">{{ asig.nombre }}</span>
+          <span class="asig-grado">{{ asig.grado?.nombre }}</span>
         </div>
-      </section>
+      </div>
 
-      <div v-if="selectedAsignatura" class="main-content">
-        <!-- Listado de Sesiones -->
-        <section class="card sesiones-card">
-          <div class="card-header">
-            <h3>Sesiones de Clase</h3>
-            <button @click="createSession" class="btn-new">Nueva Sesión</button>
+      <div class="dispensas-section">
+        <h4>Dispensas Activas</h4>
+        <div class="dispensas-list">
+          <div v-for="d in dispensasProfesor" :key="d.id" class="dispensa-mini-card">
+            <span class="dispensa-alumno">{{ d.alumno.nombre }}</span>
+            <span class="dispensa-motivo">{{ d.motivo }}</span>
           </div>
-          
-          <div class="sesiones-scroll">
-            <div 
-              v-for="sesion in sesiones" 
-              :key="sesion.id"
-              @click="selectedSesion = sesion.id"
-              :class="['sesion-pill', { active: selectedSesion === sesion.id }]"
-            >
-              {{ formatDate(sesion.fecha) }}
-            </div>
-            <p v-if="sesiones.length === 0" class="empty-msg">No hay sesiones registradas</p>
+          <p v-if="dispensasProfesor.length === 0" class="empty-msg-small">No hay dispensas activas</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div v-if="selectedAsignatura" class="content-container">
+        <header class="toolbar">
+          <h2>{{ asignaturas.find(a => a.id === selectedAsignatura)?.nombre }}</h2>
+          <div class="toolbar-actions">
+            <button @click="createSession" class="btn-primary">Nueva Sesión</button>
+          </div>
+        </header>
+
+        <section class="sesiones-nav">
+          <div 
+            v-for="sesion in sesiones" 
+            :key="sesion.id"
+            @click="selectedSesion = sesion.id"
+            :class="['sesion-pill', { active: selectedSesion === sesion.id, closed: sesion.estado === 'CERRADA' }]"
+          >
+            {{ formatDate(sesion.fecha) }}
+            <span v-if="sesion.estado === 'CERRADA'">🔒</span>
           </div>
         </section>
 
-        <!-- Registro de Asistencia -->
-        <section v-if="selectedSesion" class="card attendance-card">
-          <div class="card-header">
+        <section v-if="selectedSesion" class="card-base attendance-card">
+          <div class="panel-header flex-between">
             <h3>Control de Asistencia</h3>
-            <div v-if="mensaje.texto" :class="['mini-alert', mensaje.tipo]">{{ mensaje.texto }}</div>
+            <button 
+              v-if="sesiones.find(s => s.id === selectedSesion)?.estado === 'ACTIVA'"
+              @click="closeSession(selectedSesion)"
+              class="btn-outline btn-danger"
+            >
+              Cerrar Sesión
+            </button>
           </div>
           
-          <table class="attendance-table">
+          <table class="table-corp">
             <thead>
               <tr>
                 <th>Alumno</th>
@@ -170,15 +192,16 @@ const formatDate = (dateStr: string) => {
             <tbody>
               <tr v-for="alumno in alumnos" :key="alumno.id">
                 <td>
-                  <div class="alumno-name">{{ alumno.nombre }}</div>
-                  <div class="alumno-id">{{ alumno.numeroRegistro }}</div>
+                  <div class="bold">{{ alumno.nombre }}</div>
+                  <div class="code-sm inline-block mt-1">{{ alumno.numeroRegistro }}</div>
                 </td>
                 <td class="text-center">
-                  <label class="switch">
+                  <label class="switch" :class="{ disabled: sesiones.find(s => s.id === selectedSesion)?.estado === 'CERRADA' }">
                     <input 
                       type="checkbox" 
                       :checked="asistenciaMap[alumno.id]" 
                       @change="toggleAsistencia(alumno.id)"
+                      :disabled="sesiones.find(s => s.id === selectedSesion)?.estado === 'CERRADA'"
                     >
                     <span class="slider"></span>
                   </label>
@@ -187,274 +210,100 @@ const formatDate = (dateStr: string) => {
             </tbody>
           </table>
         </section>
-        <section v-else class="empty-state-card">
-          <p>Seleccione una sesión para registrar la asistencia de los alumnos.</p>
-        </section>
+        <div v-else class="empty-state-card">
+          <p>Seleccione una sesión para registrar la asistencia.</p>
+        </div>
       </div>
       <div v-else class="empty-state-card full">
-        <p>Seleccione una asignatura del panel izquierdo para comenzar.</p>
+        <p>Seleccione una asignatura para comenzar.</p>
       </div>
     </main>
   </div>
 </template>
 
 <style scoped>
-.professor-dashboard {
-  min-height: 100vh;
-  background-color: #f0f2f5;
-  font-family: 'Inter', -apple-system, sans-serif;
-  color: #1e293b;
-}
+.professor-dashboard { display: flex; height: calc(100vh - 64px); background-color: var(--bg-main); }
 
-.header {
-  background: white;
-  padding: 1.5rem 2rem;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  margin-bottom: 2rem;
-}
-
-.header h1 {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #1a2a6c;
-  letter-spacing: -0.5px;
-}
-
-.role-tag {
-  display: inline-block;
-  background: #f1f5f9;
-  color: #475569;
-  padding: 4px 12px;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-top: 4px;
-}
-
-.grid-layout {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem 2rem;
-  display: grid;
-  grid-template-columns: 350px 1fr;
+.sidebar {
+  width: 350px;
+  background: var(--bg-card);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
   gap: 2rem;
 }
 
-.card {
-  background: white;
-  padding: 1.5rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-  border: 1px solid #f1f5f9;
-}
+.sidebar-header h3 { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
 
-.card h3 {
-  margin: 0 0 1.25rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #475569;
-}
-
-.asignatura-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
+.asignatura-list { display: flex; flex-direction: column; gap: 0.5rem; }
 .asig-item {
   padding: 1rem;
-  border-radius: 12px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  background: var(--bg-main);
+  border: 1px solid var(--border);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
-.asig-item:hover {
-  background: #f1f5f9;
-  transform: translateX(4px);
-}
+.asig-item:hover { border-color: var(--accent-primary); }
+.asig-item.selected { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--accent-surface); }
+.asig-name { display: block; font-weight: 600; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.25rem; }
+.asig-grado { display: block; font-size: 0.75rem; color: var(--text-secondary); }
 
-.asig-item.selected {
-  background: #1a2a6c;
-  color: white;
-  border-color: #1a2a6c;
-  box-shadow: 0 10px 15px -3px rgba(26, 42, 108, 0.2);
-}
+.dispensas-section h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem; }
+.dispensa-mini-card { background: var(--warning-bg); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; border: 1px solid rgba(217, 119, 6, 0.2); border-left: 4px solid var(--warning); }
+.dispensa-alumno { display: block; font-weight: 600; font-size: 0.85rem; color: var(--warning); margin-bottom: 0.25rem; }
+.dispensa-motivo { display: block; font-size: 0.8rem; color: var(--text-secondary); }
 
-.asig-name {
-  display: block;
-  font-weight: 700;
-  font-size: 1rem;
-}
+.main-content { flex: 1; padding: 2rem; overflow-y: auto; }
+.content-container { display: flex; flex-direction: column; gap: 2rem; max-width: 1000px; margin: 0 auto; }
 
-.asig-grado {
-  display: block;
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-top: 2px;
-}
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.toolbar h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
 
-.main-content {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.25rem;
-}
-
-.btn-new {
-  background: #1a2a6c;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 700;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-new:hover {
-  background: #243b55;
-  transform: translateY(-1px);
-}
-
-.sesiones-scroll {
-  display: flex;
-  gap: 0.75rem;
-  overflow-x: auto;
-  padding-bottom: 0.5rem;
-}
-
+.sesiones-nav { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; }
 .sesion-pill {
-  padding: 10px 20px;
-  background: #f1f5f9;
-  color: #64748b;
-  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 600;
+  color: var(--text-secondary);
   cursor: pointer;
   white-space: nowrap;
-  border: 2px solid transparent;
-  transition: all 0.2s;
-}
-
-.sesion-pill:hover {
-  background: #e2e8f0;
-}
-
-.sesion-pill.active {
-  background: #f0fdf4;
-  color: #166534;
-  border-color: #bbf7d0;
-}
-
-.attendance-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-.attendance-table th {
-  text-align: left;
-  padding: 1rem;
-  background: #f8fafc;
-  color: #64748b;
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid #e2e8f0;
-}
-
-.attendance-table td {
-  padding: 1rem;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.alumno-name {
-  font-weight: 700;
-  color: #1e293b;
-}
-
-.alumno-id {
-  font-size: 0.75rem;
-  color: #64748b;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 48px;
-  height: 24px;
-}
-
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #e2e8f0;
-  transition: .4s;
-  border-radius: 24px;
-}
-
-.slider:before {
-  position: absolute;
-  content: "";
-  height: 18px;
-  width: 18px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-input:checked + .slider { background-color: #1a2a6c; }
-input:checked + .slider:before { transform: translateX(24px); }
-
-.empty-state-card {
-  height: 300px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  background: #f8fafc;
-  border: 2px dashed #e2e8f0;
-  border-radius: 20px;
-  color: #94a3b8;
-  font-weight: 500;
+  gap: 8px;
+  transition: all 0.2s ease;
 }
+.sesion-pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
+.sesion-pill.active { border-color: var(--accent-primary); color: var(--accent-primary); background: var(--accent-surface); }
+.sesion-pill.closed { opacity: 0.6; }
 
-.empty-state-card.full { height: 600px; }
+.panel-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
+.panel-header h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+.flex-between { display: flex; justify-content: space-between; align-items: center; }
 
-.mini-alert {
-  font-size: 0.8rem;
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-weight: 600;
-}
+.text-center { text-align: center; }
+.inline-block { display: inline-block; }
+.mt-1 { margin-top: 0.25rem; }
 
-.mini-alert.success { background: #f0fdf4; color: #166534; }
-.mini-alert.error { background: #fef2f2; color: #991b1b; }
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--border); transition: .4s; border-radius: 20px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; box-shadow: var(--shadow-sm); }
+input:checked + .slider { background-color: var(--success); }
+input:checked + .slider:before { transform: translateX(20px); }
+.switch.disabled { opacity: 0.5; cursor: not-allowed; }
 
-.loading {
-  text-align: center;
-  color: #1a2a6c;
-  font-weight: 700;
-  margin-bottom: 1rem;
-}
+.btn-danger { color: var(--error); border-color: var(--error); }
+.btn-danger:hover { background: var(--error-bg); }
+
+.empty-state-card { height: 300px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed var(--border-hover); color: var(--text-secondary); font-size: 0.95rem; }
+.empty-state-card.full { height: calc(100vh - 4rem); max-height: 800px; }
+
+.loading-overlay { position: fixed; top: 64px; left: 0; right: 0; padding: 0.5rem; text-align: center; color: var(--accent-primary); font-weight: 600; font-size: 0.85rem; background: var(--accent-surface); border-bottom: 1px solid var(--border); z-index: 100; }
+.empty-msg-small { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
 </style>

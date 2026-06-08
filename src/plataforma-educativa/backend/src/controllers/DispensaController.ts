@@ -27,6 +27,19 @@ export class DispensaController {
     }
   }
 
+  async updateDispensa(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const dispensa = await dispensaService.updateDispensa(id as string, req.body);
+      res.status(200).json(dispensa);
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: 'Error al rectificar la dispensa',
+        error: error.message 
+      });
+    }
+  }
+
   async getByAlumno(req: Request, res: Response) {
     try {
       const { alumnoId } = req.params;
@@ -35,6 +48,19 @@ export class DispensaController {
     } catch (error: any) {
       res.status(500).json({ 
         message: 'Error al obtener las dispensas del alumno',
+        error: error.message 
+      });
+    }
+  }
+
+  async getByProfesor(req: Request, res: Response) {
+    try {
+      const { profesorId } = req.params;
+      const dispensas = await dispensaService.getDispensasByProfesor(profesorId as string);
+      res.status(200).json(dispensas);
+    } catch (error: any) {
+      res.status(500).json({ 
+        message: 'Error al obtener las dispensas para el profesor',
         error: error.message 
       });
     }

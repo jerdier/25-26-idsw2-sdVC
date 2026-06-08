@@ -1,22 +1,30 @@
 import api from './api';
-import type { CreateAttendanceDTO, AttendanceResponseDTO } from '../types';
+import type { CreateAttendanceDTO } from '../types';
 
 export const attendanceService = {
   /**
-   * Registra o actualiza la asistencia de un alumno
+   * Registra una asistencia
    */
-  async recordAttendance(data: CreateAttendanceDTO): Promise<AttendanceResponseDTO> {
-    const response = await api.post<AttendanceResponseDTO>('/attendance', data);
+  async recordAttendance(data: CreateAttendanceDTO) {
+    const response = await api.post('/attendance/record', data);
     return response.data;
   },
 
   /**
-   * Obtiene la lista de asistencia de una sesión específica
+   * Obtiene la asistencia de una sesión
    */
-  async getAttendanceBySession(sesionId: string): Promise<AttendanceResponseDTO[]> {
-    const response = await api.get<AttendanceResponseDTO[]>(`/attendance/session/${sesionId}`);
+  async getAttendanceBySession(sesionId: string) {
+    const response = await api.get(`/attendance/session/${sesionId}`);
     return response.data;
   },
+
+  /**
+   * Obtiene el historial por grupo/asignatura
+   */
+  async getHistory(asignaturaId: string) {
+    const response = await api.get(`/attendance/history/${asignaturaId}`);
+    return response.data;
+  }
 };
 
 export default attendanceService;

@@ -34,6 +34,26 @@ export class SecretariaService {
     return response.data;
   }
 
+  async getDirectores(): Promise<any[]> {
+    const response = await api.get<any[]>('/secretaria/directores');
+    return response.data;
+  }
+
+  async createDirector(data: any): Promise<any> {
+    const response = await api.post<any>('/secretaria/directores', data);
+    return response.data;
+  }
+
+  async getSecretarias(): Promise<any[]> {
+    const response = await api.get<any[]>('/secretaria/secretarias');
+    return response.data;
+  }
+
+  async createSecretaria(data: any): Promise<any> {
+    const response = await api.post<any>('/secretaria/secretarias', data);
+    return response.data;
+  }
+
   async createMatricula(data: CreateMatriculaDTO): Promise<any> {
     const response = await api.post('/secretaria/matriculas', data);
     return response.data;

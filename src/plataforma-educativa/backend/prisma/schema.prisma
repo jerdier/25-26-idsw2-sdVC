@@ -29,15 +29,15 @@ model Profesor {
   password               String           @default("password123")
   asignaturas            Asignatura[]
   asistenciasRegistradas Asistencia[]
-  directorDeGrado        DirectorDeGrado?
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 }
 
 model DirectorDeGrado {
   id                 String     @id @default(uuid())
-  profesorId         String     @unique
-  profesor           Profesor   @relation(fields: [profesorId], references: [id], onDelete: Cascade)
+  nombre             String
+  email              String     @unique
+  password           String     @default("password123")
   gradosDirigidos    Grado[]
   dispensasAprobadas Dispensa[]
   createdAt          DateTime   @default(now())
@@ -56,6 +56,15 @@ model Alumno {
   asistencias    Asistencia[]
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
+}
+
+model Administrador {
+  id        String   @id @default(uuid())
+  nombre    String
+  email     String   @unique
+  password  String   @default("admin123")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // ==========================================
@@ -106,12 +115,20 @@ model Matricula {
 model SesionDeClase {
   id           String       @id @default(uuid())
   fecha        DateTime
+  aula         String?
+  duracion     Int?         @default(60) // en minutos
+  estado       EstadoSesion @default(ACTIVA)
   asignaturaId String
   asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
   asistencias  Asistencia[]
   dispensas    Dispensa[]
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
+}
+
+enum EstadoSesion {
+  ACTIVA
+  CERRADA
 }
 
 model Asistencia {

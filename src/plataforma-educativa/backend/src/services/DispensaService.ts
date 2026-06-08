@@ -36,6 +36,51 @@ export class DispensaService {
   }
 
   /**
+   * Actualiza los datos de una dispensa existente (rectificación).
+   */
+  async updateDispensa(id: string, data: Partial<CreateDispensaDTO>) {
+    return await prisma.dispensa.update({
+      where: { id },
+      data: {
+        motivo: data.motivo,
+        sesionesEximidas: data.sesionesIds ? {
+          set: data.sesionesIds.map(id => ({ id })),
+        } : undefined,
+      },
+      include: {
+        alumno: true,
+        sesionesEximidas: true,
+      },
+    });
+  }
+
+  /**
+   * Obtiene las dispensas aprobadas que afectan a las asignaturas de un profesor.
+   */
+  async getDispensasByProfesor(profesorId: string) {
+    return await prisma.dispensa.findMany({
+      where: {
+        estado: 'APROBADA',
+        sesionesEximidas: {
+          some: {
+            asignatura: {
+              profesorId: profesorId,
+            },
+          },
+        },
+      },
+      include: {
+        alumno: true,
+        sesionesEximidas: {
+          include: {
+            asignatura: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
    * Obtiene todas las dispensas de un alumno específico.
    */
   async getDispensasByAlumno(alumnoId: string) {

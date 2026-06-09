@@ -487,3 +487,25 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 4. **Validación Transaccional:** El sistema de autenticación ahora consulta directamente la base de datos para todos los roles, eliminando cualquier lógica de "mock" en el proceso de identificación.
 
 **Decisión:** Estos cambios elevan el prototipo a un nivel de madurez cercano a un MVP real, garantizando la privacidad de los datos y la seguridad básica del sistema.
+
+## [22:00] Integridad del sistema de dispensas, mejoras de UI y documentación
+
+**Prompt:** Quiero que arregles varias cosas del sistema. En las sesiones del profesor, los alumnos con dispensa aprobada no deben aparecer en la lista de asistencia pero sí en una sección aparte que lo indique. En secretaría, que solo aparezca el estado de la dispensa sin poder editarla ni crearla, ya que el director es quien la aprueba. Los alumnos no deben poder solicitar una nueva dispensa de una asignatura si ya tienen una pendiente o aprobada. Además, quiero que el sistema guarde directamente en la dispensa qué asignaturas cubre, no solo las sesiones. El profesor también tiene que ver qué alumnos están dispensados en su asignatura. En secretaría añade la asignatura en la tabla de dispensas, y un botón para ver el detalle y eliminarlo si hace falta. Crea datos de prueba (TEST ALUMNO 2, TEST PROFESOR 2, TEST ASIGNATURA B) y por último profesionaliza los README del repositorio añadiendo navegación entre ellos y poniendo las imágenes de los diagramas con enlace a su archivo .puml.
+
+**Resultado:** Se ha completado una iteración de madurez del sistema que abarca lógica de negocio, modelo de datos y documentación:
+
+1. **Modelo de datos — Dispensa ↔ Asignatura (m2m):** Se ha añadido la relación directa `asignaturas Asignatura[]` al modelo `Dispensa` en Prisma, ejecutando `db push` y `prisma generate`. Esto resuelve el problema de raíz: antes, la pertenencia de una dispensa a una asignatura se derivaba de las sesiones cubiertas; si la asignatura no tenía sesiones, la relación se perdía. Ahora las asignaturas se almacenan explícitamente en la dispensa.
+
+2. **Exclusión de alumnos dispensados en sesiones:** Se ha corregido `getSessionAlumnos` en el backend para filtrar usando `asignaturas: { some: { id: asignaturaId } }` en lugar de `sesionesEximidas`, siendo consistente con el nuevo modelo. El alumno con dispensa aprobada desaparece de la lista de asistencia pero aparece en una nueva sección "Dispensados" dentro de la tarjeta de sesión, con badge verde.
+
+3. **Bloqueo de solicitudes duplicadas (alumno):** Se ha añadido el computed `asignaturasConDispensaPendiente` al `StudentDashboard`. Las asignaturas con dispensa ya pendiente o aprobada aparecen deshabilitadas con badges diferenciados ("Dispensa pendiente" / "Dispensa aprobada"), impidiendo solicitudes duplicadas. Al editar una dispensa propia, las asignaturas de esa misma dispensa permanecen editables.
+
+4. **Secretaría — solo lectura:** Se ha simplificado `SecretariaDashboard` eliminando el botón "Nueva Dispensa Oficio", el formulario modal y los botones de edición. La secretaría ahora solo visualiza el catálogo. Se ha añadido una columna "Asignatura" en la tabla, un modal de detalle accesible con el botón "Ver" y un botón de eliminación dentro del modal con confirmación.
+
+5. **Panel del profesor — dispensas visibles:** La sección "Dispensas Activas" del sidebar se ha actualizado a color verde (de naranja) para reflejar el estado aprobado. Se ha añadido el computed `alumnosDispensadosEnAsignatura` que filtra `dispensasProfesor` por la asignatura activa, mostrando los alumnos dispensados en un bloque separado bajo la tabla de asistencia.
+
+6. **Datos de prueba:** Se han insertado en la base de datos TEST ALUMNO 2 (`test.alumno2@universidad.edu`), TEST PROFESOR 2 (`test.profesor2@universidad.edu`) y TEST ASIGNATURA B, con matrículas y asignaciones cruzadas para permitir escenarios de prueba completos.
+
+7. **Documentación — READMEs profesionalizados:** Se han reescrito los 8 archivos README del repositorio con navegación cruzada mediante breadcrumbs, descripción del sistema, stack tecnológico y estructura de carpetas. Los README de `modelosUML/` e `images/` incluyen el catálogo completo de los 48 diagramas: cada imagen SVG es un enlace clicable a su archivo `.puml` fuente.
+
+**Decisión:** El sistema de dispensas es ahora robusto de extremo a extremo: el modelo de datos es semánticamente correcto, las restricciones de UI son coherentes entre roles y la documentación del repositorio está a la altura de un proyecto profesional. El siguiente paso natural sería implementar notificaciones en tiempo real o exportación de informes de asistencia.

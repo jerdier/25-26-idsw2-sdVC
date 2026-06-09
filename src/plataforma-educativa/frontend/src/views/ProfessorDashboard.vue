@@ -7,18 +7,20 @@ import dispensaService from '../services/dispensaService';
 import type { Alumno, SesionDeClase } from '../types';
 
 const { state } = useAuth();
-const PROFESOR_ID = state.user?.id; 
+const PROFESOR_ID = state.user?.id;
 
 const asignaturas = ref<any[]>([]);
 const selectedAsignatura = ref<string | null>(null);
 const sesiones = ref<SesionDeClase[]>([]);
 const selectedSesion = ref<string | null>(null);
-const alumnos = ref<Alumno[]>([]);
+const sesionAlumnos = ref<Alumno[]>([]);
 const asistenciaMap = ref<Record<string, boolean>>({});
 const dispensasProfesor = ref<any[]>([]);
 
 const loading = ref(false);
 const mensaje = ref({ texto: '', tipo: '' });
+
+const editingSession = ref<{ id: string; aula: string; duracion: number } | null>(null);
 
 onMounted(async () => {
   if (!PROFESOR_ID) return;
@@ -42,8 +44,8 @@ watch(selectedAsignatura, async (newVal) => {
     loading.value = true;
     try {
       sesiones.value = await academicService.getSessions(newVal);
-      alumnos.value = await academicService.getAsignaturaAlumnos(newVal);
       selectedSesion.value = null;
+      sesionAlumnos.value = [];
       asistenciaMap.value = {};
     } finally {
       loading.value = false;
@@ -53,14 +55,19 @@ watch(selectedAsignatura, async (newVal) => {
 
 watch(selectedSesion, async (newVal) => {
   if (newVal) {
+    loading.value = true;
     try {
-      const records = await attendanceService.getAttendanceBySession(newVal);
+      const [records, alumnos] = await Promise.all([
+        attendanceService.getAttendanceBySession(newVal),
+        academicService.getSessionAlumnos(newVal)
+      ]);
+      sesionAlumnos.value = alumnos;
       asistenciaMap.value = {};
       records.forEach((r: any) => {
         asistenciaMap.value[r.alumno.id] = r.presente;
       });
-    } catch (error) {
-      console.error('Error cargando asistencia:', error);
+    } finally {
+      loading.value = false;
     }
   }
 });
@@ -73,29 +80,76 @@ const createSession = async () => {
     sesiones.value.unshift(newSession);
     selectedSesion.value = newSession.id;
     mensaje.value = { texto: 'Sesión creada correctamente', tipo: 'success' };
-  } catch (error) {
+  } catch {
     mensaje.value = { texto: 'Error al crear sesión', tipo: 'error' };
+  } finally {
+    setTimeout(() => mensaje.value.texto = '', 3000);
   }
 };
 
 const closeSession = async (sesionId: string) => {
-  if (!confirm('¿Estás seguro de cerrar esta sesión?')) return;
+  if (!confirm('¿Cerrar esta sesión? No podrás modificar la asistencia después.')) return;
   try {
     await academicService.closeSession(sesionId);
     const sesion = sesiones.value.find(s => s.id === sesionId);
     if (sesion) sesion.estado = 'CERRADA';
     mensaje.value = { texto: 'Sesión cerrada', tipo: 'success' };
-  } catch (error) {
+  } catch {
     mensaje.value = { texto: 'Error al cerrar sesión', tipo: 'error' };
+  } finally {
+    setTimeout(() => mensaje.value.texto = '', 3000);
+  }
+};
+
+const openEditSession = (sesion: SesionDeClase) => {
+  editingSession.value = {
+    id: sesion.id,
+    aula: sesion.aula ?? '',
+    duracion: sesion.duracion ?? 60
+  };
+};
+
+const saveEditSession = async () => {
+  if (!editingSession.value) return;
+  try {
+    const updated = await academicService.updateSession(editingSession.value.id, {
+      aula: editingSession.value.aula,
+      duracion: editingSession.value.duracion
+    });
+    const idx = sesiones.value.findIndex(s => s.id === editingSession.value!.id);
+    if (idx !== -1) sesiones.value[idx] = { ...sesiones.value[idx], ...updated };
+    editingSession.value = null;
+    mensaje.value = { texto: 'Sesión actualizada', tipo: 'success' };
+  } catch {
+    mensaje.value = { texto: 'Error al actualizar sesión', tipo: 'error' };
+  } finally {
+    setTimeout(() => mensaje.value.texto = '', 3000);
+  }
+};
+
+const confirmDeleteSession = async (sesionId: string) => {
+  if (!confirm('¿Eliminar esta sesión y todos sus registros de asistencia? Esta acción no se puede deshacer.')) return;
+  try {
+    await academicService.deleteSession(sesionId);
+    sesiones.value = sesiones.value.filter(s => s.id !== sesionId);
+    if (selectedSesion.value === sesionId) {
+      selectedSesion.value = null;
+      sesionAlumnos.value = [];
+      asistenciaMap.value = {};
+    }
+    mensaje.value = { texto: 'Sesión eliminada', tipo: 'success' };
+  } catch {
+    mensaje.value = { texto: 'Error al eliminar sesión', tipo: 'error' };
+  } finally {
+    setTimeout(() => mensaje.value.texto = '', 3000);
   }
 };
 
 const toggleAsistencia = async (alumnoId: string) => {
   const currentSesion = sesiones.value.find(s => s.id === selectedSesion.value);
   if (currentSesion?.estado === 'CERRADA') return;
-  
   if (!selectedSesion.value || !PROFESOR_ID) return;
-  
+
   const nuevoEstado = !asistenciaMap.value[alumnoId];
   try {
     await attendanceService.recordAttendance({
@@ -105,8 +159,9 @@ const toggleAsistencia = async (alumnoId: string) => {
       presente: nuevoEstado
     });
     asistenciaMap.value[alumnoId] = nuevoEstado;
-  } catch (error) {
+  } catch {
     mensaje.value = { texto: 'Error al guardar asistencia', tipo: 'error' };
+    setTimeout(() => mensaje.value.texto = '', 3000);
   }
 };
 
@@ -115,26 +170,48 @@ const formatDate = (dateStr: string) => {
     day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit'
   });
 };
+
+const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion.value);
 </script>
 
 <template>
   <div class="professor-dashboard">
     <div v-if="loading" class="loading-overlay">Sincronizando...</div>
 
+    <!-- Modal editar sesión -->
+    <div v-if="editingSession" class="modal-overlay" @click.self="editingSession = null">
+      <div class="modal-box">
+        <h3>Editar Sesión</h3>
+        <div class="form-group">
+          <label>Aula</label>
+          <input v-model="editingSession.aula" type="text" placeholder="Ej: Aula 101" class="form-input">
+        </div>
+        <div class="form-group">
+          <label>Duración (minutos)</label>
+          <input v-model.number="editingSession.duracion" type="number" min="15" max="300" class="form-input">
+        </div>
+        <div class="modal-actions">
+          <button @click="saveEditSession" class="btn-primary">Guardar</button>
+          <button @click="editingSession = null" class="btn-outline">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
     <aside class="sidebar">
       <div class="sidebar-header">
         <h3>Mis Asignaturas</h3>
       </div>
       <div class="asignatura-list">
-        <div 
-          v-for="asig in asignaturas" 
-          :key="asig.id" 
+        <div
+          v-for="asig in asignaturas"
+          :key="asig.id"
           :class="['asig-item', { selected: selectedAsignatura === asig.id }]"
           @click="selectedAsignatura = asig.id"
         >
           <span class="asig-name">{{ asig.nombre }}</span>
           <span class="asig-grado">{{ asig.grado?.nombre }}</span>
         </div>
+        <p v-if="asignaturas.length === 0" class="empty-msg-small">No tienes asignaturas asignadas.</p>
       </div>
 
       <div class="dispensas-section">
@@ -159,49 +236,65 @@ const formatDate = (dateStr: string) => {
         </header>
 
         <section class="sesiones-nav">
-          <div 
-            v-for="sesion in sesiones" 
+          <div
+            v-for="sesion in sesiones"
             :key="sesion.id"
             @click="selectedSesion = sesion.id"
             :class="['sesion-pill', { active: selectedSesion === sesion.id, closed: sesion.estado === 'CERRADA' }]"
           >
             {{ formatDate(sesion.fecha) }}
-            <span v-if="sesion.estado === 'CERRADA'">🔒</span>
+            <span v-if="sesion.estado === 'CERRADA'" class="pill-icon">🔒</span>
           </div>
         </section>
 
         <section v-if="selectedSesion" class="card-base attendance-card">
           <div class="panel-header flex-between">
-            <h3>Control de Asistencia</h3>
-            <button 
-              v-if="sesiones.find(s => s.id === selectedSesion)?.estado === 'ACTIVA'"
-              @click="closeSession(selectedSesion)"
-              class="btn-outline btn-danger"
-            >
-              Cerrar Sesión
-            </button>
+            <div>
+              <h3>Control de Asistencia</h3>
+              <p v-if="selectedSesionObj()?.aula" class="session-meta">
+                {{ selectedSesionObj()?.aula }} · {{ selectedSesionObj()?.duracion }} min
+              </p>
+            </div>
+            <div class="header-actions">
+              <button @click="openEditSession(selectedSesionObj()!)" class="btn-outline btn-sm">
+                Editar
+              </button>
+              <button @click="confirmDeleteSession(selectedSesion!)" class="btn-outline btn-sm btn-danger">
+                Eliminar
+              </button>
+              <button
+                v-if="selectedSesionObj()?.estado === 'ACTIVA'"
+                @click="closeSession(selectedSesion!)"
+                class="btn-outline btn-danger"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
           </div>
-          
-          <table class="table-corp">
+
+          <div v-if="sesionAlumnos.length === 0" class="empty-state">
+            No hay alumnos asignados a esta sesión.
+          </div>
+          <table v-else class="table-corp">
             <thead>
               <tr>
                 <th>Alumno</th>
-                <th class="text-center">Estado</th>
+                <th class="text-center">Asistencia</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="alumno in alumnos" :key="alumno.id">
+              <tr v-for="alumno in sesionAlumnos" :key="alumno.id">
                 <td>
                   <div class="bold">{{ alumno.nombre }}</div>
                   <div class="code-sm inline-block mt-1">{{ alumno.numeroRegistro }}</div>
                 </td>
                 <td class="text-center">
-                  <label class="switch" :class="{ disabled: sesiones.find(s => s.id === selectedSesion)?.estado === 'CERRADA' }">
-                    <input 
-                      type="checkbox" 
-                      :checked="asistenciaMap[alumno.id]" 
+                  <label class="switch" :class="{ disabled: selectedSesionObj()?.estado === 'CERRADA' }">
+                    <input
+                      type="checkbox"
+                      :checked="asistenciaMap[alumno.id]"
                       @change="toggleAsistencia(alumno.id)"
-                      :disabled="sesiones.find(s => s.id === selectedSesion)?.estado === 'CERRADA'"
+                      :disabled="selectedSesionObj()?.estado === 'CERRADA'"
                     >
                     <span class="slider"></span>
                   </label>
@@ -218,6 +311,8 @@ const formatDate = (dateStr: string) => {
         <p>Seleccione una asignatura para comenzar.</p>
       </div>
     </main>
+
+    <div v-if="mensaje.texto" :class="['toast-alert', mensaje.tipo]">{{ mensaje.texto }}</div>
   </div>
 </template>
 
@@ -232,6 +327,7 @@ const formatDate = (dateStr: string) => {
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  overflow-y: auto;
 }
 
 .sidebar-header h3 { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
@@ -245,7 +341,6 @@ const formatDate = (dateStr: string) => {
   cursor: pointer;
   transition: all 0.2s ease;
 }
-
 .asig-item:hover { border-color: var(--accent-primary); }
 .asig-item.selected { border-color: var(--accent-primary); box-shadow: 0 0 0 2px var(--accent-surface); }
 .asig-name { display: block; font-weight: 600; font-size: 0.95rem; color: var(--text-primary); margin-bottom: 0.25rem; }
@@ -262,9 +357,9 @@ const formatDate = (dateStr: string) => {
 .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
 .toolbar h2 { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
 
-.sesiones-nav { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; }
+.sesiones-nav { display: flex; gap: 0.75rem; overflow-x: auto; padding-bottom: 0.5rem; flex-wrap: wrap; }
 .sesion-pill {
-  padding: 0.75rem 1.25rem;
+  padding: 0.6rem 1rem;
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -275,16 +370,21 @@ const formatDate = (dateStr: string) => {
   white-space: nowrap;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   transition: all 0.2s ease;
 }
 .sesion-pill:hover { border-color: var(--border-hover); color: var(--text-primary); }
 .sesion-pill.active { border-color: var(--accent-primary); color: var(--accent-primary); background: var(--accent-surface); }
 .sesion-pill.closed { opacity: 0.6; }
+.pill-icon { font-size: 0.75rem; }
 
 .panel-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
 .panel-header h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+.session-meta { font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem; }
 .flex-between { display: flex; justify-content: space-between; align-items: center; }
+.header-actions { display: flex; gap: 0.5rem; align-items: center; }
+
+.btn-sm { padding: 0.35rem 0.75rem !important; font-size: 0.78rem !important; }
 
 .text-center { text-align: center; }
 .inline-block { display: inline-block; }
@@ -301,9 +401,22 @@ input:checked + .slider:before { transform: translateX(20px); }
 .btn-danger { color: var(--error); border-color: var(--error); }
 .btn-danger:hover { background: var(--error-bg); }
 
+.empty-state { text-align: center; padding: 2rem; color: var(--text-secondary); font-size: 0.9rem; }
 .empty-state-card { height: 300px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border-radius: var(--radius-md); border: 1px dashed var(--border-hover); color: var(--text-secondary); font-size: 0.95rem; }
 .empty-state-card.full { height: calc(100vh - 4rem); max-height: 800px; }
 
 .loading-overlay { position: fixed; top: 64px; left: 0; right: 0; padding: 0.5rem; text-align: center; color: var(--accent-primary); font-weight: 600; font-size: 0.85rem; background: var(--accent-surface); border-bottom: 1px solid var(--border); z-index: 100; }
 .empty-msg-small { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+.modal-box { background: var(--bg-card); border-radius: var(--radius-md); padding: 2rem; width: 420px; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
+.modal-box h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; }
+.form-group { margin-bottom: 1rem; }
+.form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
+.modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+
+.toast-alert { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-md); z-index: 3000; }
+.toast-alert.success { border-left: 4px solid var(--success); }
+.toast-alert.error { border-left: 4px solid var(--error); }
 </style>

@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { secretariaService } from '../services/secretariaService';
 import { usuarioService } from '../services/usuarioService';
+import { academicService } from '../services/academicService';
 import type { Alumno, Profesor } from '../types';
 
 const profesores = ref<Profesor[]>([]);
@@ -10,6 +11,9 @@ const secretarias = ref<any[]>([]);
 const alumnos = ref<Alumno[]>([]);
 const loading = ref(true);
 const mensaje = ref({ texto: '', tipo: '' });
+
+const todasAsignaturas = ref<any[]>([]);
+const loadingAsignaturas = ref(false);
 
 // Formulario Alta
 const nuevoUsuario = ref({ nombre: '', email: '', rol: 'PROFESOR', numeroRegistro: '', password: '' });
@@ -80,15 +84,62 @@ const inspectUser = async (id: string) => {
   try {
     const user = await usuarioService.getUsuario(id);
     editingUser.value = user;
-    editFormData.value = { 
-      nombre: user.nombre, 
-      email: user.email, 
-      numeroRegistro: user.numeroRegistro || '', 
-      password: '' 
+    editFormData.value = {
+      nombre: user.nombre,
+      email: user.email,
+      numeroRegistro: user.numeroRegistro || '',
+      password: ''
     };
+    if (user.role === 'professor' || user.role === 'student') {
+      loadingAsignaturas.value = true;
+      todasAsignaturas.value = await academicService.getAllAsignaturas();
+      loadingAsignaturas.value = false;
+    }
     showEditModal.value = true;
   } catch (e) {
     alert('Fallo al recuperar registro.');
+  }
+};
+
+const isAsignaturaAsignada = (asig: any): boolean => {
+  if (editingUser.value?.role === 'professor') {
+    return asig.profesorId === editingUser.value.id;
+  }
+  if (editingUser.value?.role === 'student') {
+    return asig.alumnos?.some((a: any) => a.id === editingUser.value.id) ?? false;
+  }
+  return false;
+};
+
+const toggleAsignatura = async (asig: any) => {
+  if (!editingUser.value) return;
+  const asignada = isAsignaturaAsignada(asig);
+  try {
+    if (editingUser.value.role === 'professor') {
+      if (asignada) {
+        await academicService.unassignProfesorFromAsignatura(asig.id);
+        const idx = todasAsignaturas.value.findIndex(a => a.id === asig.id);
+        if (idx !== -1) todasAsignaturas.value[idx] = { ...todasAsignaturas.value[idx], profesorId: null };
+      } else {
+        await academicService.assignProfesorToAsignatura(asig.id, editingUser.value.id);
+        const idx = todasAsignaturas.value.findIndex(a => a.id === asig.id);
+        if (idx !== -1) todasAsignaturas.value[idx] = { ...todasAsignaturas.value[idx], profesorId: editingUser.value.id };
+      }
+    } else if (editingUser.value.role === 'student') {
+      if (asignada) {
+        await academicService.removeAlumnoFromAsignatura(asig.id, editingUser.value.id);
+        const a = todasAsignaturas.value.find(a => a.id === asig.id);
+        if (a) a.alumnos = a.alumnos.filter((al: any) => al.id !== editingUser.value.id);
+      } else {
+        await academicService.addAlumnoToAsignatura(asig.id, editingUser.value.id);
+        const a = todasAsignaturas.value.find(a => a.id === asig.id);
+        if (a) a.alumnos = [...(a.alumnos || []), { id: editingUser.value.id, nombre: editingUser.value.nombre }];
+      }
+    }
+    mensaje.value = { texto: asignada ? 'Asignatura desasignada.' : 'Asignatura asignada.', tipo: 'success' };
+    setTimeout(() => mensaje.value.texto = '', 2000);
+  } catch (e) {
+    mensaje.value = { texto: 'Error al actualizar asignatura.', tipo: 'error' };
   }
 };
 
@@ -246,6 +297,23 @@ const eliminarUsuario = async () => {
           <div><label class="form-label">Email</label><input v-model="editFormData.email" class="form-input" type="email" /></div>
           <div v-if="editingUser?.role === 'student'"><label class="form-label">Nº Registro</label><input v-model="editFormData.numeroRegistro" class="form-input" /></div>
           <div><label class="form-label">Nueva Contraseña</label><input v-model="editFormData.password" type="password" class="form-input" placeholder="Dejar en blanco para no cambiar" /></div>
+          <div v-if="editingUser?.role === 'professor' || editingUser?.role === 'student'" class="asig-section">
+            <label class="form-label">Asignaturas Asignadas</label>
+            <div v-if="loadingAsignaturas" class="dim-sm">Cargando asignaturas...</div>
+            <div v-else class="asig-chips-wrap">
+              <div
+                v-for="asig in todasAsignaturas"
+                :key="asig.id"
+                :class="['asig-chip', { 'asig-chip--on': isAsignaturaAsignada(asig) }]"
+                @click="toggleAsignatura(asig)"
+                :title="editingUser?.role === 'professor' ? 'Asignar como profesor' : 'Matricular/desmatricular alumno'"
+              >
+                <span class="asig-chip-name">{{ asig.nombre }}</span>
+                <span class="asig-chip-grado">{{ asig.grado?.nombre }}</span>
+              </div>
+              <p v-if="todasAsignaturas.length === 0" class="dim-sm">No hay asignaturas creadas.</p>
+            </div>
+          </div>
         </div>
         <footer class="modal-footer">
           <button @click="eliminarUsuario" class="btn-danger mr-auto">Eliminar</button>
@@ -293,4 +361,14 @@ const eliminarUsuario = async () => {
 .toast-alert.error { border-left: 4px solid var(--error); }
 
 @media (max-width: 1024px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+.asig-section { display: flex; flex-direction: column; gap: 0.75rem; }
+.asig-chips-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; max-height: 180px; overflow-y: auto; padding: 0.5rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.asig-chip { display: flex; flex-direction: column; padding: 0.5rem 0.75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s ease; background: var(--bg-card); min-width: 120px; }
+.asig-chip:hover { border-color: var(--accent-primary); }
+.asig-chip--on { border-color: var(--accent-primary); background: var(--accent-surface); }
+.asig-chip-name { font-size: 0.8rem; font-weight: 600; color: var(--text-primary); }
+.asig-chip-grado { font-size: 0.7rem; color: var(--text-secondary); margin-top: 2px; }
+.asig-chip--on .asig-chip-name { color: var(--accent-primary); }
+.dim-sm { font-size: 0.8rem; color: var(--text-secondary); font-style: italic; }
 </style>

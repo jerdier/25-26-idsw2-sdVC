@@ -15,7 +15,7 @@ const roleLabels: Record<string, string> = {
   professor: 'Profesor',
   director: 'Director de Grado',
   secretaria: 'Secretaría Académica',
-  admin: 'Administrador'
+  administrador: 'Administrador'
 };
 
 const formatDate = (dateStr?: string) => {

@@ -56,6 +56,69 @@ export const academicService = {
   async getSessionsForAlumno(alumnoId: string): Promise<SesionDeClase[]> {
     const response = await api.get(`/academic/alumno/${alumnoId}/sessions`);
     return response.data;
+  },
+
+  /**
+   * Obtiene todas las asignaturas del sistema
+   */
+  async getAllAsignaturas() {
+    const response = await api.get('/academic/asignaturas');
+    return response.data;
+  },
+
+  /**
+   * Obtiene las asignaturas asignadas directamente a un alumno
+   */
+  async getStudentAsignaturas(alumnoId: string) {
+    const response = await api.get(`/academic/alumno/${alumnoId}/asignaturas`);
+    return response.data;
+  },
+
+  /**
+   * Asigna un profesor a una asignatura
+   */
+  async assignProfesorToAsignatura(asignaturaId: string, profesorId: string) {
+    const response = await api.put(`/academic/asignatura/${asignaturaId}/profesor`, { profesorId });
+    return response.data;
+  },
+
+  /**
+   * Desasigna el profesor de una asignatura
+   */
+  async unassignProfesorFromAsignatura(asignaturaId: string) {
+    const response = await api.delete(`/academic/asignatura/${asignaturaId}/profesor`);
+    return response.data;
+  },
+
+  /**
+   * Añade un alumno a una asignatura
+   */
+  async addAlumnoToAsignatura(asignaturaId: string, alumnoId: string) {
+    const response = await api.post(`/academic/asignatura/${asignaturaId}/alumnos/${alumnoId}`, {});
+    return response.data;
+  },
+
+  /**
+   * Elimina un alumno de una asignatura
+   */
+  async removeAlumnoFromAsignatura(asignaturaId: string, alumnoId: string) {
+    const response = await api.delete(`/academic/asignatura/${asignaturaId}/alumnos/${alumnoId}`);
+    return response.data;
+  },
+
+  /**
+   * Obtiene los alumnos de una sesión excluyendo los dispensados (APROBADA)
+   */
+  async getSessionAlumnos(sesionId: string) {
+    const response = await api.get(`/academic/sessions/${sesionId}/alumnos`);
+    return response.data;
+  },
+
+  /**
+   * Elimina una sesión y todos sus registros de asistencia
+   */
+  async deleteSession(id: string) {
+    await api.delete(`/academic/sessions/${id}`);
   }
 };
 

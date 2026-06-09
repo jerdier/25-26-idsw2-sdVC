@@ -3,8 +3,10 @@ import { ref, onMounted } from 'vue';
 import { secretariaService } from '../services/secretariaService';
 import { dispensaService } from '../services/dispensaService';
 import { academicService } from '../services/academicService';
+import { useAuth } from '../services/authService';
 import type { Alumno, SecretariaStats, SesionDeClase } from '../types';
 
+const { state } = useAuth();
 const stats = ref<SecretariaStats>({ alumnos: 0, profesores: 0, grados: 0, dispensasPendientes: 0 });
 const alumnos = ref<Alumno[]>([]);
 const dispensas = ref<any[]>([]);
@@ -86,7 +88,7 @@ const saveDispensa = async () => {
       await dispensaService.updateDispensa(editingDispensaId.value, { motivo: formMotivo.value, sesionesIds: formSesionesIds.value });
       mensaje.value = { texto: 'Registro actualizado con éxito', tipo: 'success' };
     } else {
-      await dispensaService.createDispensa({ alumnoId: formAlumnoId.value, motivo: `[OFICIO] ${formMotivo.value}`, secretariaId: 'mock-id', sesionesIds: formSesionesIds.value });
+      await dispensaService.createDispensa({ alumnoId: formAlumnoId.value, motivo: `[OFICIO] ${formMotivo.value}`, secretariaId: state.user?.id, sesionesIds: formSesionesIds.value });
       mensaje.value = { texto: 'Dispensa registrada correctamente', tipo: 'success' };
     }
     showDispensaForm.value = false;

@@ -89,8 +89,8 @@ model Asignatura {
   nombre     String
   gradoId    String
   grado      Grado           @relation(fields: [gradoId], references: [id], onDelete: Cascade)
-  profesorId String
-  profesor   Profesor        @relation(fields: [profesorId], references: [id], onDelete: Restrict)
+  profesorId String?
+  profesor   Profesor?       @relation(fields: [profesorId], references: [id], onDelete: SetNull)
   alumnos    Alumno[]
   sesiones   SesionDeClase[]
   createdAt  DateTime        @default(now())

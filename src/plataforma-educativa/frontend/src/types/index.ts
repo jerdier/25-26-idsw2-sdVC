@@ -21,6 +21,9 @@ export interface SesionDeClase {
   id: string;
   fecha: string;
   asignaturaId: string;
+  aula?: string;
+  duracion?: number;
+  estado?: 'ACTIVA' | 'CERRADA';
   asignatura?: {
     id: string;
     nombre: string;

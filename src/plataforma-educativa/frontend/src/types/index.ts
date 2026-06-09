@@ -60,6 +60,7 @@ export interface CreateDispensaDTO {
   motivo: string;
   secretariaId: string;
   sesionesIds: string[];
+  asignaturasIds: string[];
 }
 
 export interface UpdateDispensaStatusDTO {

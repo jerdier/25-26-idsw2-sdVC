@@ -93,6 +93,7 @@ model Asignatura {
   profesor   Profesor?       @relation(fields: [profesorId], references: [id], onDelete: SetNull)
   alumnos    Alumno[]
   sesiones   SesionDeClase[]
+  dispensas  Dispensa[]
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
 }
@@ -157,6 +158,7 @@ model Dispensa {
   directorId       String?
   director         DirectorDeGrado?    @relation(fields: [directorId], references: [id], onDelete: SetNull)
   sesionesEximidas SesionDeClase[]
+  asignaturas      Asignatura[]
   updatedAt        DateTime            @updatedAt
 }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch } from 'vue';
 import { useAuth } from '../services/authService';
 import academicService from '../services/academicService';
 import attendanceService from '../services/attendanceService';
@@ -19,8 +19,7 @@ const dispensasProfesor = ref<any[]>([]);
 
 const loading = ref(false);
 const mensaje = ref({ texto: '', tipo: '' });
-
-const editingSession = ref<{ id: string; aula: string; duracion: number } | null>(null);
+const editandoAsistencia = ref(false);
 
 onMounted(async () => {
   if (!PROFESOR_ID) return;
@@ -54,6 +53,7 @@ watch(selectedAsignatura, async (newVal) => {
 });
 
 watch(selectedSesion, async (newVal) => {
+  editandoAsistencia.value = false;
   if (newVal) {
     loading.value = true;
     try {
@@ -101,31 +101,6 @@ const closeSession = async (sesionId: string) => {
   }
 };
 
-const openEditSession = (sesion: SesionDeClase) => {
-  editingSession.value = {
-    id: sesion.id,
-    aula: sesion.aula ?? '',
-    duracion: sesion.duracion ?? 60
-  };
-};
-
-const saveEditSession = async () => {
-  if (!editingSession.value) return;
-  try {
-    const updated = await academicService.updateSession(editingSession.value.id, {
-      aula: editingSession.value.aula,
-      duracion: editingSession.value.duracion
-    });
-    const idx = sesiones.value.findIndex(s => s.id === editingSession.value!.id);
-    if (idx !== -1) sesiones.value[idx] = { ...sesiones.value[idx], ...updated };
-    editingSession.value = null;
-    mensaje.value = { texto: 'Sesión actualizada', tipo: 'success' };
-  } catch {
-    mensaje.value = { texto: 'Error al actualizar sesión', tipo: 'error' };
-  } finally {
-    setTimeout(() => mensaje.value.texto = '', 3000);
-  }
-};
 
 const confirmDeleteSession = async (sesionId: string) => {
   if (!confirm('¿Eliminar esta sesión y todos sus registros de asistencia? Esta acción no se puede deshacer.')) return;
@@ -147,7 +122,7 @@ const confirmDeleteSession = async (sesionId: string) => {
 
 const toggleAsistencia = async (alumnoId: string) => {
   const currentSesion = sesiones.value.find(s => s.id === selectedSesion.value);
-  if (currentSesion?.estado === 'CERRADA') return;
+  if (currentSesion?.estado === 'CERRADA' && !editandoAsistencia.value) return;
   if (!selectedSesion.value || !PROFESOR_ID) return;
 
   const nuevoEstado = !asistenciaMap.value[alumnoId];
@@ -172,30 +147,18 @@ const formatDate = (dateStr: string) => {
 };
 
 const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion.value);
+
+const alumnosDispensadosEnAsignatura = computed(() => {
+  if (!selectedAsignatura.value) return [];
+  return dispensasProfesor.value
+    .filter((d: any) => d.asignaturas?.some((a: any) => a.id === selectedAsignatura.value))
+    .map((d: any) => d.alumno);
+});
 </script>
 
 <template>
   <div class="professor-dashboard">
     <div v-if="loading" class="loading-overlay">Sincronizando...</div>
-
-    <!-- Modal editar sesión -->
-    <div v-if="editingSession" class="modal-overlay" @click.self="editingSession = null">
-      <div class="modal-box">
-        <h3>Editar Sesión</h3>
-        <div class="form-group">
-          <label>Aula</label>
-          <input v-model="editingSession.aula" type="text" placeholder="Ej: Aula 101" class="form-input">
-        </div>
-        <div class="form-group">
-          <label>Duración (minutos)</label>
-          <input v-model.number="editingSession.duracion" type="number" min="15" max="300" class="form-input">
-        </div>
-        <div class="modal-actions">
-          <button @click="saveEditSession" class="btn-primary">Guardar</button>
-          <button @click="editingSession = null" class="btn-outline">Cancelar</button>
-        </div>
-      </div>
-    </div>
 
     <aside class="sidebar">
       <div class="sidebar-header">
@@ -251,13 +214,15 @@ const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion
           <div class="panel-header flex-between">
             <div>
               <h3>Control de Asistencia</h3>
-              <p v-if="selectedSesionObj()?.aula" class="session-meta">
-                {{ selectedSesionObj()?.aula }} · {{ selectedSesionObj()?.duracion }} min
-              </p>
+              <span v-if="selectedSesionObj()?.estado === 'CERRADA' && editandoAsistencia" class="session-editing-badge">Editando</span>
             </div>
             <div class="header-actions">
-              <button @click="openEditSession(selectedSesionObj()!)" class="btn-outline btn-sm">
-                Editar
+              <button
+                v-if="selectedSesionObj()?.estado === 'CERRADA'"
+                @click="editandoAsistencia = !editandoAsistencia"
+                :class="['btn-outline', 'btn-sm', { 'btn-active': editandoAsistencia }]"
+              >
+                {{ editandoAsistencia ? 'Finalizar edición' : 'Editar asistencia' }}
               </button>
               <button @click="confirmDeleteSession(selectedSesion!)" class="btn-outline btn-sm btn-danger">
                 Eliminar
@@ -289,12 +254,12 @@ const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion
                   <div class="code-sm inline-block mt-1">{{ alumno.numeroRegistro }}</div>
                 </td>
                 <td class="text-center">
-                  <label class="switch" :class="{ disabled: selectedSesionObj()?.estado === 'CERRADA' }">
+                  <label class="switch" :class="{ disabled: selectedSesionObj()?.estado === 'CERRADA' && !editandoAsistencia }">
                     <input
                       type="checkbox"
                       :checked="asistenciaMap[alumno.id]"
                       @change="toggleAsistencia(alumno.id)"
-                      :disabled="selectedSesionObj()?.estado === 'CERRADA'"
+                      :disabled="selectedSesionObj()?.estado === 'CERRADA' && !editandoAsistencia"
                     >
                     <span class="slider"></span>
                   </label>
@@ -302,6 +267,14 @@ const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion
               </tr>
             </tbody>
           </table>
+          <div v-if="alumnosDispensadosEnAsignatura.length > 0" class="dispensados-block">
+            <div class="dispensados-header">Dispensados ({{ alumnosDispensadosEnAsignatura.length }})</div>
+            <div v-for="alumno in alumnosDispensadosEnAsignatura" :key="alumno.id" class="dispensado-row">
+              <span class="bold">{{ alumno.nombre }}</span>
+              <code class="code-sm ml-2">{{ alumno.numeroRegistro }}</code>
+              <span class="badge-dispensado">Dispensa aprobada</span>
+            </div>
+          </div>
         </section>
         <div v-else class="empty-state-card">
           <p>Seleccione una sesión para registrar la asistencia.</p>
@@ -347,8 +320,8 @@ const selectedSesionObj = () => sesiones.value.find(s => s.id === selectedSesion
 .asig-grado { display: block; font-size: 0.75rem; color: var(--text-secondary); }
 
 .dispensas-section h4 { font-size: 0.75rem; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.05em; margin-bottom: 1rem; }
-.dispensa-mini-card { background: var(--warning-bg); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; border: 1px solid rgba(217, 119, 6, 0.2); border-left: 4px solid var(--warning); }
-.dispensa-alumno { display: block; font-weight: 600; font-size: 0.85rem; color: var(--warning); margin-bottom: 0.25rem; }
+.dispensa-mini-card { background: var(--success-bg); padding: 1rem; border-radius: var(--radius-sm); margin-bottom: 0.5rem; border: 1px solid rgba(5, 150, 105, 0.2); border-left: 4px solid var(--success); }
+.dispensa-alumno { display: block; font-weight: 600; font-size: 0.85rem; color: var(--success); margin-bottom: 0.25rem; }
 .dispensa-motivo { display: block; font-size: 0.8rem; color: var(--text-secondary); }
 
 .main-content { flex: 1; padding: 2rem; overflow-y: auto; }
@@ -408,13 +381,15 @@ input:checked + .slider:before { transform: translateX(20px); }
 .loading-overlay { position: fixed; top: 64px; left: 0; right: 0; padding: 0.5rem; text-align: center; color: var(--accent-primary); font-weight: 600; font-size: 0.85rem; background: var(--accent-surface); border-bottom: 1px solid var(--border); z-index: 100; }
 .empty-msg-small { font-size: 0.85rem; color: var(--text-dim); font-style: italic; }
 
-/* Modal */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
-.modal-box { background: var(--bg-card); border-radius: var(--radius-md); padding: 2rem; width: 420px; border: 1px solid var(--border); box-shadow: var(--shadow-lg); }
-.modal-box h3 { font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1.5rem; }
-.form-group { margin-bottom: 1rem; }
-.form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.4rem; }
-.modal-actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
+.session-editing-badge { display: inline-block; margin-left: 0.5rem; padding: 0.15rem 0.5rem; background: var(--accent-surface); color: var(--accent-primary); font-size: 0.72rem; font-weight: 700; border-radius: 999px; border: 1px solid var(--accent-primary); }
+.btn-active { background: var(--accent-surface) !important; color: var(--accent-primary) !important; border-color: var(--accent-primary) !important; }
+
+.dispensados-block { border-top: 1px solid var(--border); padding: 1rem 1.5rem; background: var(--bg-main); }
+.dispensados-header { font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; }
+.dispensado-row { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+.dispensado-row:last-child { border-bottom: none; }
+.badge-dispensado { margin-left: auto; padding: 0.1rem 0.5rem; background: var(--success-bg); color: var(--success); font-size: 0.68rem; font-weight: 700; border-radius: 999px; border: 1px solid rgba(5, 150, 105, 0.25); white-space: nowrap; }
+.ml-2 { margin-left: 0.5rem; }
 
 .toast-alert { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-md); z-index: 3000; }
 .toast-alert.success { border-left: 4px solid var(--success); }

@@ -71,10 +71,17 @@ export class DispensaController {
       const dispensas = await dispensaService.getAllDispensas();
       res.status(200).json(dispensas);
     } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al obtener las dispensas',
-        error: error.message 
-      });
+      res.status(500).json({ message: 'Error al obtener las dispensas', error: error.message });
+    }
+  }
+
+  async deleteDispensa(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      await dispensaService.deleteDispensa(id as string);
+      res.status(204).send();
+    } catch (error: any) {
+      res.status(500).json({ message: 'Error al eliminar la dispensa', error: error.message });
     }
   }
 }

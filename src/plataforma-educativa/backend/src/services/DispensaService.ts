@@ -14,10 +14,14 @@ export class DispensaService {
         sesionesEximidas: {
           connect: data.sesionesIds.map(id => ({ id })),
         },
+        asignaturas: {
+          connect: data.asignaturasIds.map(id => ({ id })),
+        },
       },
       include: {
         alumno: true,
         sesionesEximidas: true,
+        asignaturas: true,
       },
     });
   }
@@ -46,10 +50,14 @@ export class DispensaService {
         sesionesEximidas: data.sesionesIds ? {
           set: data.sesionesIds.map(id => ({ id })),
         } : undefined,
+        asignaturas: data.asignaturasIds ? {
+          set: data.asignaturasIds.map(id => ({ id })),
+        } : undefined,
       },
       include: {
         alumno: true,
         sesionesEximidas: true,
+        asignaturas: true,
       },
     });
   }
@@ -61,21 +69,13 @@ export class DispensaService {
     return await prisma.dispensa.findMany({
       where: {
         estado: 'APROBADA',
-        sesionesEximidas: {
-          some: {
-            asignatura: {
-              profesorId: profesorId,
-            },
-          },
+        asignaturas: {
+          some: { profesorId },
         },
       },
       include: {
         alumno: true,
-        sesionesEximidas: {
-          include: {
-            asignatura: true,
-          },
-        },
+        asignaturas: true,
       },
     });
   }
@@ -88,10 +88,9 @@ export class DispensaService {
       where: { alumnoId },
       include: {
         sesionesEximidas: {
-          include: {
-            asignatura: true,
-          },
+          include: { asignatura: true },
         },
+        asignaturas: true,
       },
       orderBy: { fechaSolicitud: 'desc' },
     });
@@ -104,13 +103,18 @@ export class DispensaService {
     return await prisma.dispensa.findMany({
       include: {
         alumno: true,
-        sesionesEximidas: {
-          include: {
-            asignatura: true,
-          },
-        },
+        asignaturas: true,
       },
+      orderBy: { fechaSolicitud: 'desc' },
     });
+  }
+
+  async deleteDispensa(id: string) {
+    await prisma.dispensa.update({
+      where: { id },
+      data: { sesionesEximidas: { set: [] }, asignaturas: { set: [] } }
+    });
+    return await prisma.dispensa.delete({ where: { id } });
   }
 }
 

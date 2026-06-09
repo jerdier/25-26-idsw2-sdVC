@@ -48,6 +48,10 @@ export const dispensaService = {
   async getAllDispensas() {
     const response = await api.get('/dispensas');
     return response.data;
+  },
+
+  async deleteDispensa(id: string) {
+    await api.delete(`/dispensas/${id}`);
   }
 };
 

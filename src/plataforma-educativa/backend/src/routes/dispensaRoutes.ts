@@ -21,4 +21,7 @@ router.get('/profesor/:profesorId', dispensaController.getByProfesor);
 // GET /api/dispensas (Para Secretaría - Catálogo Total)
 router.get('/', dispensaController.getAllDispensas);
 
+// DELETE /api/dispensas/:id
+router.delete('/:id', dispensaController.deleteDispensa);
+
 export default router;

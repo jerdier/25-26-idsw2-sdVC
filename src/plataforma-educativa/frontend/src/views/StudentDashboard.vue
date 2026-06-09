@@ -23,10 +23,21 @@ const asignaturasConDispensaAprobada = computed(() => {
   misDispensas.value
     .filter((d: any) => d.estado === 'APROBADA')
     .forEach((d: any) => {
-      d.sesionesEximidas?.forEach((s: any) => {
-        if (s.asignaturaId && !map.has(s.asignaturaId)) {
-          map.set(s.asignaturaId, s.asignatura?.nombre || s.asignaturaId);
-        }
+      d.asignaturas?.forEach((a: any) => {
+        if (!map.has(a.id)) map.set(a.id, a.nombre);
+      });
+    });
+  return map;
+});
+
+// Mapa asignaturaId → nombre para las que tienen dispensa PENDIENTE (excepto la que se está editando)
+const asignaturasConDispensaPendiente = computed(() => {
+  const map = new Map<string, string>();
+  misDispensas.value
+    .filter((d: any) => d.estado === 'PENDIENTE' && d.id !== editandoId.value)
+    .forEach((d: any) => {
+      d.asignaturas?.forEach((a: any) => {
+        if (!map.has(a.id)) map.set(a.id, a.nombre);
       });
     });
   return map;
@@ -36,9 +47,9 @@ const cargarDispensas = async () => {
   if (!ALUMNO_ID) return;
   try {
     misDispensas.value = await dispensaService.getDispensasByAlumno(ALUMNO_ID);
-    // Quitar de la selección las asignaturas que ya tienen dispensa aprobada
+    // Quitar de la selección las asignaturas con dispensa aprobada o pendiente
     asignaturasSeleccionadas.value = asignaturasSeleccionadas.value.filter(
-      id => !asignaturasConDispensaAprobada.value.has(id)
+      id => !asignaturasConDispensaAprobada.value.has(id) && !asignaturasConDispensaPendiente.value.has(id)
     );
   } catch (error) {
     console.error('Error al cargar mis dispensas:', error);
@@ -73,7 +84,8 @@ const enviarSolicitud = async () => {
     if (editandoId.value) {
       await dispensaService.updateDispensa(editandoId.value, {
         motivo: motivo.value,
-        sesionesIds
+        sesionesIds,
+        asignaturasIds: asignaturasSeleccionadas.value,
       });
       mensaje.value = { texto: 'Solicitud actualizada correctamente.', tipo: 'success' };
       editandoId.value = null;
@@ -82,7 +94,8 @@ const enviarSolicitud = async () => {
         alumnoId: ALUMNO_ID,
         secretariaId: SECRETARIA_ID,
         motivo: motivo.value,
-        sesionesIds
+        sesionesIds,
+        asignaturasIds: asignaturasSeleccionadas.value,
       };
       await dispensaService.createDispensa(nuevaDispensa);
       mensaje.value = { texto: 'Solicitud enviada correctamente.', tipo: 'success' };
@@ -103,8 +116,7 @@ const prepararEdicion = (dispensa: any) => {
   if (dispensa.estado !== 'PENDIENTE') return;
   editandoId.value = dispensa.id;
   motivo.value = dispensa.motivo;
-  const asigIds = [...new Set<string>(dispensa.sesionesEximidas?.map((s: any) => s.asignaturaId) || [])];
-  asignaturasSeleccionadas.value = asigIds;
+  asignaturasSeleccionadas.value = dispensa.asignaturas?.map((a: any) => a.id) || [];
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
@@ -146,7 +158,7 @@ const formatDate = (dateStr: string) => {
                 <div
                   v-for="asig in misAsignaturas"
                   :key="asig.id"
-                  :class="['session-row', { 'session-row--blocked': asignaturasConDispensaAprobada.has(asig.id) }]"
+                  :class="['session-row', { 'session-row--blocked': asignaturasConDispensaAprobada.has(asig.id) || asignaturasConDispensaPendiente.has(asig.id) }]"
                 >
                   <input
                     type="checkbox"
@@ -154,14 +166,17 @@ const formatDate = (dateStr: string) => {
                     :value="asig.id"
                     v-model="asignaturasSeleccionadas"
                     class="custom-checkbox"
-                    :disabled="asignaturasConDispensaAprobada.has(asig.id)"
+                    :disabled="asignaturasConDispensaAprobada.has(asig.id) || asignaturasConDispensaPendiente.has(asig.id)"
                   >
                   <label :for="asig.id" class="ml-2 label-asig">
-                    <span :class="{ 'text-muted': asignaturasConDispensaAprobada.has(asig.id) }">
+                    <span :class="{ 'text-muted': asignaturasConDispensaAprobada.has(asig.id) || asignaturasConDispensaPendiente.has(asig.id) }">
                       <strong>{{ asig.nombre }}</strong> — {{ asig.grado?.nombre }}
                     </span>
                     <span v-if="asignaturasConDispensaAprobada.has(asig.id)" class="badge-aprobada">
                       Dispensa aprobada
+                    </span>
+                    <span v-else-if="asignaturasConDispensaPendiente.has(asig.id)" class="badge-pendiente">
+                      Dispensa pendiente
                     </span>
                   </label>
                 </div>
@@ -267,6 +282,17 @@ const formatDate = (dateStr: string) => {
   font-weight: 700;
   border-radius: 999px;
   border: 1px solid rgba(5, 150, 105, 0.25);
+  white-space: nowrap;
+}
+.badge-pendiente {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  background: var(--warning-bg);
+  color: var(--warning);
+  font-size: 0.68rem;
+  font-weight: 700;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 119, 6, 0.25);
   white-space: nowrap;
 }
 </style>

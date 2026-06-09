@@ -48,7 +48,7 @@ export class AcademicService {
     const dispensasAprobadas = await prisma.dispensa.findMany({
       where: {
         estado: 'APROBADA',
-        sesionesEximidas: { some: { id: sesionId } }
+        asignaturas: { some: { id: sesion.asignaturaId } }
       },
       select: { alumnoId: true }
     });

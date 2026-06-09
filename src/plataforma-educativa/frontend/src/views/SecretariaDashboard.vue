@@ -2,9 +2,8 @@
 import { ref, onMounted } from 'vue';
 import { secretariaService } from '../services/secretariaService';
 import { dispensaService } from '../services/dispensaService';
-import { academicService } from '../services/academicService';
 import { useAuth } from '../services/authService';
-import type { Alumno, SecretariaStats, SesionDeClase } from '../types';
+import type { Alumno, SecretariaStats } from '../types';
 
 const { state } = useAuth();
 const stats = ref<SecretariaStats>({ alumnos: 0, profesores: 0, grados: 0, dispensasPendientes: 0 });
@@ -17,12 +16,24 @@ const mensaje = ref({ texto: '', tipo: '' });
 const busquedaAlumnoId = ref('');
 const detalleMatricula = ref<any>(null);
 
-const showDispensaForm = ref(false);
-const editingDispensaId = ref<string | null>(null);
-const formAlumnoId = ref('');
-const formMotivo = ref('');
-const formSesionesIds = ref<string[]>([]);
-const availableSessions = ref<SesionDeClase[]>([]);
+const detalleDispensa = ref<any>(null);
+
+const verDispensa = (d: any) => { detalleDispensa.value = d; };
+
+const eliminarDispensa = async () => {
+  if (!detalleDispensa.value) return;
+  if (!confirm('¿Eliminar esta dispensa? La acción no se puede deshacer.')) return;
+  try {
+    await dispensaService.deleteDispensa(detalleDispensa.value.id);
+    detalleDispensa.value = null;
+    mensaje.value = { texto: 'Dispensa eliminada', tipo: 'success' };
+    await cargarDatos();
+  } catch {
+    mensaje.value = { texto: 'Error al eliminar la dispensa', tipo: 'error' };
+  } finally {
+    setTimeout(() => mensaje.value.texto = '', 3000);
+  }
+};
 
 const cargarDatos = async () => {
   loading.value = true;
@@ -60,46 +71,6 @@ const buscarMatricula = async () => {
   }
 };
 
-const handleAlumnoChange = async () => {
-  if (!formAlumnoId.value) return;
-  availableSessions.value = await academicService.getSessionsForAlumno(formAlumnoId.value);
-};
-
-const openDispensaOficio = () => {
-  editingDispensaId.value = null;
-  formAlumnoId.value = '';
-  formMotivo.value = '';
-  formSesionesIds.value = [];
-  showDispensaForm.value = true;
-};
-
-const editDispensa = async (d: any) => {
-  editingDispensaId.value = d.id;
-  formAlumnoId.value = d.alumnoId;
-  formMotivo.value = d.motivo;
-  formSesionesIds.value = d.sesionesEximidas.map((s: any) => s.id);
-  await handleAlumnoChange();
-  showDispensaForm.value = true;
-};
-
-const saveDispensa = async () => {
-  try {
-    if (editingDispensaId.value) {
-      await dispensaService.updateDispensa(editingDispensaId.value, { motivo: formMotivo.value, sesionesIds: formSesionesIds.value });
-      mensaje.value = { texto: 'Registro actualizado con éxito', tipo: 'success' };
-    } else {
-      await dispensaService.createDispensa({ alumnoId: formAlumnoId.value, motivo: `[OFICIO] ${formMotivo.value}`, secretariaId: state.user?.id, sesionesIds: formSesionesIds.value });
-      mensaje.value = { texto: 'Dispensa registrada correctamente', tipo: 'success' };
-    }
-    showDispensaForm.value = false;
-    await cargarDatos();
-  } catch (e) {
-    mensaje.value = { texto: 'Error al procesar el trámite', tipo: 'error' };
-  } finally {
-    setTimeout(() => mensaje.value.texto = '', 3000);
-  }
-};
-
 const exportarDispensas = () => {
   const csv = "data:text/csv;charset=utf-8,Fecha,Alumno,Motivo,Estado\n" + 
     dispensas.value.map((d: any) => `${d.fechaSolicitud},${d.alumno.nombre},${d.motivo},${d.estado}`).join("\n");
@@ -118,9 +89,6 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es
       <div class="header-info">
         <h1>Gestión Académica</h1>
         <p class="dim">Administración de dispensas, matrículas y listados oficiales.</p>
-      </div>
-      <div class="header-actions">
-        <button @click="openDispensaOficio" class="btn-primary">Nueva Dispensa Oficio</button>
       </div>
     </header>
 
@@ -144,7 +112,7 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es
             <tr>
               <th>Fecha</th>
               <th>Estudiante</th>
-              <th>Justificación</th>
+              <th>Asignatura</th>
               <th>Estado</th>
               <th class="text-right">Acciones</th>
             </tr>
@@ -156,10 +124,13 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es
                 <span class="bold">{{ d.alumno.nombre }}</span>
                 <code class="code-sm ml-2">{{ d.alumno.numeroRegistro }}</code>
               </td>
-              <td class="truncate" :title="d.motivo">{{ d.motivo }}</td>
+              <td>
+                <span v-if="d.asignaturas?.length" class="asig-tag">{{ d.asignaturas.map((a: any) => a.nombre).join(', ') }}</span>
+                <span v-else class="dim">—</span>
+              </td>
               <td><span :class="['status-badge', d.estado.toLowerCase()]">{{ d.estado }}</span></td>
               <td class="text-right">
-                <button @click="editDispensa(d)" class="btn-icon">Editar</button>
+                <button @click="verDispensa(d)" class="btn-icon">Ver</button>
               </td>
             </tr>
           </tbody>
@@ -206,38 +177,42 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es
       </section>
     </main>
 
-    <!-- Modal Dispensa -->
-    <div v-if="showDispensaForm" class="modal-backdrop">
+    <!-- Modal Detalle Dispensa -->
+    <div v-if="detalleDispensa" class="modal-backdrop">
       <div class="card-base modal-content">
         <header class="modal-header">
-          <h3>{{ editingDispensaId ? 'Rectificar Registro' : 'Trámite Institucional (Oficio)' }}</h3>
-          <button @click="showDispensaForm = false" class="btn-close">×</button>
+          <h3>Detalle de Dispensa</h3>
+          <button @click="detalleDispensa = null" class="btn-close">×</button>
         </header>
-        <div class="modal-body form-layout">
-          <div>
+        <div class="modal-body detail-grid">
+          <div class="detail-item">
             <label class="form-label">Estudiante</label>
-            <select v-model="formAlumnoId" @change="handleAlumnoChange" :disabled="!!editingDispensaId" class="form-input">
-              <option value="" disabled>Seleccione un estudiante...</option>
-              <option v-for="a in alumnos" :key="a.id" :value="a.id">{{ a.nombre }}</option>
-            </select>
+            <span class="bold">{{ detalleDispensa.alumno.nombre }}</span>
+            <code class="code-sm ml-2">{{ detalleDispensa.alumno.numeroRegistro }}</code>
           </div>
-          <div v-if="availableSessions.length > 0">
-            <label class="form-label">Sesiones Afectadas</label>
-            <div class="sessions-list-check">
-              <div v-for="s in availableSessions" :key="s.id" class="session-row">
-                <input type="checkbox" :id="'m-s-'+s.id" :value="s.id" v-model="formSesionesIds" class="custom-checkbox">
-                <label :for="'m-s-'+s.id" class="ml-2"><strong>{{ s.asignatura?.nombre }}</strong> - {{ formatDate(s.fecha) }}</label>
-              </div>
-            </div>
+          <div class="detail-item">
+            <label class="form-label">Estado</label>
+            <span :class="['status-badge', detalleDispensa.estado.toLowerCase()]">{{ detalleDispensa.estado }}</span>
           </div>
-          <div>
-            <label class="form-label">Motivo del Trámite</label>
-            <textarea v-model="formMotivo" class="form-input" placeholder="Describa la justificación oficial..." rows="3"></textarea>
+          <div class="detail-item full">
+            <label class="form-label">Asignatura(s)</label>
+            <span v-if="detalleDispensa.asignaturas?.length">
+              <span v-for="a in detalleDispensa.asignaturas" :key="a.id" class="asig-tag mr-1">{{ a.nombre }}</span>
+            </span>
+            <span v-else class="dim">Sin asignaturas registradas</span>
+          </div>
+          <div class="detail-item full">
+            <label class="form-label">Motivo</label>
+            <p class="motivo-text">{{ detalleDispensa.motivo }}</p>
+          </div>
+          <div class="detail-item">
+            <label class="form-label">Fecha Solicitud</label>
+            <span>{{ formatDate(detalleDispensa.fechaSolicitud) }}</span>
           </div>
         </div>
         <footer class="modal-footer">
-          <button @click="showDispensaForm = false" class="btn-outline">Cancelar</button>
-          <button @click="saveDispensa" class="btn-primary">Guardar Trámite</button>
+          <button @click="eliminarDispensa" class="btn-outline btn-danger-outline">Eliminar Dispensa</button>
+          <button @click="detalleDispensa = null" class="btn-primary">Cerrar</button>
         </footer>
       </div>
     </div>
@@ -294,6 +269,17 @@ const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es
 .modal-footer { padding: 1.25rem 1.5rem; background: var(--bg-main); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; border-radius: 0 0 var(--radius-md) var(--radius-md); }
 .btn-close { background: none; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-secondary); cursor: pointer; }
 .btn-close:hover { color: var(--text-primary); }
+
+.asig-tag { display: inline-block; padding: 0.15rem 0.5rem; background: var(--accent-surface); color: var(--accent-primary); font-size: 0.75rem; font-weight: 600; border-radius: 999px; border: 1px solid var(--accent-primary); white-space: nowrap; }
+.mr-1 { margin-right: 0.25rem; }
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 1.5rem; }
+.detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
+.detail-item.full { grid-column: span 2; }
+.motivo-text { font-size: 0.9rem; color: var(--text-primary); margin: 0; line-height: 1.5; }
+
+.btn-danger-outline { color: var(--error); border-color: var(--error); }
+.btn-danger-outline:hover { background: var(--error-bg); }
 
 .toast-alert { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-md); z-index: 3000; }
 .toast-alert.success { border-left: 4px solid var(--success); }

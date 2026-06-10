@@ -71,15 +71,13 @@ SVGs exportados de los diagramas PlantUML. Cada imagen enlaza al archivo `.puml`
 
 ## Diseño
 
-> Los archivos fuente `.puml` de diseño aún no están en el repositorio. Las imágenes SVG se muestran a continuación.
-
 ### Administrador
 
 | Caso de uso | Diagrama |
 |-------------|----------|
-| Consultar usuario | ![consultarUsuario](diseño/administrador/consultarUsuario/consultarUsuario.svg) |
-| Crear usuario | ![crearUsuario](diseño/administrador/crearUsuario/crearUsuario.svg) |
-| Editar usuario | ![editarUsuario](diseño/administrador/editarUsuario/editarUsuario.svg) |
+| [Consultar usuario](../modelosUML/diseño/administrador/consultarUsuario/consultarUsuario.puml) | [![consultarUsuario](diseño/administrador/consultarUsuario/consultarUsuario.svg)](../modelosUML/diseño/administrador/consultarUsuario/consultarUsuario.puml) |
+| [Crear usuario](../modelosUML/diseño/administrador/crearUsuario/crearUsuario.puml) | [![crearUsuario](diseño/administrador/crearUsuario/crearUsuario.svg)](../modelosUML/diseño/administrador/crearUsuario/crearUsuario.puml) |
+| [Editar usuario](../modelosUML/diseño/administrador/editarUsuario/editarUsuario.puml) | [![editarUsuario](diseño/administrador/editarUsuario/editarUsuario.svg)](../modelosUML/diseño/administrador/editarUsuario/editarUsuario.puml) |
 
 ---
 
@@ -87,9 +85,9 @@ SVGs exportados de los diagramas PlantUML. Cada imagen enlaza al archivo `.puml`
 
 | Caso de uso | Diagrama |
 |-------------|----------|
-| Consultar solicitud de dispensa | ![consultarSolicitudDispensa](diseño/alumno/consultarSolicitudDispensa/consultarSolicitudDispensa.svg) |
-| Crear solicitud de dispensa | ![crearSolicitudDispensa](diseño/alumno/crearSolicitudDispensa/crearSolicitudDispensa.svg) |
-| Editar solicitud de dispensa | ![editarSolicitudDispensa](diseño/alumno/editarSolicitudDispensa/editarSolicitudDispensa.svg) |
+| [Consultar solicitud de dispensa](../modelosUML/diseño/alumno/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) | [![consultarSolicitudDispensa](diseño/alumno/consultarSolicitudDispensa/consultarSolicitudDispensa.svg)](../modelosUML/diseño/alumno/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) |
+| [Crear solicitud de dispensa](../modelosUML/diseño/alumno/crearSolicitudDispensa/crearSolicitudDispensa.puml) | [![crearSolicitudDispensa](diseño/alumno/crearSolicitudDispensa/crearSolicitudDispensa.svg)](../modelosUML/diseño/alumno/crearSolicitudDispensa/crearSolicitudDispensa.puml) |
+| [Editar solicitud de dispensa](../modelosUML/diseño/alumno/editarSolicitudDispensa/editarSolicitudDispensa.puml) | [![editarSolicitudDispensa](diseño/alumno/editarSolicitudDispensa/editarSolicitudDispensa.svg)](../modelosUML/diseño/alumno/editarSolicitudDispensa/editarSolicitudDispensa.puml) |
 
 ---
 
@@ -97,8 +95,8 @@ SVGs exportados de los diagramas PlantUML. Cada imagen enlaza al archivo `.puml`
 
 | Caso de uso | Diagrama |
 |-------------|----------|
-| Consultar solicitud de dispensa | ![consultarSolicitudDispensa](diseño/directorDeGrado/consultarSolicitudDispensa/consultarSolicitudDispensa.svg) |
-| Editar solicitud de dispensa | ![editarSolicitudDispensa](diseño/directorDeGrado/editarSolicitudDispensa/editarSolicitudDispensa.svg) |
+| [Consultar solicitud de dispensa](../modelosUML/diseño/directorDeGrado/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) | [![consultarSolicitudDispensa](diseño/directorDeGrado/consultarSolicitudDispensa/consultarSolicitudDispensa.svg)](../modelosUML/diseño/directorDeGrado/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) |
+| [Editar solicitud de dispensa](../modelosUML/diseño/directorDeGrado/editarSolicitudDispensa/editarSolicitudDispensa.puml) | [![editarSolicitudDispensa](diseño/directorDeGrado/editarSolicitudDispensa/editarSolicitudDispensa.svg)](../modelosUML/diseño/directorDeGrado/editarSolicitudDispensa/editarSolicitudDispensa.puml) |
 
 ---
 
@@ -106,14 +104,14 @@ SVGs exportados de los diagramas PlantUML. Cada imagen enlaza al archivo `.puml`
 
 | Caso de uso | Diagrama |
 |-------------|----------|
-| Cerrar sesión de clase | ![cerrarSesionClase](diseño/profesor/cerrarSesionClase/cerrarSesionClase.svg) |
-| Consultar detalle alumno | ![consultarDetalleAlumno](diseño/profesor/consultarDetalleAlumno/consultarDetalleAlumno.svg) |
-| Consultar lista alumnos | ![consultarListaAlumnos](diseño/profesor/consultarListaAlumnos/consultarListaAlumnos.svg) |
-| Consultar solicitud dispensa | ![consultarSolicitudDispensa](diseño/profesor/consultarSolicitudDispensa/consultarSolicitudDispensa.svg) |
-| Crear sesión de clase | ![crearSesionClase](diseño/profesor/crearSesionClase/crearSesionClase.svg) |
-| Editar sesión de clase | ![editarSesionClase](diseño/profesor/editarSesionClase/editarSesionClase.svg) |
-| Exportar historial asistencias | ![exportarHistorialAsistencias](diseño/profesor/exportarHistorialAsistencias/exportarHistorialAsistencias.svg) |
-| Registrar toma de asistencia | ![registrarTomaAsistencia](diseño/profesor/registrarTomaAsistencia/registrarTomaAsistencia.svg) |
+| [Cerrar sesión de clase](../modelosUML/diseño/profesor/cerrarSesionClase/cerrarSesionClase.puml) | [![cerrarSesionClase](diseño/profesor/cerrarSesionClase/cerrarSesionClase.svg)](../modelosUML/diseño/profesor/cerrarSesionClase/cerrarSesionClase.puml) |
+| [Consultar detalle alumno](../modelosUML/diseño/profesor/consultarDetalleAlumno/consultarDetalleAlumno.puml) | [![consultarDetalleAlumno](diseño/profesor/consultarDetalleAlumno/consultarDetalleAlumno.svg)](../modelosUML/diseño/profesor/consultarDetalleAlumno/consultarDetalleAlumno.puml) |
+| [Consultar lista alumnos](../modelosUML/diseño/profesor/consultarListaAlumnos/consultarListaAlumnos.puml) | [![consultarListaAlumnos](diseño/profesor/consultarListaAlumnos/consultarListaAlumnos.svg)](../modelosUML/diseño/profesor/consultarListaAlumnos/consultarListaAlumnos.puml) |
+| [Consultar solicitud dispensa](../modelosUML/diseño/profesor/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) | [![consultarSolicitudDispensa](diseño/profesor/consultarSolicitudDispensa/consultarSolicitudDispensa.svg)](../modelosUML/diseño/profesor/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) |
+| [Crear sesión de clase](../modelosUML/diseño/profesor/crearSesionClase/crearSesionClase.puml) | [![crearSesionClase](diseño/profesor/crearSesionClase/crearSesionClase.svg)](../modelosUML/diseño/profesor/crearSesionClase/crearSesionClase.puml) |
+| [Editar sesión de clase](../modelosUML/diseño/profesor/editarSesionClase/editarSesionClase.puml) | [![editarSesionClase](diseño/profesor/editarSesionClase/editarSesionClase.svg)](../modelosUML/diseño/profesor/editarSesionClase/editarSesionClase.puml) |
+| [Exportar historial asistencias](../modelosUML/diseño/profesor/exportarHistorialAsistencias/exportarHistorialAsistencias.puml) | [![exportarHistorialAsistencias](diseño/profesor/exportarHistorialAsistencias/exportarHistorialAsistencias.svg)](../modelosUML/diseño/profesor/exportarHistorialAsistencias/exportarHistorialAsistencias.puml) |
+| [Registrar toma de asistencia](../modelosUML/diseño/profesor/registrarTomaAsistencia/registrarTomaAsistencia.puml) | [![registrarTomaAsistencia](diseño/profesor/registrarTomaAsistencia/registrarTomaAsistencia.svg)](../modelosUML/diseño/profesor/registrarTomaAsistencia/registrarTomaAsistencia.puml) |
 
 ---
 
@@ -121,11 +119,11 @@ SVGs exportados de los diagramas PlantUML. Cada imagen enlaza al archivo `.puml`
 
 | Caso de uso | Diagrama |
 |-------------|----------|
-| Consultar detalle matrícula | ![consultarDetalleMatricula](diseño/secretaria/consultarDetalleMatricula/consultarDetalleMatricula.svg) |
-| Consultar lista alumnos | ![consultarListaAlumnos](diseño/secretaria/consultarListaAlumnos/consultarListaAlumnos.svg) |
-| Consultar solicitud de dispensa | ![consultarSolicitudDispensa](diseño/secretaria/consultarSolicitudDispensa/consultarSolicitudDispensa.svg) |
-| Crear solicitud de dispensa | ![crearSolicitudDispensa](diseño/secretaria/crearSolicitudDispensa/crearSolicitudDispensa.svg) |
-| Editar solicitud de dispensa | ![editarSolicitudDispensa](diseño/secretaria/editarSolicitudDispensa/editarSolicitudDispensa.svg) |
-| Exportar dispensas | ![exportarDispensas](diseño/secretaria/exportarDispensas/exportarDispensas.svg) |
-| Importar listas de alumnos | ![importarListasAlumnos](diseño/secretaria/importarListasAlumnos/importarListasAlumnos.svg) |
-| Importar matrícula | ![importarMatricula](diseño/secretaria/importarMatricula/importarMatricula.svg) |
+| [Consultar detalle matrícula](../modelosUML/diseño/secretaria/consultarDetalleMatricula/consultarDetalleMatricula.puml) | [![consultarDetalleMatricula](diseño/secretaria/consultarDetalleMatricula/consultarDetalleMatricula.svg)](../modelosUML/diseño/secretaria/consultarDetalleMatricula/consultarDetalleMatricula.puml) |
+| [Consultar lista alumnos](../modelosUML/diseño/secretaria/consultarListaAlumnos/consultarListaAlumnos.puml) | [![consultarListaAlumnos](diseño/secretaria/consultarListaAlumnos/consultarListaAlumnos.svg)](../modelosUML/diseño/secretaria/consultarListaAlumnos/consultarListaAlumnos.puml) |
+| [Consultar solicitud de dispensa](../modelosUML/diseño/secretaria/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) | [![consultarSolicitudDispensa](diseño/secretaria/consultarSolicitudDispensa/consultarSolicitudDispensa.svg)](../modelosUML/diseño/secretaria/consultarSolicitudDispensa/consultarSolicitudDispensa.puml) |
+| [Crear solicitud de dispensa](../modelosUML/diseño/secretaria/crearSolicitudDispensa/crearSolicitudDispensa.puml) | [![crearSolicitudDispensa](diseño/secretaria/crearSolicitudDispensa/crearSolicitudDispensa.svg)](../modelosUML/diseño/secretaria/crearSolicitudDispensa/crearSolicitudDispensa.puml) |
+| [Editar solicitud de dispensa](../modelosUML/diseño/secretaria/editarSolicitudDispensa/editarSolicitudDispensa.puml) | [![editarSolicitudDispensa](diseño/secretaria/editarSolicitudDispensa/editarSolicitudDispensa.svg)](../modelosUML/diseño/secretaria/editarSolicitudDispensa/editarSolicitudDispensa.puml) |
+| [Exportar dispensas](../modelosUML/diseño/secretaria/exportarDispensas/exportarDispensas.puml) | [![exportarDispensas](diseño/secretaria/exportarDispensas/exportarDispensas.svg)](../modelosUML/diseño/secretaria/exportarDispensas/exportarDispensas.puml) |
+| [Importar listas de alumnos](../modelosUML/diseño/secretaria/importarListasAlumnos/importarListasAlumnos.puml) | [![importarListasAlumnos](diseño/secretaria/importarListasAlumnos/importarListasAlumnos.svg)](../modelosUML/diseño/secretaria/importarListasAlumnos/importarListasAlumnos.puml) |
+| [Importar matrícula](../modelosUML/diseño/secretaria/importarMatricula/importarMatricula.puml) | [![importarMatricula](diseño/secretaria/importarMatricula/importarMatricula.svg)](../modelosUML/diseño/secretaria/importarMatricula/importarMatricula.puml) |

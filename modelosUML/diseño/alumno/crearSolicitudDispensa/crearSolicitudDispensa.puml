@@ -1,0 +1,34 @@
+@startuml crearSolicitudDispensa
+title Diagrama de Secuencia - Crear Solicitud de Dispensa (Diseño)
+
+actor "Alumno" as Student
+participant "Frontend (Vue)" as FE
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+participant "DispensaRepository" as Repository
+
+Student -> FE: Enviar Solicitud
+activate FE
+
+FE -> Controller: POST /api/dispensas
+activate Controller
+
+Controller -> Service: registrarDispensa(dispensaDTO)
+activate Service
+
+alt Documentación incompleta
+    Service --> Controller: throws ValidationException
+    Controller --> FE: 400 Bad Request
+else Solicitud válida
+    Service -> Repository: save(dispensa)
+    activate Repository
+    Repository --> Service: Dispensa
+    deactivate Repository
+    Service --> Controller: DispensaDTO
+    Controller --> FE: 201 Created
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

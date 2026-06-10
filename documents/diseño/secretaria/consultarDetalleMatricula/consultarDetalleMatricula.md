@@ -1,18 +1,19 @@
-# Explicación del Diseño: Consultar Detalle Matrícula
+﻿# ExplicaciÃ³n del DiseÃ±o: Consultar Detalle MatrÃ­cula
 
-Este diagrama de secuencia detalla la implementación técnica del proceso de búsqueda y visualización de la matrícula de un alumno por parte de secretaría.
+Este diagrama de secuencia detalla la implementaciÃ³n tÃ©cnica del proceso de bÃºsqueda y visualizaciÃ³n de la matrÃ­cula de un alumno por parte de secretarÃ­a.
 
-## Componentes Técnicos
+## Componentes TÃ©cnicos
 
-- **Secretaría (Actor)**: Usuario administrativo que realiza la búsqueda.
-- **Frontend (React)**: Interfaz que captura el ID del alumno y realiza la petición.
-- **MatriculaController**: Endpoint REST para la gestión de matrículas.
-- **MatriculaService**: Capa de negocio que recupera la información de matrícula.
-- **MatriculaRepository**: Repositorio JPA para el acceso a la tabla de matrículas.
+- **SecretarÃ­a (Actor)**: Usuario administrativo que realiza la bÃºsqueda.
+- **Frontend (Vue)**: Interfaz que captura el ID del alumno y realiza la peticiÃ³n.
+- **MatriculaController**: Endpoint REST para la gestiÃ³n de matrÃ­culas.
+- **MatriculaService**: Capa de negocio que recupera la informaciÃ³n de matrÃ­cula.
+- **MatriculaRepository**: Repositorio JPA para el acceso a la tabla de matrÃ­culas.
 
-## Flujo de Implementación
+## Flujo de ImplementaciÃ³n
 
-1.  **Petición HTTP**: El Frontend realiza un `GET /api/matriculas/{alumnoId}`.
-2.  **Lógica de Servicio**: El controlador llama a `obtenerMatricula(alumnoId)` del **MatriculaService**.
+1.  **PeticiÃ³n HTTP**: El Frontend realiza un `GET /api/matriculas/{alumnoId}`.
+2.  **LÃ³gica de Servicio**: El controlador llama a `obtenerMatricula(alumnoId)` del **MatriculaService**.
 3.  **Consulta**: El servicio solicita la entidad al repositorio mediante `findByAlumnoId`.
-4.  **Respuesta**: El sistema devuelve un objeto **MatriculaDTO** con un código **200 OK**.
+4.  **Respuesta**: El sistema devuelve un objeto **MatriculaDTO** con un cÃ³digo **200 OK**.
+

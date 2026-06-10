@@ -1,0 +1,38 @@
+@startuml editarSolicitudDispensa
+title Diagrama de Secuencia - Editar/Resolver Solicitud de Dispensa (Diseño)
+
+actor "DirectorDeGrado" as Director
+participant "Frontend (Vue)" as FE
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+participant "DispensaRepository" as Repository
+
+Director -> FE: Resolver Solicitud (Aprobar/Rechazar)
+activate FE
+
+FE -> Controller: PUT /api/dispensas/{id}/resolver
+activate Controller
+
+Controller -> Service: resolverDispensa(id, resolucionDTO)
+activate Service
+Service -> Repository: findById(id)
+activate Repository
+Repository --> Service: Optional<Dispensa>
+deactivate Repository
+
+alt Falta justificación
+    Service --> Controller: throws ValidationException
+    Controller --> FE: 400 Bad Request
+else Resolución exitosa
+    Service -> Repository: save(dispensaResuelta)
+    activate Repository
+    Repository --> Service: Dispensa
+    deactivate Repository
+    Service --> Controller: DispensaDTO
+    Controller --> FE: 200 OK
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

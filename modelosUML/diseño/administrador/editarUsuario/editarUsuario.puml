@@ -1,0 +1,38 @@
+@startuml editarUsuario
+title Diagrama de Secuencia - Editar Usuario (Diseño)
+
+actor "Administrador" as Admin
+participant "Frontend (Vue)" as FE
+participant "UsuarioController" as Controller
+participant "UsuarioService" as Service
+participant "UsuarioRepository" as Repository
+
+Admin -> FE: Guardar Cambios
+activate FE
+
+FE -> Controller: PUT /api/usuarios/{id}
+activate Controller
+
+Controller -> Service: actualizarUsuario(id, usuarioDTO)
+activate Service
+Service -> Repository: findById(id)
+activate Repository
+Repository --> Service: Optional<Usuario>
+deactivate Repository
+
+alt Usuario no existe
+    Service --> Controller: throws NotFoundException
+    Controller --> FE: 404 Not Found
+else Modificación exitosa
+    Service -> Repository: save(usuarioActualizado)
+    activate Repository
+    Repository --> Service: Usuario
+    deactivate Repository
+    Service --> Controller: UsuarioDTO
+    Controller --> FE: 200 OK
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

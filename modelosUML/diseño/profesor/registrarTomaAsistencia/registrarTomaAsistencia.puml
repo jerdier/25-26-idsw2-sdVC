@@ -1,0 +1,34 @@
+@startuml registrarTomaAsistencia
+title Diagrama de Secuencia - Registrar Toma Asistencia (Diseño)
+
+actor "Profesor" as Teacher
+participant "Frontend (Vue)" as FE
+participant "AsistenciaController" as Controller
+participant "AsistenciaService" as Service
+participant "AsistenciaRepository" as Repository
+
+Teacher -> FE: Confirmar Asistencia
+activate FE
+
+FE -> Controller: POST /api/asistencias/lote
+activate Controller
+
+Controller -> Service: registrarAsistencias(listadoDTO)
+activate Service
+
+alt Sesión ya cerrada
+    Service --> Controller: throws IllegalStateException
+    Controller --> FE: 400 Bad Request
+else Proceso exitoso
+    Service -> Repository: saveAll(asistencias)
+    activate Repository
+    Repository --> Service: void
+    deactivate Repository
+    Service --> Controller: void
+    Controller --> FE: 200 OK
+end
+deactivate Service
+
+deactivate Controller
+deactivate FE
+@enduml

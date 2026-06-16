@@ -1,6 +1,6 @@
 # CGU > consultarEstadoDispensa > Diseño
 
-> | [Inicio](../../../../README.md) | [Casos de Uso](../../../CasosDeUso/README.MD) | [Análisis](../../../analisis/casos-uso/consultarEstadoDispensa/README.md) | [Índice Diseño](../README.md) | **Diseño** |
+> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/consultarEstadoDispensa/README.md) | [Índice Diseño](../README.md) | **Diseño** |
 > |---|---|---|---|---|
 
 **Actor:** Alumno
@@ -27,7 +27,7 @@ _pendiente_
 
 ## diagrama de secuencia
 
-_pendiente — fuente en [secuencia.puml](../../../../modelosUML/diseño/casos-uso/consultarEstadoDispensa/secuencia.puml)_
+_pendiente — fuente en [secuencia.puml](../../../modelosUML/diseño/consultarEstadoDispensa/secuencia.puml)_
 
 ---
 
@@ -40,7 +40,7 @@ _pendiente_
 ## referencias
 
 - [Índice de diseño](../README.md)
-- [Análisis de este caso](../../../analisis/casos-uso/consultarEstadoDispensa/README.md)
-- [Modelo del dominio](../../../ModeloDelDominio/README.MD)
-- [Casos de uso detallado](../../../CasosDeUso/README.MD)
-- [secuencia.puml](../../../../modelosUML/diseño/casos-uso/consultarEstadoDispensa/secuencia.puml)
+- [Análisis de este caso](../../analisis/consultarEstadoDispensa/README.md)
+- [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
+- [Casos de uso detallado](../../requisitado/README.md)
+- [secuencia.puml](../../../modelosUML/diseño/consultarEstadoDispensa/secuencia.puml)

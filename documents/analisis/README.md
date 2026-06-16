@@ -1,10 +1,10 @@
 # CGU — Análisis · Índice de Casos de Uso
 
-> | [Inicio](../../../README.md) | [Documentos](../../README.MD) | **Análisis** | [Diseño](../../diseño/casos-uso/README.md) |
+> | [Inicio](../../README.md) | [Documentos](../README.MD) | **Análisis** | [Diseño](../diseño/README.md) |
 > |---|---|---|---|
 
 Índice de todos los análisis de colaboración MVC del sistema CGU.  
-Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/analisis/casos-uso/`](../../../modelosUML/analisis/casos-uso/).
+Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/analisis/`](../../modelosUML/analisis/).
 
 ---
 
@@ -72,4 +72,4 @@ Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/an
 
 ---
 
-> **Total:** 29 casos de uso · Fuentes PlantUML en [`modelosUML/analisis/casos-uso/`](../../../modelosUML/analisis/casos-uso/)
+> **Total:** 29 casos de uso · Fuentes PlantUML en [`modelosUML/analisis/casos-uso/`](../../modelosUML/analisis/)

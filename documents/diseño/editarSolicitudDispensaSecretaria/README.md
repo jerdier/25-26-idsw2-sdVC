@@ -1,6 +1,6 @@
 # CGU > editarSolicitudDispensaSecretaria > Diseño
 
-> | [Inicio](../../../../README.md) | [Casos de Uso](../../../CasosDeUso/README.MD) | [Análisis](../../../analisis/casos-uso/editarSolicitudDispensaSecretaria/README.md) | [Índice Diseño](../README.md) | **Diseño** |
+> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/editarSolicitudDispensaSecretaria/README.md) | [Índice Diseño](../README.md) | **Diseño** |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica
@@ -27,7 +27,7 @@ _pendiente_
 
 ## diagrama de secuencia
 
-_pendiente — fuente en [secuencia.puml](../../../../modelosUML/diseño/casos-uso/editarSolicitudDispensaSecretaria/secuencia.puml)_
+_pendiente — fuente en [secuencia.puml](../../../modelosUML/diseño/editarSolicitudDispensaSecretaria/secuencia.puml)_
 
 ---
 
@@ -40,7 +40,7 @@ _pendiente_
 ## referencias
 
 - [Índice de diseño](../README.md)
-- [Análisis de este caso](../../../analisis/casos-uso/editarSolicitudDispensaSecretaria/README.md)
-- [Modelo del dominio](../../../ModeloDelDominio/README.MD)
-- [Casos de uso detallado](../../../CasosDeUso/README.MD)
-- [secuencia.puml](../../../../modelosUML/diseño/casos-uso/editarSolicitudDispensaSecretaria/secuencia.puml)
+- [Análisis de este caso](../../analisis/editarSolicitudDispensaSecretaria/README.md)
+- [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
+- [Casos de uso detallado](../../requisitado/README.md)
+- [secuencia.puml](../../../modelosUML/diseño/editarSolicitudDispensaSecretaria/secuencia.puml)

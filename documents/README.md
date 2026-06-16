@@ -1,8 +1,8 @@
 # Documentos
 
-[← Inicio](../README.md) · [Modelos UML](../modelosUML/README.md) · [Código fuente](../src/README.md)
+[Inicio](../README.md) | [Modelos UML](../modelosUML/README.md) | [Imágenes](../images/README.md) | [Código fuente](../src/README.md)
 
-Documentación del proyecto en formato Markdown, organizada por fase.
+Documentación del proyecto CGU, organizada por fase RUP.
 
 ---
 
@@ -10,12 +10,10 @@ Documentación del proyecto en formato Markdown, organizada por fase.
 
 | Sección | Descripción |
 |---------|-------------|
-| [Modelo del Dominio](ModeloDelDominio/README.MD) | Diagrama de clases, de objetos y de estado |
-| [Casos de Uso](CasosDeUso/README.MD) | Actores, diagramas CU, detallado y prototipos |
-| [Análisis](analisis/casos-uso/README.md) | Diagramas de colaboración MVC por caso de uso |
-| [Diseño](diseño/casos-uso/README.md) | Diagramas de secuencia con tecnología concreta |
-| [Reuniones](Reuniones/README.MD) | Actas de reuniones de requisitado |
+| [Requisitado](requisitado/README.md) | Diagramas originales CGU: modelo del dominio, actores, casos de uso detallados |
+| [Análisis](analisis/README.md) | Diagramas de colaboración MVC por caso de uso |
+| [Diseño](diseño/README.md) | Diagramas de secuencia con tecnología concreta |
 
 ---
 
-> Los diagramas UML referenciados en esta documentación se encuentran en [`/modelosUML`](../modelosUML/README.md) (fuentes `.puml`) y en [`/images`](../images/README.md) (SVGs exportados).
+> Los diagramas UML fuente (.puml) están en [/modelosUML](../modelosUML/README.md). Los SVGs exportados en [/images](../images/README.md).

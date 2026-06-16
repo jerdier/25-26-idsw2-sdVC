@@ -1,10 +1,10 @@
 # CGU — Diseño · Índice de Casos de Uso
 
-> | [Inicio](../../../README.md) | [Documentos](../../README.MD) | [Análisis](../../analisis/casos-uso/README.md) | **Diseño** |
+> | [Inicio](../../README.md) | [Documentos](../README.MD) | [Análisis](../analisis/README.md) | **Diseño** |
 > |---|---|---|---|
 
 Índice de todos los diagramas de diseño (secuencia con tecnología concreta) del sistema CGU.  
-Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/diseño/casos-uso/`](../../../modelosUML/diseño/casos-uso/).
+Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/diseño/`](../../modelosUML/diseño/).
 
 ---
 
@@ -72,4 +72,4 @@ Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/di
 
 ---
 
-> **Total:** 29 casos de uso · Fuentes PlantUML en [`modelosUML/diseño/casos-uso/`](../../../modelosUML/diseño/casos-uso/)
+> **Total:** 29 casos de uso · Fuentes PlantUML en [`modelosUML/diseño/casos-uso/`](../../modelosUML/diseño/)

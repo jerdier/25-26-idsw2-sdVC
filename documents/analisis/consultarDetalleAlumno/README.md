@@ -1,6 +1,6 @@
 # CGU > consultarDetalleAlumno > Análisis
 
-> | [Inicio](../../../../README.md) | [Casos de Uso](../../../CasosDeUso/README.MD) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../../diseño/casos-uso/consultarDetalleAlumno/README.md) |
+> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarDetalleAlumno/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** Profesor
@@ -27,7 +27,7 @@ _pendiente_
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../../modelosUML/analisis/casos-uso/consultarDetalleAlumno/colaboracion.puml)_
+_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleAlumno/colaboracion.puml)_
 
 ---
 
@@ -56,7 +56,7 @@ _pendiente_
 ## referencias
 
 - [Índice de análisis](../README.md)
-- [Diseño de este caso](../../../diseño/casos-uso/consultarDetalleAlumno/README.md)
-- [Modelo del dominio](../../../ModeloDelDominio/README.MD)
-- [Casos de uso detallado](../../../CasosDeUso/README.MD)
-- [colaboracion.puml](../../../../modelosUML/analisis/casos-uso/consultarDetalleAlumno/colaboracion.puml)
+- [Diseño de este caso](../../diseño/consultarDetalleAlumno/README.md)
+- [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
+- [Casos de uso detallado](../../requisitado/README.md)
+- [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleAlumno/colaboracion.puml)

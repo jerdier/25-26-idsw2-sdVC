@@ -23,14 +23,16 @@
 | consultarSolicitudDispensa | [puml](Alumno/consultarSolicitudDispensa.puml) | [svg](Alumno/consultarSolicitudDispensa.svg) |
 | editarSolicitudDispensa | [puml](Alumno/editarSolicitudDispensa.puml) | [svg](Alumno/editarSolicitudDispensa.svg) |
 
+
 ---
 
 ## DirectorDeGrado
 
 | Caso de uso | PUML | SVG |
 |-------------|------|-----|
-| ConsultarSolicitudesDispensas | [puml](DirectorDeGrado/ConsultarSolicitudesDispensas.puml) | [svg](DirectorDeGrado/ConsultarSolicitudDispensa.svg) |
-| EditarSolicitudDispensa | [puml](DirectorDeGrado/EditarSolicitud.puml) | [svg](DirectorDeGrado/EditarSolicitudDispensa.svg) |
+| consultarSolicitudesDispensas | [puml](DirectorDeGrado/consultarSolicitudesDispensas.puml) | [svg](DirectorDeGrado/consultarSolicitudDispensa.svg) |
+| editarSolicitudDispensa | [puml](DirectorDeGrado/editarSolicitud.puml) | [svg](DirectorDeGrado/editarSolicitudDispensa.svg) |
+| guardarSolicitudDispensa | [puml](DirectorDeGrado/guardarSolicitud.puml) | [svg](DirectorDeGrado/guardarSolicitudDispensa.svg) |
 
 ---
 
@@ -60,4 +62,4 @@
 | editarSolicitudDispensa | [puml](Secretaria/editarSolicitudDispensa.puml) | [svg](Secretaria/editarSolicitudDispensa.svg) |
 | exportarDispensas | [puml](Secretaria/exportarDispensas.puml) | [svg](Secretaria/exportarDispensas.svg) |
 | importarListasAlumnos | [puml](Secretaria/importarListasAlumnos.puml) | [svg](Secretaria/importarListasAlumnos.svg) |
-| importarMatricula/s | [puml](Secretaria/importarMatricula.puml) | [svg](Secretaria/importarMatriculas.svg) |
+| importarMatriculas | [puml](Secretaria/importarMatricula.puml) | [svg](Secretaria/importarMatriculas.svg) |

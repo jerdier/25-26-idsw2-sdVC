@@ -8,10 +8,10 @@
 
 | Sección | Descripción |
 |---------|-------------|
-| [Documentos](documents/README.md) | Documentación RUP: requisitado, análisis y diseño |
-| [Modelos UML](modelosUML/README.md) | Fuentes `.puml` de todos los diagramas |
-| [Imágenes](images/README.md) | SVGs exportados organizados por fase y caso de uso |
-| [Código fuente](src/README.md) | Backend (Node.js + Prisma) y Frontend (Vue 3) |
+| [Requisitado](documents/requisitado/README.md) | Actores, casos de uso y modelo del dominio |
+| [Análisis](documents/analisis/README.md) | Diagramas de colaboración MVC por caso de uso |
+| [Diseño](documents/diseño/README.md) | Diagramas de secuencia por caso de uso |
+| [Implementación](src/README.md) | Backend (Node.js + Prisma) y Frontend (Vue 3) |
 | [Qué hace](QUE_HACE.md) | Descripción funcional del sistema (primer commit) |
 | [Conversation log](conversation-log.md) | Registro cronológico de sesiones de construcción |
 

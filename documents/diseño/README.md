@@ -1,6 +1,6 @@
 # CGU -- Diseño -- índice de Casos de Uso
 
-> | [Inicio](../../README.md) | [Documentos](../README.MD) | [Análisis](../analisis/README.md) | **Diseño** |
+> | [Inicio](../../README.md) | [Requisitado](../requisitado/README.md) | [Índice Análisis](../analisis/README.md) | **Índice Diseño** |
 > |---|---|---|---|
 
 ---

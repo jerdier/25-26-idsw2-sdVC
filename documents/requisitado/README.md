@@ -1,7 +1,7 @@
 # CGU -- Requisitado
 
-> | [Inicio](../../README.md) | [Documentos](../README.MD) | **Requisitado** | [Análisis](../analisis/README.md) | [Diseño](../diseño/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../README.md) | **Requisitado** | [Índice Análisis](../analisis/README.md) | [Índice Diseño](../diseño/README.md) |
+> |---|---|---|---|
 
 Diagramas originales del repositorio CGU (fuente de requisitos), sin modificar.
 

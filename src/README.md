@@ -1,7 +1,7 @@
 # Código fuente
 
-> | [Inicio](../README.md) | [Documentos](../documents/README.md) |
-> |---|---|
+> | [Inicio](../README.md) |
+> |---|
 
 Aplicación web full-stack en `src/plataforma-educativa/`.
 

@@ -1,75 +1,82 @@
-# CGU — Análisis · Índice de Casos de Uso
+# CGU -- Análisis -- índice de Casos de Uso
 
 > | [Inicio](../../README.md) | [Documentos](../README.MD) | **Análisis** | [Diseño](../diseño/README.md) |
 > |---|---|---|---|
 
-Índice de todos los análisis de colaboración MVC del sistema CGU.  
-Cada carpeta contiene: `README.md` (documentación), fuentes en [`/modelosUML/analisis/`](../../modelosUML/analisis/).
+---
+
+## Crear
+
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `crearUsuario()` | Administrador | [ver](crearUsuario/README.md) |
+| `crearSesionClase()` | Profesor | [ver](crearSesionClase/README.md) |
+| `crearSolicitudDispensa()` | Alumno - Secretaria | [ver](crearSolicitudDispensa/README.md) |
 
 ---
 
-## Administrador
+## Consultar
 
-| Caso de uso | Actor | Análisis |
-|-------------|-------|----------|
-| `crearUsuario()` | Administrador | [ver análisis](crearUsuario/README.md) |
-| `consultarUsuario()` | Administrador | [ver análisis](consultarUsuario/README.md) |
-| `editarUsuario()` | Administrador | [ver análisis](editarUsuario/README.md) |
-
----
-
-## Alumno
-
-| Caso de uso | Actor | Análisis |
-|-------------|-------|----------|
-| `crearSolicitudDispensaAlumno()` | Alumno | [ver análisis](crearSolicitudDispensaAlumno/README.md) |
-| `consultarEstadoDispensa()` | Alumno | [ver análisis](consultarEstadoDispensa/README.md) |
-| `editarSolicitudDispensaAlumno()` | Alumno | [ver análisis](editarSolicitudDispensaAlumno/README.md) |
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `consultarUsuario()` | Administrador | [ver](consultarUsuario/README.md) |
+| `consultarDetalleAlumno()` | Profesor | [ver](consultarDetalleAlumno/README.md) |
+| `consultarListaAlumnos()` | Profesor - Secretaria | [ver](consultarListaAlumnos/README.md) |
+| `consultarSolicitudDispensa()` | Profesor - Secretaria | [ver](consultarSolicitudDispensa/README.md) |
+| `consultarDetalleMatricula()` | Secretaria | [ver](consultarDetalleMatricula/README.md) |
 
 ---
 
-## Profesor
+## Editar
 
-| Caso de uso | Actor | Análisis |
-|-------------|-------|----------|
-| `crearSesionClase()` | Profesor | [ver análisis](crearSesionClase/README.md) |
-| `editarSesionClase()` | Profesor | [ver análisis](editarSesionClase/README.md) |
-| `cerrarSesionClase()` | Profesor | [ver análisis](cerrarSesionClase/README.md) |
-| `registrarTomaAsistencia()` | Profesor | [ver análisis](registrarTomaAsistencia/README.md) |
-| `exportarHistorialAsistencias()` | Profesor | [ver análisis](exportarHistorialAsistencias/README.md) |
-| `consultarListaAlumnosProfesor()` | Profesor | [ver análisis](consultarListaAlumnosProfesor/README.md) |
-| `consultarDetalleAlumno()` | Profesor | [ver análisis](consultarDetalleAlumno/README.md) |
-| `consultarSolicitudDispensaProfesor()` | Profesor | [ver análisis](consultarSolicitudDispensaProfesor/README.md) |
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `editarUsuario()` | Administrador | [ver](editarUsuario/README.md) |
+| `editarSesionClase()` | Profesor | [ver](editarSesionClase/README.md) |
+| `editarSolicitudDispensa()` | Alumno - Secretaria - Director | [ver](editarSolicitudDispensa/README.md) |
 
 ---
 
-## SecretariaAcademica
+## Guardar
 
-| Caso de uso | Actor | Análisis |
-|-------------|-------|----------|
-| `importarListasAlumnos()` | SecretariaAcademica | [ver análisis](importarListasAlumnos/README.md) |
-| `consultarListaAlumnosSecretaria()` | SecretariaAcademica | [ver análisis](consultarListaAlumnosSecretaria/README.md) |
-| `importarAlumnos()` | SecretariaAcademica | [ver análisis](importarAlumnos/README.md) |
-| `verDetalleAlumno()` | SecretariaAcademica | [ver análisis](verDetalleAlumno/README.md) |
-| `importarMatriculas()` | SecretariaAcademica | [ver análisis](importarMatriculas/README.md) |
-| `consultarDetalleMatricula()` | SecretariaAcademica | [ver análisis](consultarDetalleMatricula/README.md) |
-| `crearSolicitudDispensaSecretaria()` | SecretariaAcademica | [ver análisis](crearSolicitudDispensaSecretaria/README.md) |
-| `consultarSolicitudDispensaSecretaria()` | SecretariaAcademica | [ver análisis](consultarSolicitudDispensaSecretaria/README.md) |
-| `editarSolicitudDispensaSecretaria()` | SecretariaAcademica | [ver análisis](editarSolicitudDispensaSecretaria/README.md) |
-| `guardarSolicitudDispensaSecretaria()` | SecretariaAcademica | [ver análisis](guardarSolicitudDispensaSecretaria/README.md) |
-| `cerrarSolicitudDispensaSecretaria()` | SecretariaAcademica | [ver análisis](cerrarSolicitudDispensaSecretaria/README.md) |
-| `exportarDispensas()` | SecretariaAcademica | [ver análisis](exportarDispensas/README.md) |
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `guardarSolicitudDispensa()` | Secretaria - Director | [ver](guardarSolicitudDispensa/README.md) |
 
 ---
 
-## DirectorDeGrado
+## Cerrar
 
-| Caso de uso | Actor | Análisis |
-|-------------|-------|----------|
-| `consultarSolicitudesDispensa()` | DirectorDeGrado | [ver análisis](consultarSolicitudesDispensa/README.md) |
-| `editarSolicitudDispensaDirector()` | DirectorDeGrado | [ver análisis](editarSolicitudDispensaDirector/README.md) |
-| `guardarSolicitudDispensaDirector()` | DirectorDeGrado | [ver análisis](guardarSolicitudDispensaDirector/README.md) |
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `cerrarSesionClase()` | Profesor | [ver](cerrarSesionClase/README.md) |
 
 ---
 
-> **Total:** 29 casos de uso · Fuentes PlantUML en [`modelosUML/analisis/casos-uso/`](../../modelosUML/analisis/)
+## Registrar
+
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `registrarTomaAsistencia()` | Profesor | [ver](registrarTomaAsistencia/README.md) |
+
+---
+
+## Exportar
+
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `exportarHistorialAsistencias()` | Profesor | [ver](exportarHistorialAsistencias/README.md) |
+| `exportarDispensas()` | Secretaria | [ver](exportarDispensas/README.md) |
+
+---
+
+## Importar
+
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `importarListasAlumnos()` | Secretaria | [ver](importarListasAlumnos/README.md) |
+| `importarMatricula()` | Secretaria | [ver](importarMatricula/README.md) |
+
+---
+
+> **Total:** 18 casos de uso

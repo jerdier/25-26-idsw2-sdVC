@@ -1,6 +1,6 @@
-# CGU > importarMatricula > Diseño
+# CGU > importarMatriculas > Diseño
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/importarMatricula/README.md) | [Índice Diseño](../README.md) | **Diseño** |
+> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/importarMatriculas/README.md) | [Índice Diseño](../README.md) | **Diseño** |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica
@@ -19,7 +19,7 @@
 
 ## diagrama de secuencia
 
-_pendiente — fuente en [secuencia.puml](../../../modelosUML/diseño/importarMatricula/secuencia.puml)_
+_pendiente — fuente en [secuencia.puml](../../../modelosUML/diseño/importarMatriculas/secuencia.puml)_
 
 ---
 
@@ -32,6 +32,6 @@ _pendiente_
 ## referencias
 
 - [Índice de diseño](../README.md)
-- [Análisis de este caso](../../analisis/importarMatricula/README.md)
+- [Análisis de este caso](../../analisis/importarMatriculas/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [secuencia.puml](../../../modelosUML/diseño/importarMatricula/secuencia.puml)
+- [secuencia.puml](../../../modelosUML/diseño/importarMatriculas/secuencia.puml)

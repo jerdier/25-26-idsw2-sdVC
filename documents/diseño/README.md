@@ -75,7 +75,7 @@
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
 | `importarListasAlumnos()` | Secretaria | [ver](importarListasAlumnos/README.md) |
-| `importarMatricula()` | Secretaria | [ver](importarMatricula/README.md) |
+| `importarMatriculas()` | Secretaria | [ver](importarMatriculas/README.md) |
 
 ---
 

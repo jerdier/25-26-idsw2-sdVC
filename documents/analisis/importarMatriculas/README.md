@@ -1,6 +1,6 @@
-# CGU > importarMatricula > Análisis
+# CGU > importarMatriculas > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarMatricula/README.md) |
+> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarMatriculas/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica
@@ -19,7 +19,7 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importarMatricula/colaboracion.puml)_
+_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importarMatriculas/colaboracion.puml)_
 
 ---
 
@@ -48,6 +48,6 @@ _pendiente_
 ## referencias
 
 - [Índice de análisis](../README.md)
-- [Diseño de este caso](../../diseño/importarMatricula/README.md)
+- [Diseño de este caso](../../diseño/importarMatriculas/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [colaboracion.puml](../../../modelosUML/analisis/importarMatricula/colaboracion.puml)
+- [colaboracion.puml](../../../modelosUML/analisis/importarMatriculas/colaboracion.puml)

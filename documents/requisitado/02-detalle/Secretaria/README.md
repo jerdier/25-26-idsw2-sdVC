@@ -3,7 +3,7 @@
 > | [Inicio](../../../../README.md) | [Requisitado](../../README.md) | [Detalle](../README.md) | **Secretaria** |
 > |---|---|---|---|
 
-Nota: importarMatricula.puml / importarMatriculas.svg tal cual en CGU.
+Nota: importarMatriculas.puml / importarMatriculas.svg tal cual en CGU.
 
 | Caso de uso | SVG | PUML |
 |-------------|-----|------|
@@ -14,4 +14,4 @@ Nota: importarMatricula.puml / importarMatriculas.svg tal cual en CGU.
 | editarSolicitudDispensa | ![editar](editarSolicitudDispensa.svg) | [editarSolicitudDispensa.puml](editarSolicitudDispensa.puml) |
 | exportarDispensas | ![exportar](exportarDispensas.svg) | [exportarDispensas.puml](exportarDispensas.puml) |
 | importarListasAlumnos | ![importar](importarListasAlumnos.svg) | [importarListasAlumnos.puml](importarListasAlumnos.puml) |
-| importarMatricula/s | ![importar](importarMatriculas.svg) | [importarMatricula.puml](importarMatricula.puml) |
+| importarMatriculas/s | ![importar](importarMatriculas.svg) | [importarMatriculas.puml](importarMatriculas.puml) |

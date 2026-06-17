@@ -62,4 +62,4 @@
 | editarSolicitudDispensa | [puml](Secretaria/editarSolicitudDispensa.puml) | [svg](Secretaria/editarSolicitudDispensa.svg) |
 | exportarDispensas | [puml](Secretaria/exportarDispensas.puml) | [svg](Secretaria/exportarDispensas.svg) |
 | importarListasAlumnos | [puml](Secretaria/importarListasAlumnos.puml) | [svg](Secretaria/importarListasAlumnos.svg) |
-| importarMatriculas | [puml](Secretaria/importarMatricula.puml) | [svg](Secretaria/importarMatriculas.svg) |
+| importarMatriculas | [puml](Secretaria/importarMatriculas.puml) | [svg](Secretaria/importarMatriculas.svg) |

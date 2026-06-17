@@ -1,6 +1,6 @@
 # CGU > importarMatriculas > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarMatriculas/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarMatriculas/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica

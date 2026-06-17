@@ -1,6 +1,6 @@
 # CGU > consultarDetalleMatricula > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarDetalleMatricula/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarDetalleMatricula/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica

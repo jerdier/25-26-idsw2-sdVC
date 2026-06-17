@@ -1,6 +1,6 @@
 # CGU > importarListasAlumnos > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarListasAlumnos/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/importarListasAlumnos/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** SecretariaAcademica

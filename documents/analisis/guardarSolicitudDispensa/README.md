@@ -1,6 +1,6 @@
 # CGU > guardarSolicitudDispensa > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/guardarSolicitudDispensa/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/guardarSolicitudDispensa/README.md) |
 > |---|---|---|---|---|
 
 **Actores:** SecretariaAcadémica · DirectorDeGrado

@@ -1,6 +1,6 @@
 # CGU > consultarSolicitudDispensa > Diseño
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/consultarSolicitudDispensa/README.md) | [índice Diseño](../README.md) | **Diseño** |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/consultarSolicitudDispensa/README.md) | [índice Diseño](../README.md) | **Diseño** |
 > |---|---|---|---|---|
 
 **Actores:** Profesor · SecretariaAcadémica

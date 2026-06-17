@@ -1,6 +1,6 @@
 # CGU > editarUsuario > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/editarUsuario/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/editarUsuario/README.md) |
 > |---|---|---|---|---|
 
 **Actor:** Administrador

@@ -1,6 +1,6 @@
 # CGU > consultarListaAlumnos > Análisis
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarListaAlumnos/README.md) |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarListaAlumnos/README.md) |
 > |---|---|---|---|---|
 
 **Actores:** Profesor · SecretariaAcadémica

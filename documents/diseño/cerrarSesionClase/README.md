@@ -1,6 +1,6 @@
 # CGU > cerrarSesionClase > Diseño
 
-> | [Inicio](../../../README.md) | [Casos de Uso](../../requisitado/README.md) | [Análisis](../../analisis/cerrarSesionClase/README.md) | [Índice Diseño](../README.md) | **Diseño** |
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/cerrarSesionClase/README.md) | [Índice Diseño](../README.md) | **Diseño** |
 > |---|---|---|---|---|
 
 **Actor:** Profesor

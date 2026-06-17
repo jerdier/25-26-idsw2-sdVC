@@ -12,22 +12,16 @@
 | Campo | Valor |
 |-------|-------|
 | **Proyecto** | CGU - Centro de Gestión Universitaria |
-| **Fase** | Elaboración |
 | **Disciplina** | Análisis y Diseño |
-| **Versión** | - |
-| **Fecha** | - |
 
 ---
 
-## propósito
-
-_pendiente_
-
----
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/crearSesionClase/colaboracion.puml)_
+![colaboracion](../../../images/analisis/crearSesionClase/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/crearSesionClase/colaboracion.puml)
 
 ---
 
@@ -35,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/crearSes
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `CrearSesionClaseView` | Formulario de nueva sesión; muestra asignaturas disponibles y recoge fecha, aula y duración |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SesionClaseController` | Carga asignaturas del profesor, valida los datos y orquesta la creación de la sesión |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AsignaturaRepository` | Recupera las asignaturas asignadas al profesor |
+| `SesionClaseRepository` | Persiste la nueva sesión de clase |
+| `Asignatura` | Entidad de dominio que representa una asignatura |
+| `SesionDeClase` | Entidad de dominio con fecha, aula, duración y estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor accede desde `:Dashboard Profesor Abierto` → se abre `CrearSesionClaseView`.
+2. `CrearSesionClaseView` → `SesionClaseController.cargarAsignaturas(profesorId)` → `AsignaturaRepository.obtenerPorProfesor(profesorId)` → devuelve `List<Asignatura>`.
+3. `CrearSesionClaseView` → `SesionClaseController.validarDatos(asignaturaId, fecha, aula)`.
+4. Si los datos son válidos, `CrearSesionClaseView` → `SesionClaseController.crearSesionClase(asignaturaId, fecha, aula, duracion)` → `SesionClaseRepository.crear(...)` → devuelve `SesionDeClase`.
+5. `CrearSesionClaseView` incluye `<<include>> registrarTomaAsistencia(sesionNueva)` para iniciar el pase de lista.
 
 ---
 
@@ -58,5 +65,4 @@ _pendiente_
 - [Índice de análisis](../README.md)
 - [Diseño de este caso](../../diseño/crearSesionClase/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [Casos de uso detallado](../../requisitado/README.md)
 - [colaboracion.puml](../../../modelosUML/analisis/crearSesionClase/colaboracion.puml)

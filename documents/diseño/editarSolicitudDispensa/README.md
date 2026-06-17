@@ -12,18 +12,10 @@
 | Campo | Valor |
 |-------|-------|
 | **Proyecto** | CGU - Centro de Gestión Universitaria |
-| **Fase** | Construcción |
 | **Disciplina** | Análisis y Diseño |
-| **Versión** | - |
-| **Fecha** | - |
 
 ---
 
-## propósito
-
-_pendiente_
-
----
 
 ## diagrama de secuencia
 
@@ -42,5 +34,4 @@ _pendiente_
 - [índice de diseño](../README.md)
 - [Análisis de este caso](../../analisis/editarSolicitudDispensa/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [Casos de uso detallado](../../requisitado/README.md)
 - [secuencia.puml](../../../modelosUML/diseño/editarSolicitudDispensa/secuencia.puml)

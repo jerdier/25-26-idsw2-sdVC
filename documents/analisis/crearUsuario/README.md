@@ -12,22 +12,16 @@
 | Campo | Valor |
 |-------|-------|
 | **Proyecto** | CGU - Centro de Gestión Universitaria |
-| **Fase** | Elaboración |
 | **Disciplina** | Análisis y Diseño |
-| **Versión** | - |
-| **Fecha** | - |
 
 ---
 
-## propósito
-
-_pendiente_
-
----
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/crearUsuario/colaboracion.puml)_
+![colaboracion](../../../images/analisis/crearUsuario/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/crearUsuario/colaboracion.puml)
 
 ---
 
@@ -35,21 +29,31 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/crearUsu
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `CrearUsuarioView` | Formulario de alta de usuario; recoge nombre, email, password y rol |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioController` | Valida los datos del formulario y orquesta la creación en repositorio |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioRepository` | Verifica unicidad de email y persiste el nuevo usuario |
+| `Usuario` | Entidad de dominio con nombre, email, password y rol |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Administrador accede desde `:Panel Admin Abierto` → se abre `CrearUsuarioView`.
+2. `CrearUsuarioView` → `UsuarioController.validarDatos(nombre, email, rol)` → `UsuarioRepository.verificarUnicidad(email)`.
+3. Si los datos son válidos, `CrearUsuarioView` → `UsuarioController.crearUsuario(nombre, email, password, rol)` → `UsuarioRepository.crear(...)` → devuelve `Usuario`.
+4. `CrearUsuarioView` incluye `<<include>> editarUsuario(usuarioNuevo)` para completar el alta.
 
 ---
 
@@ -58,5 +62,4 @@ _pendiente_
 - [Índice de análisis](../README.md)
 - [Diseño de este caso](../../diseño/crearUsuario/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [Casos de uso detallado](../../requisitado/README.md)
 - [colaboracion.puml](../../../modelosUML/analisis/crearUsuario/colaboracion.puml)

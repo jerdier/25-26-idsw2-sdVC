@@ -12,18 +12,10 @@
 | Campo | Valor |
 |-------|-------|
 | **Proyecto** | CGU - Centro de Gestión Universitaria |
-| **Fase** | Elaboración |
 | **Disciplina** | Análisis y Diseño |
-| **Versión** | - |
-| **Fecha** | - |
 
 ---
 
-## propósito
-
-_pendiente_
-
----
 
 ## diagrama de colaboración
 
@@ -58,5 +50,4 @@ _pendiente_
 - [índice de análisis](../README.md)
 - [Diseño de este caso](../../diseño/editarSolicitudDispensa/README.md)
 - [Modelo del dominio](../../requisitado/00-modelo-del-dominio/README.md)
-- [Casos de uso detallado](../../requisitado/README.md)
 - [colaboracion.puml](../../../modelosUML/analisis/editarSolicitudDispensa/colaboracion.puml)

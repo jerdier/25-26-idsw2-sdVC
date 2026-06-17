@@ -1,74 +1,48 @@
 # Código fuente
 
-[← Inicio](../README.md) · [Modelos UML](../modelosUML/README.md) · [Documentos](../documents/README.md)
+> | [Inicio](../README.md) | [Documentos](../documents/README.md) |
+> |---|---|
 
-Implementación de la plataforma CGU dividida en backend y frontend.
+Aplicación web full-stack en `src/plataforma-educativa/`.
 
 ---
 
 ## Estructura
 
 ```
-src/
-└── plataforma-educativa/
-    ├── backend/            ← API REST (Node.js + Express + Prisma)
-    └── frontend/           ← SPA (Vue 3 + TypeScript + Vite)
+src/plataforma-educativa/
+├── backend/               Node.js · Express · TypeScript · Prisma
+│   ├── prisma/
+│   │   └── schema.prisma  modelos de base de datos
+│   └── src/
+│       ├── controllers/   AcademicController, AttendanceController, DispensaController...
+│       ├── services/      AcademicService, AttendanceService, DispensaService...
+│       ├── routes/        endpoints REST
+│       ├── types/         DTOs e interfaces TypeScript
+│       └── index.ts       entrada de Express
+└── frontend/              Vue 3 · TypeScript · Vite · Vue Router
+    └── src/
+        ├── views/         AdminDashboard, ProfessorDashboard, StudentDashboard...
+        ├── services/      attendanceService, dispensaService, authService...
+        └── router/        rutas por rol
 ```
 
 ---
 
-## Backend
+## Arranque rápido
 
-**Stack:** Node.js · Express 5 · TypeScript · Prisma 7 · PostgreSQL
-
-```
-backend/
-├── prisma/
-│   └── schema.prisma       ← modelos de datos
-├── src/
-│   ├── controllers/        ← manejadores HTTP
-│   ├── services/           ← lógica de negocio
-│   ├── routes/             ← definición de rutas
-│   ├── lib/                ← cliente Prisma
-│   └── index.ts            ← entrada de la aplicación
-├── prisma.config.ts
-└── tsconfig.json
-```
-
-**Arranque:**
 ```bash
+# Backend
 cd src/plataforma-educativa/backend
 npm install
 npx prisma db push
 npx prisma generate
 npx ts-node --project tsconfig.json src/index.ts
-```
 
-API disponible en `http://localhost:3000`.
-
----
-
-## Frontend
-
-**Stack:** Vue 3 · TypeScript · Vite · Vue Router
-
-Ver [README del frontend](plataforma-educativa/frontend/README.md) para detalles de vistas y rutas.
-
-**Arranque:**
-```bash
+# Frontend (en otra terminal)
 cd src/plataforma-educativa/frontend
 npm install
 npm run dev
 ```
 
-Aplicación disponible en `http://localhost:5173`.
-
----
-
-## Variables de entorno
-
-El backend necesita un archivo `.env` en `src/plataforma-educativa/backend/` con:
-
-```env
-DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/gestor_educativo"
-```
+Frontend en `http://localhost:5173` · Backend en `http://localhost:3000`

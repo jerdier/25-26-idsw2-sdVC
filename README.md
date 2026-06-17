@@ -8,9 +8,9 @@
 
 | Sección | Descripción |
 |---------|-------------|
-| [Modelos UML](modelosUML/README.md) | Diagramas de análisis y diseño (fuentes `.puml` + imágenes SVG) |
-| [Imágenes](images/README.md) | SVGs exportados organizados por fase y actor |
-| [Documentos](documents/README.md) | Documentación de análisis y diseño |
+| [Documentos](documents/README.md) | Documentación RUP: requisitado, análisis y diseño |
+| [Modelos UML](modelosUML/README.md) | Fuentes `.puml` de todos los diagramas |
+| [Imágenes](images/README.md) | SVGs exportados organizados por fase y caso de uso |
 | [Código fuente](src/README.md) | Backend (Node.js + Prisma) y Frontend (Vue 3) |
 | [Qué hace](QUE_HACE.md) | Descripción funcional del sistema (primer commit) |
 | [Conversation log](conversation-log.md) | Registro cronológico de sesiones de construcción |
@@ -85,6 +85,6 @@ El frontend arranca en `http://localhost:5173` y el backend en `http://localhost
 | 0 | `QUE_HACE.md` | Primer commit, sin modificar |
 | 1 | `README.md` | Este archivo |
 | 2 | Código fuente | [`/src`](src/README.md) |
-| 3 | Diagramas UML | [Fuentes `.puml`](modelosUML/README.md) · [SVGs](images/README.md) |
+| 3 | Diagramas UML | [Fuentes `.puml`](modelosUML/README.md) — [SVGs](images/README.md) |
 | 4 | Documentación | [`/documents`](documents/README.md) |
 | 5 | `conversation-log.md` | [`conversation-log.md`](conversation-log.md) |

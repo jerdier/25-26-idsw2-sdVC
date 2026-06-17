@@ -509,3 +509,19 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 7. **Documentación — READMEs profesionalizados:** Se han reescrito los 8 archivos README del repositorio con navegación cruzada mediante breadcrumbs, descripción del sistema, stack tecnológico y estructura de carpetas. Los README de `modelosUML/` e `images/` incluyen el catálogo completo de los 48 diagramas: cada imagen SVG es un enlace clicable a su archivo `.puml` fuente.
 
 **Decisión:** El sistema de dispensas es ahora robusto de extremo a extremo: el modelo de datos es semánticamente correcto, las restricciones de UI son coherentes entre roles y la documentación del repositorio está a la altura de un proyecto profesional. El siguiente paso natural sería implementar notificaciones en tiempo real o exportación de informes de asistencia.
+
+## [01:00] Martes, 17 de junio de 2026 - Diagramas de colaboración de análisis (Crear)
+
+**Prompt:** Vamos a hacer los diagramas de colaboración de análisis para los casos de uso de crear: crearUsuario(), crearSesionClase() y crearSolicitudDispensa(). Sigue el formato de PYSIGHOR (patrón MVC con colores boundary/control/entity) y basa el contenido en el código real del proyecto. Crea los .puml en modelosUML/analisis/.
+
+**Resultado:** Se han creado los tres diagramas de colaboración de análisis siguiendo el patrón MVC de PYSIGHOR (boundary azul, control oliva, entity naranja):
+
+1. **crearUsuario()** (`modelosUML/analisis/crearUsuario/colaboracion.puml`): Flujo Administrador → CrearUsuarioView → UsuarioController → UsuarioRepository + RolRepository → Usuario + Rol. Incluye referencia a EditarUsuario como colaboración siguiente.
+
+2. **crearSesionClase()** (`modelosUML/analisis/crearSesionClase/colaboracion.puml`): Flujo Profesor → CrearSesionClaseView → SesionClaseController → AsignaturaRepository + SesionClaseRepository → Asignatura + SesionDeClase. Referencia a registrarTomaAsistencia como colaboración siguiente.
+
+3. **crearSolicitudDispensa()** (`modelosUML/analisis/crearSolicitudDispensa/colaboracion.puml`): Flujo Alumno → CrearSolicitudDispensaView → DispensaController → AlumnoRepository + SesionClaseRepository + AsignaturaRepository + DispensaRepository → Alumno + SesionDeClase + Asignatura + Dispensa. Refleja la complejidad del servicio real (alumnoId, motivo, secretariaId, sesionesIds, asignaturasIds).
+
+Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis/crearUsuario/`, `images/analisis/crearSesionClase/` e `images/analisis/crearSolicitudDispensa/`.
+
+**Decisión:** Los tres casos de crear tienen su diagrama de colaboración de análisis completo. Quedan 15 casos por completar en análisis y todos los de diseño.

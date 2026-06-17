@@ -1,5 +1,34 @@
 @startuml crearSesionClase-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
+rectangle #CDEBA5 ":Collaboration RegistrarTomaAsistencia" as RegistrarTomaAsistencia
+
+package crearSesionClase as "crearSesionClase()" {
+    rectangle #629EF9 CrearSesionClaseView
+    rectangle #b5bd68 SesionClaseController
+    rectangle #F2AC4E AsignaturaRepository
+    rectangle #F2AC4E SesionClaseRepository
+    rectangle #F2AC4E Asignatura
+    rectangle #F2AC4E SesionDeClase
+}
+
+DashboardProfesorAbierto -r-> CrearSesionClaseView: crearSesionClase()
+
+CrearSesionClaseView -d-> SesionClaseController: cargarAsignaturas(profesorId) : List<Asignatura>
+
+SesionClaseController --> AsignaturaRepository: obtenerPorProfesor(profesorId) : List<Asignatura>
+
+AsignaturaRepository -- Asignatura
+
+CrearSesionClaseView -d-> SesionClaseController: validarDatos(asignaturaId, fecha, aula) : boolean
+
+CrearSesionClaseView --> SesionClaseController: crearSesionClase(asignaturaId, fecha, aula, duracion) : SesionDeClase
+
+SesionClaseController --> SesionClaseRepository: crear(asignaturaId, fecha, aula, duracion) : SesionDeClase
+
+SesionClaseRepository -- SesionDeClase
+
+CrearSesionClaseView ..> RegistrarTomaAsistencia: <<include>> registrarTomaAsistencia(sesionNueva)
 
 @enduml

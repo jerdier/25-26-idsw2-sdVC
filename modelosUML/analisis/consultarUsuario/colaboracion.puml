@@ -1,5 +1,25 @@
 @startuml consultarUsuario-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Panel Admin Abierto" as PanelAdminAbierto
+
+package consultarUsuario as "consultarUsuario()" {
+    rectangle #629EF9 ConsultarUsuarioView
+    rectangle #b5bd68 UsuarioController
+    rectangle #F2AC4E UsuarioRepository
+    rectangle #F2AC4E Usuario
+}
+
+PanelAdminAbierto -r-> ConsultarUsuarioView: consultarUsuario()
+
+ConsultarUsuarioView -d-> UsuarioController: buscarUsuarios(filtro) : List<Usuario>
+
+UsuarioController --> UsuarioRepository: buscarPorFiltro(filtro) : List<Usuario>
+
+ConsultarUsuarioView --> UsuarioController: obtenerUsuario(id) : Usuario
+
+UsuarioController --> UsuarioRepository: obtenerPorId(id) : Usuario
+
+UsuarioRepository -- Usuario
 
 @enduml

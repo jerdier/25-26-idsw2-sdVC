@@ -1,5 +1,29 @@
 @startuml consultarDetalleAlumno-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
+
+package consultarDetalleAlumno as "consultarDetalleAlumno()" {
+    rectangle #629EF9 ConsultarDetalleAlumnoView
+    rectangle #b5bd68 AlumnoController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E AsistenciaRepository
+    rectangle #F2AC4E Alumno
+    rectangle #F2AC4E Asistencia
+}
+
+DashboardProfesorAbierto -r-> ConsultarDetalleAlumnoView: consultarDetalleAlumno()
+
+ConsultarDetalleAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId) : Alumno
+
+AlumnoController --> AlumnoRepository: obtenerPorId(alumnoId) : Alumno
+
+AlumnoRepository -- Alumno
+
+ConsultarDetalleAlumnoView --> AlumnoController: obtenerAsistencias(alumnoId) : List<Asistencia>
+
+AlumnoController --> AsistenciaRepository: obtenerPorAlumno(alumnoId) : List<Asistencia>
+
+AsistenciaRepository -- Asistencia
 
 @enduml

@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleAlumno/colaboracion.puml)_
+![colaboracion](../../../images/analisis/consultarDetalleAlumno/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleAlumno/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,32 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consulta
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ConsultarDetalleAlumnoView` | Muestra los datos del alumno y su historial de asistencias |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoController` | Recupera los datos del alumno y sus registros de asistencia |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoRepository` | Obtiene los datos del alumno por id |
+| `AsistenciaRepository` | Obtiene el historial de asistencias del alumno |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
+| `Asistencia` | Entidad de dominio con el registro de asistencia por sesión |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor accede desde `:Dashboard Profesor Abierto` → se abre `ConsultarDetalleAlumnoView`.
+2. `ConsultarDetalleAlumnoView` → `AlumnoController.obtenerAlumno(alumnoId)` → `AlumnoRepository.obtenerPorId(alumnoId)` → devuelve `Alumno`.
+3. `ConsultarDetalleAlumnoView` → `AlumnoController.obtenerAsistencias(alumnoId)` → `AsistenciaRepository.obtenerPorAlumno(alumnoId)` → devuelve `List<Asistencia>`.
 
 ---
 

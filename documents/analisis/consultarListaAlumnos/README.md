@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarListaAlumnos/colaboracion.puml)_
+![colaboracion](../../../images/analisis/consultarListaAlumnos/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/consultarListaAlumnos/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consulta
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ConsultarListaAlumnosView` | Muestra la lista de alumnos filtrada por asignatura |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoController` | Obtiene los ids de alumnos matriculados y recupera sus datos |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `MatriculaRepository` | Obtiene las matrículas asociadas a una asignatura |
+| `AlumnoRepository` | Obtiene los datos de los alumnos por sus ids |
+| `Matricula` | Entidad de dominio que vincula alumno con asignatura |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor o la Secretaria accede desde su dashboard → se abre `ConsultarListaAlumnosView`.
+2. `ConsultarListaAlumnosView` → `AlumnoController.obtenerAlumnos(asignaturaId)`.
+3. `AlumnoController` → `MatriculaRepository.obtenerPorAsignatura(asignaturaId)` → devuelve `List<Matricula>`.
+4. `AlumnoController` → `AlumnoRepository.obtenerPorIds(ids)` → devuelve `List<Alumno>`.
+5. `ConsultarListaAlumnosView` muestra la lista resultante.
 
 ---
 

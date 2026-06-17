@@ -1,5 +1,33 @@
 @startuml consultarDetalleMatricula-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+
+package consultarDetalleMatricula as "consultarDetalleMatricula()" {
+    rectangle #629EF9 ConsultarDetalleMatriculaView
+    rectangle #b5bd68 MatriculaController
+    rectangle #F2AC4E MatriculaRepository
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E Matricula
+    rectangle #F2AC4E Alumno
+}
+
+DashboardSecretariaAbierto -r-> ConsultarDetalleMatriculaView: consultarDetalleMatricula()
+
+ConsultarDetalleMatriculaView -d-> MatriculaController: buscarMatriculas(filtro) : List<Matricula>
+
+MatriculaController --> MatriculaRepository: buscarPorFiltro(filtro) : List<Matricula>
+
+MatriculaRepository -- Matricula
+
+ConsultarDetalleMatriculaView --> MatriculaController: obtenerDetalle(matriculaId) : Matricula
+
+MatriculaController --> MatriculaRepository: obtenerPorId(matriculaId) : Matricula
+
+ConsultarDetalleMatriculaView --> MatriculaController: obtenerAlumno(alumnoId) : Alumno
+
+MatriculaController --> AlumnoRepository: obtenerPorId(alumnoId) : Alumno
+
+AlumnoRepository -- Alumno
 
 @enduml

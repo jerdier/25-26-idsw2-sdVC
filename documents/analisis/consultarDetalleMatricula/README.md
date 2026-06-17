@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleMatricula/colaboracion.puml)_
+![colaboracion](../../../images/analisis/consultarDetalleMatricula/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/consultarDetalleMatricula/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,33 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consulta
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ConsultarDetalleMatriculaView` | Muestra el buscador de matrículas y el detalle de la seleccionada con datos del alumno |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `MatriculaController` | Busca matrículas por filtro, recupera el detalle y los datos del alumno asociado |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `MatriculaRepository` | Consulta matrículas por filtro y por id |
+| `AlumnoRepository` | Obtiene los datos del alumno vinculado a la matrícula |
+| `Matricula` | Entidad de dominio que vincula alumno con asignatura |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. La Secretaria accede desde `:Dashboard Secretaria Abierto` → se abre `ConsultarDetalleMatriculaView`.
+2. `ConsultarDetalleMatriculaView` → `MatriculaController.buscarMatriculas(filtro)` → `MatriculaRepository.buscarPorFiltro(filtro)` → devuelve `List<Matricula>`.
+3. La Secretaria selecciona una matrícula → `ConsultarDetalleMatriculaView` → `MatriculaController.obtenerDetalle(matriculaId)` → `MatriculaRepository.obtenerPorId(matriculaId)` → devuelve `Matricula`.
+4. `ConsultarDetalleMatriculaView` → `MatriculaController.obtenerAlumno(alumnoId)` → `AlumnoRepository.obtenerPorId(alumnoId)` → devuelve `Alumno`.
 
 ---
 

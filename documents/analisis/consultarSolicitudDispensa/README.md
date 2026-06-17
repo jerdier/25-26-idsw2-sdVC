@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarSolicitudDispensa/colaboracion.puml)_
+![colaboracion](../../../images/analisis/consultarSolicitudDispensa/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/consultarSolicitudDispensa/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,30 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consulta
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ConsultarSolicitudDispensaView` | Muestra el listado de solicitudes y el detalle de la seleccionada |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaController` | Obtiene las solicitudes accesibles para el actor y el detalle de una concreta |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaRepository` | Consulta solicitudes por actor y por id |
+| `Dispensa` | Entidad de dominio con motivo, alumno, sesiones y estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor o la Secretaria accede desde su dashboard → se abre `ConsultarSolicitudDispensaView`.
+2. `ConsultarSolicitudDispensaView` → `DispensaController.obtenerSolicitudes(actorId)` → `DispensaRepository.obtenerPorActor(actorId)` → devuelve `List<Dispensa>`.
+3. El actor selecciona una solicitud → `ConsultarSolicitudDispensaView` → `DispensaController.obtenerDetalle(dispensaId)` → `DispensaRepository.obtenerPorId(dispensaId)` → devuelve `Dispensa`.
 
 ---
 

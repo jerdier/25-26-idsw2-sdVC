@@ -525,3 +525,19 @@ Si todo sale bien, la terminal te dirá “Your database is now in sync with you
 Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis/crearUsuario/`, `images/analisis/crearSesionClase/` e `images/analisis/crearSolicitudDispensa/`.
 
 **Decisión:** Los tres casos de crear tienen su diagrama de colaboración de análisis completo. Quedan 15 casos por completar en análisis y todos los de diseño.
+
+## [17:00] Martes, 17 de junio de 2026 - Limpieza de READMEs y análisis de Crear y Consultar
+
+**Prompt:** Limpia los READMEs de todos los casos de uso, completa los de Crear y crea los diagramas de colaboración y documentación de los casos de Consultar.
+
+**Resultado:** Se han realizado las siguientes acciones:
+
+1. **Limpieza masiva (36 READMEs):** Eliminadas las filas `Fase`, `Versión` y `Fecha`, la sección `## propósito` y la referencia `Casos de uso detallado` de todos los READMEs de `documents/analisis/` y `documents/diseño/`. Ajustadas las barras de navegación de los índices de Requisitado, Análisis y Diseño.
+
+2. **Documentación Crear:** Completados `crearUsuario`, `crearSesionClase` y `crearSolicitudDispensa` con imagen embebida, tabla de clases (boundary/control/entity) y flujo de colaboración numerado.
+
+3. **Diagramas Consultar:** Creados los cinco `.puml` en `modelosUML/analisis/` para `consultarUsuario`, `consultarDetalleAlumno`, `consultarListaAlumnos`, `consultarSolicitudDispensa` y `consultarDetalleMatricula` siguiendo el patrón MVC de colores.
+
+4. **Documentación Consultar:** Completados los cinco READMEs de `documents/analisis/` con imagen, clases y flujo.
+
+**Decisión:** Crear y Consultar están completamente documentados en análisis. Quedan los grupos Editar, Guardar, Cerrar, Registrar, Exportar e Importar.

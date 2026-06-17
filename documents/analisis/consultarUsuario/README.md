@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consultarUsuario/colaboracion.puml)_
+![colaboracion](../../../images/analisis/consultarUsuario/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/consultarUsuario/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,30 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/consulta
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ConsultarUsuarioView` | Muestra el buscador de usuarios y el detalle del usuario seleccionado |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioController` | Ejecuta la búsqueda por filtro y recupera el detalle de un usuario concreto |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioRepository` | Consulta usuarios por filtro y por id en la base de datos |
+| `Usuario` | Entidad de dominio con nombre, email, password y rol |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Administrador accede desde `:Panel Admin Abierto` → se abre `ConsultarUsuarioView`.
+2. `ConsultarUsuarioView` → `UsuarioController.buscarUsuarios(filtro)` → `UsuarioRepository.buscarPorFiltro(filtro)` → devuelve `List<Usuario>`.
+3. El Administrador selecciona un usuario → `ConsultarUsuarioView` → `UsuarioController.obtenerUsuario(id)` → `UsuarioRepository.obtenerPorId(id)` → devuelve `Usuario`.
 
 ---
 

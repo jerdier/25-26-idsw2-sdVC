@@ -1,5 +1,36 @@
 @startuml cerrarSesionClase-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
+rectangle #CDEBA5 ":Collaboration ExportarHistorialAsistencias" as ExportarHistorialAsistencias
+
+package cerrarSesionClase as "cerrarSesionClase()" {
+    rectangle #629EF9 CerrarSesionClaseView
+    rectangle #b5bd68 SesionClaseController
+    rectangle #F2AC4E SesionClaseRepository
+    rectangle #F2AC4E AsistenciaRepository
+    rectangle #F2AC4E SesionDeClase
+    rectangle #F2AC4E Asistencia
+}
+
+DashboardProfesorAbierto -r-> CerrarSesionClaseView: cerrarSesionClase()
+
+CerrarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId) : SesionDeClase
+
+SesionClaseController --> SesionClaseRepository: obtenerPorId(sesionId) : SesionDeClase
+
+SesionClaseRepository -- SesionDeClase
+
+CerrarSesionClaseView -d-> SesionClaseController: obtenerAsistencias(sesionId) : List<Asistencia>
+
+SesionClaseController --> AsistenciaRepository: obtenerPorSesion(sesionId) : List<Asistencia>
+
+AsistenciaRepository -- Asistencia
+
+CerrarSesionClaseView --> SesionClaseController: cerrarSesionClase(sesionId) : SesionDeClase
+
+SesionClaseController --> SesionClaseRepository: actualizarEstado(sesionId, CERRADA) : SesionDeClase
+
+CerrarSesionClaseView ..> ExportarHistorialAsistencias: <<include>> exportarHistorialAsistencias()
 
 @enduml

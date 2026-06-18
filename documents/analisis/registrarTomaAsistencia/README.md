@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/registrarTomaAsistencia/colaboracion.puml)_
+![colaboracion](../../../images/analisis/registrarTomaAsistencia/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/registrarTomaAsistencia/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,33 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/registra
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `RegistrarTomaAsistenciaView` | Muestra la lista de alumnos de la sesión y permite marcar la presencia de cada uno |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AsistenciaController` | Carga los alumnos de la sesión y persiste cada registro de asistencia mediante upsert |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoRepository` | Recupera los alumnos matriculados en la sesión |
+| `AsistenciaRepository` | Crea o actualiza el registro de asistencia de un alumno en una sesión |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
+| `Asistencia` | Entidad de dominio con el registro de presencia por sesión y alumno |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. `RegistrarTomaAsistenciaView` se activa por `<<include>>` desde `crearSesionClase(sesionId)`.
+2. `RegistrarTomaAsistenciaView` → `AsistenciaController.cargarAlumnos(sesionId)` → `AlumnoRepository.obtenerPorSesion(sesionId)` → devuelve `List<Alumno>`.
+3. El Profesor marca la presencia de cada alumno → `RegistrarTomaAsistenciaView` → `AsistenciaController.registrarAsistencia(sesionId, alumnoId, presente)` → `AsistenciaRepository.guardarOActualizar(sesionId, alumnoId, presente)` → devuelve `Asistencia`.
+4. Al finalizar, `RegistrarTomaAsistenciaView` incluye `<<include>> cerrarSesionClase(sesionId)`.
 
 ---
 

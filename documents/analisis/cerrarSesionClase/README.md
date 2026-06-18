@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/cerrarSesionClase/colaboracion.puml)_
+![colaboracion](../../../images/analisis/cerrarSesionClase/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/cerrarSesionClase/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/cerrarSe
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `CerrarSesionClaseView` | Muestra el resumen de asistencias de la sesión y el control para cerrarla |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SesionClaseController` | Recupera la sesión y sus asistencias, y ejecuta el cierre actualizando el estado |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SesionClaseRepository` | Obtiene la sesión por id y actualiza su estado a CERRADA |
+| `AsistenciaRepository` | Recupera los registros de asistencia de la sesión |
+| `SesionDeClase` | Entidad de dominio con fecha, aula, duración y estado |
+| `Asistencia` | Entidad de dominio con el registro de presencia por alumno |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor accede desde `:Dashboard Profesor Abierto` → se abre `CerrarSesionClaseView`.
+2. `CerrarSesionClaseView` → `SesionClaseController.obtenerSesion(sesionId)` → `SesionClaseRepository.obtenerPorId(sesionId)` → devuelve `SesionDeClase`.
+3. `CerrarSesionClaseView` → `SesionClaseController.obtenerAsistencias(sesionId)` → `AsistenciaRepository.obtenerPorSesion(sesionId)` → devuelve `List<Asistencia>` para mostrar el resumen.
+4. El Profesor confirma el cierre → `CerrarSesionClaseView` → `SesionClaseController.cerrarSesionClase(sesionId)` → `SesionClaseRepository.actualizarEstado(sesionId, CERRADA)` → devuelve `SesionDeClase` cerrada.
+5. `CerrarSesionClaseView` incluye `<<include>> exportarHistorialAsistencias()` para generar el informe.
 
 ---
 

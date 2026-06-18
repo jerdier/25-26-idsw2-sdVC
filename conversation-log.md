@@ -542,7 +542,7 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 
 **Decisión:** Crear y Consultar están completamente documentados en análisis. Quedan los grupos Editar, Guardar, Cerrar, Registrar, Exportar e Importar.
 
-## [10:00] Miércoles, 18 de junio de 2026 - Navegación, renombrado y análisis de Editar
+## [16:00] Miércoles, 18 de junio de 2026 - Navegación, renombrado y análisis de Editar
 
 **Prompt:** Corregir la navegación de todos los READMEs de casos de uso, renombrar importarMatricula a importarMatriculas y completar los diagramas y documentación del grupo Editar.
 
@@ -557,3 +557,19 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 4. **Documentación Editar:** Completados los tres READMEs de `documents/analisis/` con imagen, clases (boundary/control/entity) y flujo de colaboración numerado.
 
 **Decisión:** Crear, Consultar y Editar están completamente documentados en análisis. Quedan los grupos Guardar, Cerrar, Registrar, Exportar e Importar.
+
+## [16:50] Miércoles, 18 de junio de 2026 - Análisis de Guardar, Cerrar y Registrar
+
+**Prompt:** Crear los diagramas de colaboración y documentación de los grupos Guardar, Cerrar y Registrar.
+
+**Resultado:**
+
+1. **Diagramas:** Creados los tres `.puml` en `modelosUML/analisis/` para `guardarSolicitudDispensa`, `cerrarSesionClase` y `registrarTomaAsistencia` siguiendo el patrón MVC de colores.
+
+2. **Documentación Guardar:** Completado `guardarSolicitudDispensa` con `GuardarSolicitudDispensaView`, `DispensaController`, `DispensaRepository` y `Dispensa`. Flujo de 3 pasos: Secretaria/Director abren la vista, carga la dispensa, confirman estado.
+
+3. **Documentación Cerrar:** Completado `cerrarSesionClase` con `CerrarSesionClaseView`, `SesionClaseController`, `SesionClaseRepository`, `AsistenciaRepository`, `SesionDeClase` y `Asistencia`. Flujo de 5 pasos incluyendo `<<include>> exportarHistorialAsistencias`.
+
+4. **Documentación Registrar:** Completado `registrarTomaAsistencia` con `RegistrarTomaAsistenciaView`, `AsistenciaController`, `AlumnoRepository`, `AsistenciaRepository`, `Alumno` y `Asistencia`. Flujo de 4 pasos: entra por `<<include>>` desde `crearSesionClase` y sale por `<<include>>` hacia `cerrarSesionClase`.
+
+**Decisión:** Crear, Consultar, Editar, Guardar, Cerrar y Registrar están completamente documentados en análisis. Quedan los grupos Exportar e Importar.

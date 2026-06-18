@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/guardarSolicitudDispensa/colaboracion.puml)_
+![colaboracion](../../../images/analisis/guardarSolicitudDispensa/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/guardarSolicitudDispensa/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,30 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/guardarS
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `GuardarSolicitudDispensaView` | Muestra el resumen de la dispensa y el control para confirmar el estado final |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaController` | Recupera la dispensa y persiste el cambio de estado |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaRepository` | Obtiene la dispensa por id y actualiza su estado |
+| `Dispensa` | Entidad de dominio con motivo, alumno, sesiones y estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. La Secretaria o el Director acceden desde su dashboard → se abre `GuardarSolicitudDispensaView`.
+2. `GuardarSolicitudDispensaView` → `DispensaController.obtenerDispensa(dispensaId)` → `DispensaRepository.obtenerPorId(dispensaId)` → devuelve `Dispensa` para mostrar el resumen.
+3. El actor confirma el estado → `GuardarSolicitudDispensaView` → `DispensaController.guardarSolicitudDispensa(dispensaId, estado)` → `DispensaRepository.actualizarEstado(dispensaId, estado)` → devuelve `Dispensa` actualizada.
 
 ---
 

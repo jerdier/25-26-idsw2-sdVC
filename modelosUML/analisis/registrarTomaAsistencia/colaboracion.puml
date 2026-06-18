@@ -1,5 +1,32 @@
 @startuml registrarTomaAsistencia-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Collaboration CrearSesionClase" as CrearSesionClase
+rectangle #CDEBA5 ":Collaboration CerrarSesionClase" as CerrarSesionClase
+
+package registrarTomaAsistencia as "registrarTomaAsistencia()" {
+    rectangle #629EF9 RegistrarTomaAsistenciaView
+    rectangle #b5bd68 AsistenciaController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E AsistenciaRepository
+    rectangle #F2AC4E Alumno
+    rectangle #F2AC4E Asistencia
+}
+
+CrearSesionClase -r-> RegistrarTomaAsistenciaView: <<include>> registrarTomaAsistencia(sesionId)
+
+RegistrarTomaAsistenciaView -d-> AsistenciaController: cargarAlumnos(sesionId) : List<Alumno>
+
+AsistenciaController --> AlumnoRepository: obtenerPorSesion(sesionId) : List<Alumno>
+
+AlumnoRepository -- Alumno
+
+RegistrarTomaAsistenciaView --> AsistenciaController: registrarAsistencia(sesionId, alumnoId, presente) : Asistencia
+
+AsistenciaController --> AsistenciaRepository: guardarOActualizar(sesionId, alumnoId, presente) : Asistencia
+
+AsistenciaRepository -- Asistencia
+
+RegistrarTomaAsistenciaView ..> CerrarSesionClase: <<include>> cerrarSesionClase(sesionId)
 
 @enduml

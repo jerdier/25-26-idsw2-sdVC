@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarSesionClase/colaboracion.puml)_
+![colaboracion](../../../images/analisis/editarSesionClase/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/editarSesionClase/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarSe
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `EditarSesionClaseView` | Formulario de edición precargado con los datos actuales de la sesión; muestra asignaturas disponibles |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SesionClaseController` | Recupera la sesión y las asignaturas del profesor, valida los datos y orquesta la actualización |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SesionClaseRepository` | Obtiene la sesión por id y persiste los cambios |
+| `AsignaturaRepository` | Recupera las asignaturas asignadas al profesor |
+| `SesionDeClase` | Entidad de dominio con fecha, aula, duración y estado |
+| `Asignatura` | Entidad de dominio que representa una asignatura |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Profesor accede desde `:Dashboard Profesor Abierto` → se abre `EditarSesionClaseView`.
+2. `EditarSesionClaseView` → `SesionClaseController.obtenerSesion(sesionId)` → `SesionClaseRepository.obtenerPorId(sesionId)` → devuelve `SesionDeClase` para precargar el formulario.
+3. `EditarSesionClaseView` → `SesionClaseController.cargarAsignaturas(profesorId)` → `AsignaturaRepository.obtenerPorProfesor(profesorId)` → devuelve `List<Asignatura>`.
+4. `EditarSesionClaseView` → `SesionClaseController.validarDatos(asignaturaId, fecha, aula)`.
+5. Si los datos son válidos, `EditarSesionClaseView` → `SesionClaseController.editarSesionClase(sesionId, asignaturaId, fecha, aula, duracion)` → `SesionClaseRepository.actualizar(...)` → devuelve `SesionDeClase` actualizada.
 
 ---
 

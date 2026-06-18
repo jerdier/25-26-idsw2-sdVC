@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarSolicitudDispensa/colaboracion.puml)_
+![colaboracion](../../../images/analisis/editarSolicitudDispensa/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/editarSolicitudDispensa/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarSo
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `EditarSolicitudDispensaView` | Formulario de edición precargado con los datos de la dispensa; muestra sesiones disponibles del alumno |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaController` | Recupera la dispensa y las sesiones del alumno, valida los datos y orquesta la actualización |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaRepository` | Obtiene la dispensa por id y persiste los cambios |
+| `SesionClaseRepository` | Recupera las sesiones de clase asociadas al alumno |
+| `Dispensa` | Entidad de dominio con motivo, alumno, sesiones y estado |
+| `SesionDeClase` | Entidad de dominio que representa una sesión a la que aplica la dispensa |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Alumno, la Secretaria o el Director acceden desde su dashboard → se abre `EditarSolicitudDispensaView`.
+2. `EditarSolicitudDispensaView` → `DispensaController.obtenerDispensa(dispensaId)` → `DispensaRepository.obtenerPorId(dispensaId)` → devuelve `Dispensa` para precargar el formulario.
+3. `EditarSolicitudDispensaView` → `DispensaController.cargarSesiones(alumnoId)` → `SesionClaseRepository.obtenerPorAlumno(alumnoId)` → devuelve `List<SesionDeClase>`.
+4. `EditarSolicitudDispensaView` → `DispensaController.validarDatos(motivo, sesionesIds)`.
+5. Si los datos son válidos, `EditarSolicitudDispensaView` → `DispensaController.editarSolicitudDispensa(dispensaId, motivo, sesionesIds)` → `DispensaRepository.actualizar(...)` → devuelve `Dispensa` actualizada.
 
 ---
 

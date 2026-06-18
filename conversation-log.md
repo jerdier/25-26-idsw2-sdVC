@@ -541,3 +541,19 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 4. **Documentación Consultar:** Completados los cinco READMEs de `documents/analisis/` con imagen, clases y flujo.
 
 **Decisión:** Crear y Consultar están completamente documentados en análisis. Quedan los grupos Editar, Guardar, Cerrar, Registrar, Exportar e Importar.
+
+## [10:00] Miércoles, 18 de junio de 2026 - Navegación, renombrado y análisis de Editar
+
+**Prompt:** Corregir la navegación de todos los READMEs de casos de uso, renombrar importarMatricula a importarMatriculas y completar los diagramas y documentación del grupo Editar.
+
+**Resultado:**
+
+1. **Navegación (36 READMEs):** Reemplazado `[Casos de Uso]` por `[Requisitado](../../requisitado/README.md)` en la barra de navegación de todos los READMEs de casos de uso de `documents/analisis/` y `documents/diseño/`.
+
+2. **Renombrado importarMatriculas:** Renombradas 6 carpetas (`documents/analisis/`, `documents/diseño/`, `images/analisis/`, `images/diseño/`, `modelosUML/analisis/`, `modelosUML/diseño/`) y el archivo `importarMatricula.puml` del requisitado. Actualizado el contenido en 6 archivos `.md`.
+
+3. **Diagramas Editar:** Creados los tres `.puml` en `modelosUML/analisis/` para `editarUsuario`, `editarSesionClase` y `editarSolicitudDispensa` siguiendo el patrón MVC de colores.
+
+4. **Documentación Editar:** Completados los tres READMEs de `documents/analisis/` con imagen, clases (boundary/control/entity) y flujo de colaboración numerado.
+
+**Decisión:** Crear, Consultar y Editar están completamente documentados en análisis. Quedan los grupos Guardar, Cerrar, Registrar, Exportar e Importar.

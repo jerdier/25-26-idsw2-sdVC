@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarUsuario/colaboracion.puml)_
+![colaboracion](../../../images/analisis/editarUsuario/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/editarUsuario/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,31 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/editarUs
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `EditarUsuarioView` | Formulario de edición precargado con los datos actuales del usuario |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioController` | Recupera el usuario a editar, valida los nuevos datos y orquesta la actualización |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `UsuarioRepository` | Obtiene el usuario por id, verifica unicidad de email y persiste los cambios |
+| `Usuario` | Entidad de dominio con nombre, email, password y rol |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. El Administrador accede desde `:Panel Admin Abierto` → se abre `EditarUsuarioView`.
+2. `EditarUsuarioView` → `UsuarioController.obtenerUsuario(id)` → `UsuarioRepository.obtenerPorId(id)` → devuelve `Usuario` para precargar el formulario.
+3. `EditarUsuarioView` → `UsuarioController.validarDatos(nombre, email, rol)` → `UsuarioRepository.verificarUnicidad(email, id)`.
+4. Si los datos son válidos, `EditarUsuarioView` → `UsuarioController.editarUsuario(id, nombre, email, rol)` → `UsuarioRepository.actualizar(...)` → devuelve `Usuario` actualizado.
 
 ---
 

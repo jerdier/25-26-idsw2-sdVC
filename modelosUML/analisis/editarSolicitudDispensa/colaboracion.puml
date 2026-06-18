@@ -1,2 +1,39 @@
-@startuml
+@startuml editarSolicitudDispensa-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Dashboard Alumno Abierto" as DashboardAlumnoAbierto
+rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+rectangle #CDEBA5 ":Dashboard Director Abierto" as DashboardDirectorAbierto
+
+package editarSolicitudDispensa as "editarSolicitudDispensa()" {
+    rectangle #629EF9 EditarSolicitudDispensaView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E SesionClaseRepository
+    rectangle #F2AC4E DispensaRepository
+    rectangle #F2AC4E SesionDeClase
+    rectangle #F2AC4E Dispensa
+}
+
+DashboardAlumnoAbierto -r-> EditarSolicitudDispensaView: editarSolicitudDispensa()
+DashboardSecretariaAbierto -r-> EditarSolicitudDispensaView: editarSolicitudDispensa()
+DashboardDirectorAbierto -r-> EditarSolicitudDispensaView: editarSolicitudDispensa()
+
+EditarSolicitudDispensaView -d-> DispensaController: obtenerDispensa(dispensaId) : Dispensa
+
+DispensaController --> DispensaRepository: obtenerPorId(dispensaId) : Dispensa
+
+DispensaRepository -- Dispensa
+
+EditarSolicitudDispensaView -d-> DispensaController: cargarSesiones(alumnoId) : List<SesionDeClase>
+
+DispensaController --> SesionClaseRepository: obtenerPorAlumno(alumnoId) : List<SesionDeClase>
+
+SesionClaseRepository -- SesionDeClase
+
+EditarSolicitudDispensaView --> DispensaController: validarDatos(motivo, sesionesIds) : boolean
+
+EditarSolicitudDispensaView --> DispensaController: editarSolicitudDispensa(dispensaId, motivo, sesionesIds) : Dispensa
+
+DispensaController --> DispensaRepository: actualizar(dispensaId, motivo, sesionesIds) : Dispensa
+
 @enduml

@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/exportarDispensas/colaboracion.puml)_
+![colaboracion](../../../images/analisis/exportarDispensas/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/exportarDispensas/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,30 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/exportar
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ExportarDispensasView` | Muestra el listado de dispensas filtrado y permite a la Secretaria generar y descargar el informe |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaController` | Aplica los filtros sobre el repositorio de dispensas y genera el archivo de exportación |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `DispensaRepository` | Recupera las dispensas que cumplen los criterios de búsqueda |
+| `Dispensa` | Entidad de dominio con motivo, alumno, asignaturas y estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. La Secretaria accede desde `:Dashboard Secretaria Abierto` → se abre `ExportarDispensasView`.
+2. La Secretaria introduce los filtros (curso, asignatura, estado) → `ExportarDispensasView` → `DispensaController.filtrarDispensas(filtros)` → `DispensaRepository.buscarPorFiltro(filtros)` → devuelve `List<Dispensa>`.
+3. La Secretaria selecciona el formato → `ExportarDispensasView` → `DispensaController.exportarDispensas(filtros, formato)` → devuelve `Archivo` para su descarga.
 
 ---
 

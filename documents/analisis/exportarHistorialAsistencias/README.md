@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/exportarHistorialAsistencias/colaboracion.puml)_
+![colaboracion](../../../images/analisis/exportarHistorialAsistencias/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/exportarHistorialAsistencias/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,33 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/exportar
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ExportarHistorialAsistenciasView` | Muestra el resumen de asistencias de la sesión y permite al Profesor generar y descargar el informe en el formato elegido |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AsistenciaController` | Recupera las asistencias y los datos de la sesión, y genera el archivo de informe |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AsistenciaRepository` | Recupera los registros de asistencia de la sesión |
+| `SesionClaseRepository` | Obtiene los datos de la sesión (fecha, aula, asignatura) para el encabezado del informe |
+| `Asistencia` | Entidad de dominio con el registro de presencia por alumno |
+| `SesionDeClase` | Entidad de dominio con fecha, aula, duración y estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. `ExportarHistorialAsistenciasView` se activa por `<<include>>` desde `cerrarSesionClase()`.
+2. `ExportarHistorialAsistenciasView` → `AsistenciaController.obtenerAsistencias(sesionId)` → `AsistenciaRepository.obtenerPorSesion(sesionId)` → devuelve `List<Asistencia>`.
+3. `ExportarHistorialAsistenciasView` → `AsistenciaController.obtenerSesion(sesionId)` → `SesionClaseRepository.obtenerPorId(sesionId)` → devuelve `SesionDeClase`.
+4. El Profesor selecciona el formato → `ExportarHistorialAsistenciasView` → `AsistenciaController.generarInforme(sesionId, formato)` → devuelve `Archivo` para su descarga.
 
 ---
 

@@ -587,3 +587,17 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 3. **Documentación ImportarMatriculas:** Completado con `ImportarMatriculasView`, `MatriculaController`, `AlumnoRepository`, `MatriculaRepository`, `Alumno` y `Matricula`. Flujo de 5 pasos: Secretaria sube archivo → validación → búsqueda de alumno por DNI → creación/actualización de matrícula → informe de resultados.
 
 **Decisión:** Crear, Consultar, Editar, Guardar, Cerrar, Registrar e Importar están completamente documentados en análisis. Solo queda el grupo Exportar.
+
+## [19:10] Jueves, 19 de junio de 2026 - Análisis de Exportar
+
+**Prompt:** Crear los diagramas de colaboración y documentación de los casos de uso de Exportar.
+
+**Resultado:**
+
+1. **Diagramas:** Creados los dos `.puml` en `modelosUML/analisis/` para `exportarHistorialAsistencias` y `exportarDispensas` siguiendo el patrón MVC de colores.
+
+2. **Documentación ExportarHistorialAsistencias:** Completado con `ExportarHistorialAsistenciasView`, `AsistenciaController`, `AsistenciaRepository`, `SesionClaseRepository`, `Asistencia` y `SesionDeClase`. Flujo de 4 pasos: se activa por `<<include>>` desde `cerrarSesionClase` → carga asistencias → carga datos de sesión → genera y descarga informe.
+
+3. **Documentación ExportarDispensas:** Completado con `ExportarDispensasView`, `DispensaController`, `DispensaRepository` y `Dispensa`. Flujo de 3 pasos: Secretaria aplica filtros → filtra dispensas → genera y descarga informe en el formato elegido.
+
+**Decisión:** Los 18 casos de uso de análisis están completamente documentados. La fase de análisis (diagramas de colaboración y READMEs) queda cerrada. Siguiente fase: diagramas de diseño (secuencia).

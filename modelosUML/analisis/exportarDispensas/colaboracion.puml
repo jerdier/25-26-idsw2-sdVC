@@ -1,5 +1,23 @@
 @startuml exportarDispensas-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+
+package exportarDispensas as "exportarDispensas()" {
+    rectangle #629EF9 ExportarDispensasView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E DispensaRepository
+    rectangle #F2AC4E Dispensa
+}
+
+DashboardSecretariaAbierto -r-> ExportarDispensasView: exportarDispensas()
+
+ExportarDispensasView -d-> DispensaController: filtrarDispensas(filtros) : List<Dispensa>
+
+DispensaController --> DispensaRepository: buscarPorFiltro(filtros) : List<Dispensa>
+
+DispensaRepository -- Dispensa
+
+ExportarDispensasView --> DispensaController: exportarDispensas(filtros, formato) : Archivo
 
 @enduml

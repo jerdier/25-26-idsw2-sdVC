@@ -1,5 +1,31 @@
 @startuml exportarHistorialAsistencias-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Collaboration CerrarSesionClase" as CerrarSesionClase
+
+package exportarHistorialAsistencias as "exportarHistorialAsistencias()" {
+    rectangle #629EF9 ExportarHistorialAsistenciasView
+    rectangle #b5bd68 AsistenciaController
+    rectangle #F2AC4E AsistenciaRepository
+    rectangle #F2AC4E SesionClaseRepository
+    rectangle #F2AC4E Asistencia
+    rectangle #F2AC4E SesionDeClase
+}
+
+CerrarSesionClase -r-> ExportarHistorialAsistenciasView: <<include>> exportarHistorialAsistencias()
+
+ExportarHistorialAsistenciasView -d-> AsistenciaController: obtenerAsistencias(sesionId) : List<Asistencia>
+
+AsistenciaController --> AsistenciaRepository: obtenerPorSesion(sesionId) : List<Asistencia>
+
+AsistenciaRepository -- Asistencia
+
+ExportarHistorialAsistenciasView --> AsistenciaController: obtenerSesion(sesionId) : SesionDeClase
+
+AsistenciaController --> SesionClaseRepository: obtenerPorId(sesionId) : SesionDeClase
+
+SesionClaseRepository -- SesionDeClase
+
+ExportarHistorialAsistenciasView --> AsistenciaController: generarInforme(sesionId, formato) : Archivo
 
 @enduml

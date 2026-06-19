@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importarListasAlumnos/colaboracion.puml)_
+![colaboracion](../../../images/analisis/importarListasAlumnos/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/importarListasAlumnos/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,31 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importar
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ImportarListasAlumnosView` | Permite a la Secretaria subir el archivo con la lista de alumnos y muestra el informe de importación |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoController` | Valida el formato del archivo y orquesta la creación o actualización de cada registro de alumno |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoRepository` | Crea o actualiza el registro de un alumno en la base de datos |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. La Secretaria accede desde `:Dashboard Secretaria Abierto` → se abre `ImportarListasAlumnosView`.
+2. La Secretaria selecciona el archivo → `ImportarListasAlumnosView` → `AlumnoController.validarArchivo(archivo)` → devuelve `Boolean` indicando si el formato es correcto.
+3. Si el archivo es válido → `ImportarListasAlumnosView` → `AlumnoController.importarAlumnos(archivo)` → `AlumnoRepository.crearOActualizar(datosAlumno)` por cada fila → devuelve `List<Alumno>`.
+4. `ImportarListasAlumnosView` muestra el informe de importación con los registros procesados y los errores detectados.
 
 ---
 

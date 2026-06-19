@@ -1,5 +1,23 @@
 @startuml importarListasAlumnos-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+
+package importarListasAlumnos as "importarListasAlumnos()" {
+    rectangle #629EF9 ImportarListasAlumnosView
+    rectangle #b5bd68 AlumnoController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E Alumno
+}
+
+DashboardSecretariaAbierto -r-> ImportarListasAlumnosView: importarListasAlumnos()
+
+ImportarListasAlumnosView -d-> AlumnoController: validarArchivo(archivo) : Boolean
+
+ImportarListasAlumnosView --> AlumnoController: importarAlumnos(archivo) : List<Alumno>
+
+AlumnoController --> AlumnoRepository: crearOActualizar(datosAlumno) : Alumno
+
+AlumnoRepository -- Alumno
 
 @enduml

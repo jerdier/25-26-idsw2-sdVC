@@ -19,7 +19,9 @@
 
 ## diagrama de colaboración
 
-_pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importarMatriculas/colaboracion.puml)_
+![colaboracion](../../../images/analisis/importarMatriculas/colaboracion.svg)
+
+> fuente: [colaboracion.puml](../../../modelosUML/analisis/importarMatriculas/colaboracion.puml)
 
 ---
 
@@ -27,21 +29,34 @@ _pendiente - fuente en [colaboracion.puml](../../../modelosUML/analisis/importar
 
 ### clases de vista (boundary)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `ImportarMatriculasView` | Permite a la Secretaria subir el archivo de matrículas y muestra el informe de importación |
 
 ### clases de control
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `MatriculaController` | Valida el archivo, localiza cada alumno por DNI y orquesta la creación o actualización de sus matrículas |
 
 ### clases de entidad (entity)
 
-_pendiente_
+| Clase | Responsabilidad |
+|-------|----------------|
+| `AlumnoRepository` | Recupera el alumno a partir de su DNI para asociarlo a la matrícula |
+| `MatriculaRepository` | Crea o actualiza el registro de matrícula de un alumno en una asignatura |
+| `Alumno` | Entidad de dominio con los datos del estudiante |
+| `Matricula` | Entidad de dominio con la relación alumno-asignatura y su estado |
 
 ---
 
 ## flujo de colaboración
 
-_pendiente_
+1. La Secretaria accede desde `:Dashboard Secretaria Abierto` → se abre `ImportarMatriculasView`.
+2. La Secretaria selecciona el archivo → `ImportarMatriculasView` → `MatriculaController.validarArchivo(archivo)` → devuelve `Boolean` indicando si el formato es correcto.
+3. Si el archivo es válido → `ImportarMatriculasView` → `MatriculaController.importarMatriculas(archivo)` → por cada fila: `AlumnoRepository.obtenerPorDni(dni)` → devuelve `Alumno`.
+4. Con el alumno localizado → `MatriculaController` → `MatriculaRepository.crearOActualizar(alumnoId, asignaturaId)` → devuelve `Matricula`.
+5. `ImportarMatriculasView` muestra el informe de importación con los registros procesados y los errores detectados.
 
 ---
 

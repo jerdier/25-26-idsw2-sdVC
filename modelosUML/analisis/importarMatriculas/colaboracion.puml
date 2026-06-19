@@ -1,5 +1,29 @@
 @startuml importarMatriculas-analisis
+skinparam linetype polyline
 
-' pendiente
+rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+
+package importarMatriculas as "importarMatriculas()" {
+    rectangle #629EF9 ImportarMatriculasView
+    rectangle #b5bd68 MatriculaController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E MatriculaRepository
+    rectangle #F2AC4E Alumno
+    rectangle #F2AC4E Matricula
+}
+
+DashboardSecretariaAbierto -r-> ImportarMatriculasView: importarMatriculas()
+
+ImportarMatriculasView -d-> MatriculaController: validarArchivo(archivo) : Boolean
+
+ImportarMatriculasView --> MatriculaController: importarMatriculas(archivo) : List<Matricula>
+
+MatriculaController --> AlumnoRepository: obtenerPorDni(dni) : Alumno
+
+AlumnoRepository -- Alumno
+
+MatriculaController --> MatriculaRepository: crearOActualizar(alumnoId, asignaturaId) : Matricula
+
+MatriculaRepository -- Matricula
 
 @enduml

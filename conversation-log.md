@@ -573,3 +573,17 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 4. **Documentación Registrar:** Completado `registrarTomaAsistencia` con `RegistrarTomaAsistenciaView`, `AsistenciaController`, `AlumnoRepository`, `AsistenciaRepository`, `Alumno` y `Asistencia`. Flujo de 4 pasos: entra por `<<include>>` desde `crearSesionClase` y sale por `<<include>>` hacia `cerrarSesionClase`.
 
 **Decisión:** Crear, Consultar, Editar, Guardar, Cerrar y Registrar están completamente documentados en análisis. Quedan los grupos Exportar e Importar.
+
+## [18:50] Jueves, 19 de junio de 2026 - Análisis de Importar
+
+**Prompt:** Crear los diagramas de colaboración y documentación de los casos de uso de Importar.
+
+**Resultado:**
+
+1. **Diagramas:** Creados los dos `.puml` en `modelosUML/analisis/` para `importarListasAlumnos` e `importarMatriculas` siguiendo el patrón MVC de colores.
+
+2. **Documentación ImportarListasAlumnos:** Completado con `ImportarListasAlumnosView`, `AlumnoController`, `AlumnoRepository` y `Alumno`. Flujo de 4 pasos: Secretaria sube archivo → validación → importación fila a fila con `crearOActualizar` → informe de resultados.
+
+3. **Documentación ImportarMatriculas:** Completado con `ImportarMatriculasView`, `MatriculaController`, `AlumnoRepository`, `MatriculaRepository`, `Alumno` y `Matricula`. Flujo de 5 pasos: Secretaria sube archivo → validación → búsqueda de alumno por DNI → creación/actualización de matrícula → informe de resultados.
+
+**Decisión:** Crear, Consultar, Editar, Guardar, Cerrar, Registrar e Importar están completamente documentados en análisis. Solo queda el grupo Exportar.

@@ -1,2 +1,71 @@
-@startuml
+@startuml crearSolicitudDispensa-diseno-secuencia
+
+title Diagrama de Secuencia - Crear Solicitud de Dispensa (Vue 3 + Express + Prisma)
+
+actor "Alumno" as Alumno
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as AcademicController
+participant "AcademicService" as AcademicService
+participant "DispensaController" as DispensaController
+participant "DispensaService" as DispensaService
+database "Base de Datos\n(PostgreSQL)" as DB
+participant ":Collaboration\nEditarSolicitudDispensa" as EditarSolicitudDispensa
+
+Alumno -> Frontend : abre formulario de solicitud de dispensa
+activate Frontend
+
+Frontend -> AcademicController : GET /api/academic/alumno/:alumnoId/sessions
+activate AcademicController
+
+AcademicController -> AcademicService : getSessionsForAlumno(alumnoId)
+activate AcademicService
+
+AcademicService -> DB : SELECT gradoId FROM Matricula\nWHERE alumnoId = ?
+activate DB
+DB --> AcademicService : gradoIds[]
+deactivate DB
+
+AcademicService -> DB : SELECT * FROM SesionDeClase\nWHERE asignatura.gradoId IN (gradoIds)\nINCLUDE Asignatura
+activate DB
+DB --> AcademicService : sesiones : SesionDeClase[]
+deactivate DB
+
+AcademicService --> AcademicController : sesiones : SesionDeClase[]
+deactivate AcademicService
+
+AcademicController --> Frontend : 200 OK { sesiones }
+deactivate AcademicController
+
+Frontend --> Alumno : muestra formulario con sesiones disponibles
+
+Alumno -> Frontend : introduce motivo y selecciona sesiones a dispensar
+activate Frontend
+
+Frontend -> DispensaController : POST /api/dispensas\n{ alumnoId, motivo, secretariaId,\n  sesionesIds, asignaturasIds }
+activate DispensaController
+
+DispensaController -> DispensaService : createDispensa\n({ alumnoId, motivo, secretariaId,\n  sesionesIds, asignaturasIds })
+activate DispensaService
+
+DispensaService -> DB : INSERT INTO Dispensa\n(alumnoId, motivo, secretariaId, estado)\nVALUES (?, ?, ?, 'PENDIENTE')
+activate DB
+DB --> DispensaService : dispensaCreada : Dispensa
+deactivate DB
+
+DispensaService -> DB : INSERT INTO _DispensaToSesion\n(dispensaId, sesionId) VALUES ...\nINSERT INTO _DispensaToAsignatura\n(dispensaId, asignaturaId) VALUES ...
+activate DB
+DB --> DispensaService : relaciones m2m creadas
+deactivate DB
+
+DispensaService --> DispensaController : dispensaCreada : Dispensa
+deactivate DispensaService
+
+DispensaController --> Frontend : 201 Created { dispensaCreada }
+deactivate DispensaController
+
+Frontend --> Alumno : solicitud enviada correctamente\n(estado: PENDIENTE)
+deactivate Frontend
+
+Frontend -> EditarSolicitudDispensa : <<include>> editarSolicitudDispensa(dispensaCreada)
+
 @enduml

@@ -1,5 +1,59 @@
-@startuml crearSesionClase-diseno
+@startuml crearSesionClase-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Crear Sesión de Clase (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as Controller
+participant "AcademicService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+participant ":Collaboration\nRegistrarTomaAsistencia" as RegistrarTomaAsistencia
+
+Profesor -> Frontend : abre formulario de nueva sesión
+activate Frontend
+
+Frontend -> Controller : GET /api/academic/profesor/:profesorId/asignaturas
+activate Controller
+
+Controller -> Service : getTeacherAsignaturas(profesorId)
+activate Service
+
+Service -> DB : SELECT * FROM Asignatura\nWHERE profesorId = ?\nINCLUDE Grado
+activate DB
+DB --> Service : Asignatura[]
+deactivate DB
+
+Service --> Controller : asignaturas : Asignatura[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { asignaturas }
+deactivate Controller
+
+Frontend --> Profesor : muestra selector de asignatura y formulario
+
+Profesor -> Frontend : selecciona asignatura e introduce\n(fecha, aula, duracion)
+activate Frontend
+
+Frontend -> Controller : POST /api/academic/sessions\n{ asignaturaId, fecha, aula, duracion }
+activate Controller
+
+Controller -> Service : createSession(asignaturaId, fecha, aula, duracion)
+activate Service
+
+Service -> DB : INSERT INTO SesionDeClase\n(asignaturaId, fecha, aula, duracion, estado)\nVALUES (?, ?, ?, ?, 'ACTIVA')
+activate DB
+DB --> Service : sesionCreada : SesionDeClase
+deactivate DB
+
+Service --> Controller : sesionCreada : SesionDeClase
+deactivate Service
+
+Controller --> Frontend : 201 Created { sesionCreada }
+deactivate Controller
+
+Frontend --> Profesor : sesión creada correctamente
+deactivate Frontend
+
+Frontend -> RegistrarTomaAsistencia : <<include>> registrarTomaAsistencia(sesionCreada)
 
 @enduml

@@ -601,3 +601,21 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 3. **Documentación ExportarDispensas:** Completado con `ExportarDispensasView`, `DispensaController`, `DispensaRepository` y `Dispensa`. Flujo de 3 pasos: Secretaria aplica filtros → filtra dispensas → genera y descarga informe en el formato elegido.
 
 **Decisión:** Los 18 casos de uso de análisis están completamente documentados. La fase de análisis (diagramas de colaboración y READMEs) queda cerrada. Siguiente fase: diagramas de diseño (secuencia).
+
+## [22:20] Viernes, 20 de junio de 2026 - Diseño de secuencia del grupo Crear
+
+**Prompt:** Crear los diagramas de secuencia de diseño y READMEs para los casos de uso de Crear, siguiendo el estilo del diagrama de un compañero (actor → Frontend → Controller → Service → Base de Datos con cilindro PostgreSQL, rutas HTTP reales, queries SQL y bloques alt).
+
+**Resultado:**
+
+1. **Formato definido:** Tras varias iteraciones se estableció el formato definitivo para los diagramas de secuencia de diseño: stack real completo (Vue 3 → Controller → Service → `database` PostgreSQL), rutas HTTP en los mensajes, queries SQL hacia la BD, bloques `alt` para flujos de error, y `<<include>>` al final hacia la siguiente colaboración. Referencia visual: diagrama de un compañero con Spring Boot + React.
+
+2. **Diagrama crearUsuario:** `AdminDashboard.vue` → `UsuarioController` → `UsuarioService` → `prisma.[rol]` → PostgreSQL. Incluye verificación de unicidad de email y bloque `alt` [Email no registrado / ya registrado]. Tabla destino dinámica según rol seleccionado.
+
+3. **Diagrama crearSesionClase:** `ProfessorDashboard.vue` → `AcademicController` → `AcademicService` → PostgreSQL. Dos fases: carga de asignaturas del profesor (`getTeacherAsignaturas`) y creación de sesión (`createSession`). Estado inicial `ACTIVA`.
+
+4. **Diagrama crearSolicitudDispensa:** `StudentDashboard.vue` → `AcademicController/Service` (carga sesiones) + `DispensaController/Service` (crea dispensa) → PostgreSQL. Muestra la doble consulta (Matricula → SesionDeClase) y las dos inserciones m2m (`_DispensaToSesion`, `_DispensaToAsignatura`). Estado inicial `PENDIENTE`.
+
+5. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado con rutas HTTP y queries reales.
+
+**Decisión:** El grupo Crear tiene completa la fase de diseño. Quedan 15 casos por completar en diseño: Consultar, Editar, Guardar, Cerrar, Registrar, Exportar e Importar.

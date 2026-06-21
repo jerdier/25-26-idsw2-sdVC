@@ -619,3 +619,23 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 5. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado con rutas HTTP y queries reales.
 
 **Decisión:** El grupo Crear tiene completa la fase de diseño. Quedan 15 casos por completar en diseño: Consultar, Editar, Guardar, Cerrar, Registrar, Exportar e Importar.
+
+## [22:00] Sábado, 21 de junio de 2026 - Diseño de secuencia del grupo Consultar
+
+**Prompt:** Crear los diagramas de secuencia de diseño y READMEs para los casos de uso de Consultar.
+
+**Resultado:**
+
+1. **Diagrama consultarUsuario:** `AdminDashboard.vue` → `UsuarioController` → `UsuarioService` → PostgreSQL. Dos fases: búsqueda por filtro con UNION de todas las tablas de roles, y detalle por id con consulta a `[tabla_rol]`.
+
+2. **Diagrama consultarDetalleAlumno:** `ProfessorDashboard.vue` → `AcademicController` → `AcademicService` → PostgreSQL. Dos peticiones: datos del alumno (`SELECT FROM Alumno WHERE id = ?`) y asistencias de la sesión (`SELECT FROM Asistencia WHERE sesionId = ?`).
+
+3. **Diagrama consultarListaAlumnos:** Bloque `alt` con dos rutas. Profesor: `GET /api/academic/asignatura/:id/alumnos` → `getAsignaturaAlumnos` → `SELECT ... WHERE id IN (_AlumnoToAsignatura)`. Secretaria: `GET /api/secretaria/alumnos` → `getAllAlumnos` → `SELECT * FROM Alumno INCLUDE matriculas(grado)`.
+
+4. **Diagrama consultarSolicitudDispensa:** Bloque `alt` con dos rutas. Profesor: `GET /api/dispensas/profesor/:id` → `getDispensasByProfesor` (filtra por asignaturas del profesor). Secretaria: `GET /api/dispensas` → `getAllDispensas`. Ambas rutas convergen en consulta de detalle individual `GET /api/dispensas/:id` con `INCLUDE sesionesEximidas, asignaturas`.
+
+5. **Diagrama consultarDetalleMatricula:** `SecretariaDashboard.vue` → `SecretariaController` → `SecretariaService` → PostgreSQL. Dos fases: listado de alumnos con matrículas incluidas y detalle de matrícula de un alumno concreto con `INCLUDE grado(director, secretaria), asignaturas`.
+
+6. **READMEs de diseño:** Completados los cinco en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado.
+
+**Decisión:** El grupo Consultar tiene completa la fase de diseño. Quedan 10 casos por completar en diseño: Editar, Guardar, Cerrar, Registrar, Exportar e Importar.

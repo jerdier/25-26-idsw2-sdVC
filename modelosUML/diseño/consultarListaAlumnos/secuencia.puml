@@ -1,2 +1,57 @@
-@startuml
+@startuml consultarListaAlumnos-diseno-secuencia
+
+title Diagrama de Secuencia - Consultar Lista de Alumnos (Vue 3 + Express + Prisma)
+
+actor "Profesor / Secretaria" as Actor
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController /\nSecretariaController" as Controller
+participant "AcademicService /\nSecretariaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Actor -> Frontend : accede a la lista de alumnos
+activate Frontend
+
+alt Profesor consulta alumnos de su asignatura
+
+    Frontend -> Controller : GET /api/academic/asignatura/:asignaturaId/alumnos
+    activate Controller
+
+    Controller -> Service : getAsignaturaAlumnos(asignaturaId)
+    activate Service
+
+    Service -> DB : SELECT id, nombre, numeroRegistro, email\nFROM Alumno\nWHERE id IN (\n  SELECT alumnoId FROM _AlumnoToAsignatura\n  WHERE asignaturaId = ?\n)
+    activate DB
+    DB --> Service : alumnos : Alumno[]
+    deactivate DB
+
+    Service --> Controller : alumnos : Alumno[]
+    deactivate Service
+
+    Controller --> Frontend : 200 OK { alumnos }
+    deactivate Controller
+
+else Secretaria consulta todos los alumnos
+
+    Frontend -> Controller : GET /api/secretaria/alumnos
+    activate Controller
+
+    Controller -> Service : getAllAlumnos()
+    activate Service
+
+    Service -> DB : SELECT * FROM Alumno\nINCLUDE matriculas(grado)
+    activate DB
+    DB --> Service : alumnos : Alumno[]
+    deactivate DB
+
+    Service --> Controller : alumnos : Alumno[]
+    deactivate Service
+
+    Controller --> Frontend : 200 OK { alumnos }
+    deactivate Controller
+
+end
+
+Frontend --> Actor : muestra lista de alumnos
+deactivate Frontend
+
 @enduml

@@ -1,5 +1,51 @@
-@startuml consultarDetalleAlumno-diseno
+@startuml consultarDetalleAlumno-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Consultar Detalle Alumno (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as Controller
+participant "AcademicService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Profesor -> Frontend : selecciona un alumno de la lista
+activate Frontend
+
+Frontend -> Controller : GET /api/academic/alumno/:alumnoId
+activate Controller
+
+Controller -> Service : getAsignaturaAlumnos(asignaturaId)
+activate Service
+
+Service -> DB : SELECT id, nombre, numeroRegistro, email\nFROM Alumno\nWHERE id = ?
+activate DB
+DB --> Service : alumno : Alumno
+deactivate DB
+
+Service --> Controller : alumno : Alumno
+deactivate Service
+
+Controller --> Frontend : 200 OK { alumno }
+deactivate Controller
+
+Frontend -> Controller : GET /api/attendance/session/:sesionId
+activate Controller
+
+Controller -> Service : getAttendanceBySession(sesionId)
+activate Service
+
+Service -> DB : SELECT * FROM Asistencia\nWHERE sesionId = ?\nINCLUDE alumno(id, nombre, numeroRegistro)
+activate DB
+DB --> Service : asistencias : Asistencia[]
+deactivate DB
+
+Service --> Controller : asistencias : Asistencia[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { asistencias }
+deactivate Controller
+
+Frontend --> Profesor : muestra detalle del alumno\ny su historial de asistencias
+deactivate Frontend
 
 @enduml

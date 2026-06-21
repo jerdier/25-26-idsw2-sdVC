@@ -1,5 +1,56 @@
-@startuml consultarDetalleMatricula-diseno
+@startuml consultarDetalleMatricula-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Consultar Detalle de Matrícula (Vue 3 + Express + Prisma)
+
+actor "Secretaria" as Secretaria
+participant "Frontend\n(Vue 3)" as Frontend
+participant "SecretariaController" as Controller
+participant "SecretariaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Secretaria -> Frontend : accede a la sección de alumnos\ny busca por nombre o registro
+activate Frontend
+
+Frontend -> Controller : GET /api/secretaria/alumnos
+activate Controller
+
+Controller -> Service : getAllAlumnos()
+activate Service
+
+Service -> DB : SELECT * FROM Alumno\nINCLUDE matriculas(grado)
+activate DB
+DB --> Service : alumnos : Alumno[]
+deactivate DB
+
+Service --> Controller : alumnos : Alumno[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { alumnos }
+deactivate Controller
+
+Frontend --> Secretaria : muestra lista de alumnos con sus matrículas
+
+Secretaria -> Frontend : selecciona un alumno para ver el detalle
+activate Frontend
+
+Frontend -> Controller : GET /api/secretaria/alumnos/:alumnoId/matriculas
+activate Controller
+
+Controller -> Service : getMatriculasByAlumno(alumnoId)
+activate Service
+
+Service -> DB : SELECT * FROM Matricula\nWHERE alumnoId = ?\nINCLUDE grado(director, secretaria),\nasignaturas
+activate DB
+DB --> Service : matriculas : Matricula[]
+deactivate DB
+
+Service --> Controller : matriculas : Matricula[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { matriculas }
+deactivate Controller
+
+Frontend --> Secretaria : muestra detalle de matrícula:\ngrado, asignaturas y responsables
+deactivate Frontend
 
 @enduml

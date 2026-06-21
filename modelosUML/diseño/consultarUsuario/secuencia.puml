@@ -1,5 +1,56 @@
-@startuml consultarUsuario-diseno
+@startuml consultarUsuario-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Consultar Usuario (Vue 3 + Express + Prisma)
+
+actor "Administrador" as Admin
+participant "Frontend\n(Vue 3)" as Frontend
+participant "UsuarioController" as Controller
+participant "UsuarioService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Admin -> Frontend : busca usuario por email o id
+activate Frontend
+
+Frontend -> Controller : GET /api/usuarios?filtro=...
+activate Controller
+
+Controller -> Service : getUsuarios(filtro)
+activate Service
+
+Service -> DB : SELECT * FROM Alumno\nUNION Profesor\nUNION DirectorDeGrado\nUNION SecretariaAcademica\nWHERE nombre LIKE ? OR email LIKE ?
+activate DB
+DB --> Service : usuarios : Usuario[]
+deactivate DB
+
+Service --> Controller : usuarios : Usuario[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { usuarios }
+deactivate Controller
+
+Frontend --> Admin : muestra lista de usuarios coincidentes
+
+Admin -> Frontend : selecciona un usuario
+activate Frontend
+
+Frontend -> Controller : GET /api/usuarios/:id
+activate Controller
+
+Controller -> Service : getUsuario(id)
+activate Service
+
+Service -> DB : SELECT * FROM [tabla_rol]\nWHERE id = ?
+activate DB
+DB --> Service : usuario : Usuario
+deactivate DB
+
+Service --> Controller : usuario : Usuario
+deactivate Service
+
+Controller --> Frontend : 200 OK { usuario }
+deactivate Controller
+
+Frontend --> Admin : muestra detalle del usuario
+deactivate Frontend
 
 @enduml

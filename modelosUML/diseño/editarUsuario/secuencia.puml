@@ -1,5 +1,73 @@
-@startuml editarUsuario-diseno
+@startuml editarUsuario-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Editar Usuario (Vue 3 + Express + Prisma)
+
+actor "Administrador" as Admin
+participant "Frontend\n(Vue 3)" as Frontend
+participant "UsuarioController" as Controller
+participant "UsuarioService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+participant ":Collaboration\nConsultarUsuario" as ConsultarUsuario
+
+Admin -> Frontend : selecciona usuario y modifica campos\n(nombre, email, rol)
+activate Frontend
+
+Frontend -> Controller : GET /api/usuarios/:id
+activate Controller
+
+Controller -> Service : getUsuario(id)
+activate Service
+
+Service -> DB : SELECT * FROM [tabla_rol]\nWHERE id = ?
+activate DB
+DB --> Service : usuario : Usuario
+deactivate DB
+
+Service --> Controller : usuario : Usuario
+deactivate Service
+
+Controller --> Frontend : 200 OK { usuario }
+deactivate Controller
+
+Frontend --> Admin : muestra formulario con datos actuales
+
+Admin -> Frontend : confirma cambios\n(nombre, email, rol)
+
+Frontend -> Controller : PUT /api/usuarios/:id\n{ nombre, email, rol }
+activate Controller
+
+Controller -> Service : updateUsuario(id, nombre, email, rol)
+activate Service
+
+Service -> DB : SELECT * FROM Usuario\nWHERE email = ? AND id != ?
+activate DB
+DB --> Service : Optional<Usuario>
+deactivate DB
+
+alt email no en uso
+
+    Service -> DB : UPDATE [tabla_rol]\nSET nombre=?, email=?, rol=?\nWHERE id=?
+    activate DB
+    DB --> Service : usuarioActualizado : Usuario
+    deactivate DB
+
+    Service --> Controller : usuarioActualizado : Usuario
+    deactivate Service
+
+    Controller --> Frontend : 200 OK { usuarioActualizado }
+    deactivate Controller
+
+    Frontend --> Admin : usuario actualizado correctamente
+    deactivate Frontend
+
+    Frontend -> ConsultarUsuario : <<include>> consultarUsuario(id)
+
+else email ya en uso
+
+    Service --> Controller : throw Error("Email ya en uso")
+    Controller --> Frontend : 400 Bad Request\n{ message: "Email ya en uso" }
+    Frontend --> Admin : muestra error "Email ya en uso"
+
+end
 
 @enduml

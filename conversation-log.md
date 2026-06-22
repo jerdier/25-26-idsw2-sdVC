@@ -639,3 +639,19 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 6. **READMEs de diseño:** Completados los cinco en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado.
 
 **Decisión:** El grupo Consultar tiene completa la fase de diseño. Quedan 10 casos por completar en diseño: Editar, Guardar, Cerrar, Registrar, Exportar e Importar.
+
+## [17:20] Domingo, 22 de junio de 2026 - Diseño de secuencia del grupo Editar
+
+**Prompt:** Crear los diagramas de secuencia de diseño y READMEs para los casos de uso de Editar, revisando el requisitado CGU y ajustando el estilo al de los diagramas ya completados.
+
+**Resultado:**
+
+1. **Diagrama editarUsuario:** `AdminDashboard.vue` → `UsuarioController` → `UsuarioService` → PostgreSQL. Dos fases: carga del usuario por id (`GET /api/usuarios/:id`) y actualización con verificación de unicidad de email (`PUT /api/usuarios/:id`). Bloque `alt` [email no en uso / email ya en uso]. Al guardar, inicia `<<include>> consultarUsuario(id)`.
+
+2. **Diagrama editarSesionClase:** `ProfessorDashboard.vue` → `AcademicController` → `AcademicService` → PostgreSQL. Dos peticiones de carga en paralelo: sesión actual (`GET /api/academic/sessions/:sesionId`) y asignaturas del profesor (`GET /api/academic/teacher/:profesorId/asignaturas`). Actualización con `PUT /api/academic/sessions/:sesionId`.
+
+3. **Diagrama editarSolicitudDispensa:** Bloque `alt` con dos rutas según actor. Alumno/Secretaria: carga dispensa + sesiones del alumno → `PUT /api/dispensas/:id/rectificar { motivo, sesionesIds }` (modifica contenido). Director de Grado: misma carga → `PATCH /api/dispensas/:id/status { estado, observaciones }` (modifica estado APROBADA/RECHAZADA) con nota de notificación al alumno.
+
+4. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado. `editarSolicitudDispensa` incluye dos subflujos diferenciados (Alumno/Secretaria y Director).
+
+**Decisión:** El grupo Editar tiene completa la fase de diseño. Quedan 7 casos por completar en diseño: Guardar, Cerrar, Registrar, Exportar e Importar.

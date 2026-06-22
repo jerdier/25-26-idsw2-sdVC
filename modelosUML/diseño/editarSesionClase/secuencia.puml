@@ -1,5 +1,72 @@
-@startuml editarSesionClase-diseno
+@startuml editarSesionClase-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Editar Sesión de Clase (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as Controller
+participant "AcademicService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Profesor -> Frontend : selecciona sesión a editar
+activate Frontend
+
+Frontend -> Controller : GET /api/academic/sessions/:sesionId
+activate Controller
+
+Controller -> Service : getSession(sesionId)
+activate Service
+
+Service -> DB : SELECT * FROM SesionDeClase\nWHERE id = ?
+activate DB
+DB --> Service : sesion : SesionDeClase
+deactivate DB
+
+Service --> Controller : sesion : SesionDeClase
+deactivate Service
+
+Controller --> Frontend : 200 OK { sesion }
+deactivate Controller
+
+Frontend -> Controller : GET /api/academic/teacher/:profesorId/asignaturas
+activate Controller
+
+Controller -> Service : getTeacherAsignaturas(profesorId)
+activate Service
+
+Service -> DB : SELECT * FROM Asignatura\nWHERE profesorId = ?\nINCLUDE Grado
+activate DB
+DB --> Service : asignaturas : Asignatura[]
+deactivate DB
+
+Service --> Controller : asignaturas : Asignatura[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { asignaturas }
+deactivate Controller
+
+Frontend --> Profesor : muestra formulario con datos actuales\ny lista de asignaturas disponibles
+
+Profesor -> Frontend : confirma cambios\n(asignaturaId, fecha, aula, duracion)
+
+Frontend -> Controller : PUT /api/academic/sessions/:sesionId\n{ asignaturaId, fecha, aula, duracion }
+activate Controller
+
+Controller -> Service : updateSession(sesionId, asignaturaId, fecha, aula, duracion)
+activate Service
+
+Service -> DB : UPDATE SesionDeClase\nSET asignaturaId=?, fecha=?,\naula=?, duracion=?\nWHERE id=?
+activate DB
+DB --> Service : sesionActualizada : SesionDeClase
+deactivate DB
+
+Service --> Controller : sesionActualizada : SesionDeClase
+deactivate Service
+
+Controller --> Frontend : 200 OK { sesionActualizada }
+deactivate Controller
+
+Frontend --> Profesor : muestra sesión con cambios aplicados
+deactivate Frontend
 
 @enduml

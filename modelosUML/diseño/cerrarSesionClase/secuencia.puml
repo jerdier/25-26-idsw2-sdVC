@@ -1,5 +1,77 @@
-@startuml cerrarSesionClase-diseno
+@startuml cerrarSesionClase-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Cerrar Sesión de Clase (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as AcademicController
+participant "AttendanceController" as AttendanceController
+participant "AcademicService" as AcademicService
+participant "AttendanceService" as AttendanceService
+database "Base de Datos\n(PostgreSQL)" as DB
+participant ":Collaboration\nExportarHistorialAsistencias" as ExportarHistorialAsistencias
+
+Profesor -> Frontend : solicita cerrar sesión (sesionId)
+activate Frontend
+
+Frontend -> AcademicController : GET /api/academic/sessions/:sesionId
+activate AcademicController
+
+AcademicController -> AcademicService : getSession(sesionId)
+activate AcademicService
+
+AcademicService -> DB : SELECT * FROM SesionDeClase\nWHERE id = ?
+activate DB
+DB --> AcademicService : sesion : SesionDeClase
+deactivate DB
+
+AcademicService --> AcademicController : sesion : SesionDeClase
+deactivate AcademicService
+
+AcademicController --> Frontend : 200 OK { sesion }
+deactivate AcademicController
+
+Frontend -> AttendanceController : GET /api/attendance/session/:sesionId
+activate AttendanceController
+
+AttendanceController -> AttendanceService : getAttendanceBySession(sesionId)
+activate AttendanceService
+
+AttendanceService -> DB : SELECT * FROM Asistencia\nWHERE sesionId = ?
+activate DB
+DB --> AttendanceService : asistencias : Asistencia[]
+deactivate DB
+
+AttendanceService --> AttendanceController : asistencias : Asistencia[]
+deactivate AttendanceService
+
+AttendanceController --> Frontend : 200 OK { asistencias }
+deactivate AttendanceController
+
+Frontend --> Profesor : muestra resumen de asistencias\ny hora de finalización
+
+Profesor -> Frontend : confirma cierre de sesión
+
+Frontend -> AcademicController : PUT /api/academic/sessions/:sesionId/cerrar
+activate AcademicController
+
+AcademicController -> AcademicService : closeSession(sesionId)
+activate AcademicService
+
+AcademicService -> DB : UPDATE SesionDeClase\nSET estado='CERRADA'\nWHERE id=?
+activate DB
+DB --> AcademicService : sesionCerrada : SesionDeClase
+deactivate DB
+
+AcademicService --> AcademicController : sesionCerrada : SesionDeClase
+deactivate AcademicService
+
+AcademicController --> Frontend : 200 OK { sesionCerrada }
+deactivate AcademicController
+
+Frontend --> Profesor : sesión cerrada correctamente
+deactivate Frontend
+
+Frontend -> ExportarHistorialAsistencias : <<include>> exportarHistorialAsistencias(sesionId)
 
 @enduml

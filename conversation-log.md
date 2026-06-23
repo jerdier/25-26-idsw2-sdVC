@@ -655,3 +655,19 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 4. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado. `editarSolicitudDispensa` incluye dos subflujos diferenciados (Alumno/Secretaria y Director).
 
 **Decisión:** El grupo Editar tiene completa la fase de diseño. Quedan 7 casos por completar en diseño: Guardar, Cerrar, Registrar, Exportar e Importar.
+
+## [23:25] Lunes, 23 de junio de 2026 - Diseño de secuencia de los grupos Guardar, Cerrar y Registrar
+
+**Prompt:** Crear los diagramas de secuencia de diseño y READMEs para los casos de uso de Guardar, Cerrar y Registrar.
+
+**Resultado:**
+
+1. **Diagrama guardarSolicitudDispensa:** `SecretariaDashboard.vue / DirectorDashboard.vue` → `DispensaController` → `DispensaService` → PostgreSQL. Dos pasos: carga de la dispensa actual (`GET /api/dispensas/:id`) y confirmación del estado final (`PATCH /api/dispensas/:id/status { estado }`). Actores: Secretaria y Director de Grado.
+
+2. **Diagrama cerrarSesionClase:** `ProfessorDashboard.vue` → `AcademicController/Service` + `AttendanceController/Service` → PostgreSQL. Tres fases: carga de sesión (`GET /api/academic/sessions/:sesionId`), carga de asistencias para resumen (`GET /api/attendance/session/:sesionId`), y cierre efectivo (`PUT /api/academic/sessions/:sesionId/cerrar` → `estado='CERRADA'`). Finaliza con `<<include>> exportarHistorialAsistencias(sesionId)`.
+
+3. **Diagrama registrarTomaAsistencia:** Se activa por `<<include>>` desde `crearSesionClase`. `ProfessorDashboard.vue` → `AcademicController/Service` (carga alumnos: `GET /api/academic/sessions/:sesionId/alumnos`) + `AttendanceController/Service` (registra asistencia: `POST /api/attendance/record { sesionId, alumnoId, presente }` con `INSERT ... ON CONFLICT DO UPDATE`). Finaliza con `<<include>> cerrarSesionClase(sesionId)`.
+
+4. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado.
+
+**Decisión:** Los grupos Guardar, Cerrar y Registrar tienen completa la fase de diseño. Quedan 4 casos por completar en diseño: Exportar e Importar.

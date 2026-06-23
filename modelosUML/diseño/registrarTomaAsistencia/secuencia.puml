@@ -1,5 +1,64 @@
-@startuml registrarTomaAsistencia-diseno
+@startuml registrarTomaAsistencia-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Registrar Toma de Asistencia (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant ":Collaboration\nCrearSesionClase" as CrearSesionClase
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AcademicController" as AcademicController
+participant "AttendanceController" as AttendanceController
+participant "AcademicService" as AcademicService
+participant "AttendanceService" as AttendanceService
+database "Base de Datos\n(PostgreSQL)" as DB
+participant ":Collaboration\nCerrarSesionClase" as CerrarSesionClase
+
+CrearSesionClase -> Frontend : <<include>> registrarTomaAsistencia(sesionCreada)
+activate Frontend
+
+Frontend -> AcademicController : GET /api/academic/sessions/:sesionId/alumnos
+activate AcademicController
+
+AcademicController -> AcademicService : getSessionAlumnos(sesionId)
+activate AcademicService
+
+AcademicService -> DB : SELECT * FROM Alumno\nWHERE id IN (\n  SELECT alumnoId FROM _AlumnoToAsignatura\n  WHERE asignaturaId = ?\n)
+activate DB
+DB --> AcademicService : alumnos : Alumno[]
+deactivate DB
+
+AcademicService --> AcademicController : alumnos : Alumno[]
+deactivate AcademicService
+
+AcademicController --> Frontend : 200 OK { alumnos }
+deactivate AcademicController
+
+Frontend --> Profesor : muestra lista de alumnos para pasar lista
+
+Profesor -> Frontend : marca asistencia por alumno\n(alumnoId, presente: PRESENTE/AUSENTE/TARDE)
+
+Frontend -> AttendanceController : POST /api/attendance/record\n{ sesionId, alumnoId, presente }
+activate AttendanceController
+
+AttendanceController -> AttendanceService : recordAttendance(sesionId, alumnoId, presente)
+activate AttendanceService
+
+AttendanceService -> DB : INSERT INTO Asistencia\n(sesionId, alumnoId, presente)\nON CONFLICT DO UPDATE
+activate DB
+DB --> AttendanceService : asistencia : Asistencia
+deactivate DB
+
+AttendanceService --> AttendanceController : asistencia : Asistencia
+deactivate AttendanceService
+
+AttendanceController --> Frontend : 200 OK { asistencia }
+deactivate AttendanceController
+
+Frontend --> Profesor : lista actualizada
+deactivate Frontend
+
+Profesor -> Frontend : solicita cerrar sesión
+activate Frontend
+Frontend -> CerrarSesionClase : <<include>> cerrarSesionClase(sesionId)
+deactivate Frontend
 
 @enduml

@@ -16,16 +16,49 @@
 
 ---
 
-
 ## diagrama de secuencia
 
-_pendiente — fuente en [secuencia.puml](../../../modelosUML/diseño/importarMatriculas/secuencia.puml)_
+![secuencia](../../../images/diseño/importarMatriculas/secuencia.svg)
+
+> fuente: [secuencia.puml](../../../modelosUML/diseño/importarMatriculas/secuencia.puml)
 
 ---
 
 ## clases de diseño identificadas
 
-_pendiente_
+### frontend (Vue 3)
+
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SecretariaDashboard.vue` | Presenta el selector de archivo y muestra el informe de resultados tras la importación |
+
+### backend (Express + TypeScript)
+
+| Clase | Responsabilidad |
+|-------|----------------|
+| `SecretariaController` | Recibe el archivo en formato `multipart/form-data` y delega la validación e importación en el servicio |
+| `SecretariaService` | Valida el archivo, localiza el alumno por DNI y persiste la matrícula con `INSERT ... ON CONFLICT DO UPDATE` |
+
+### base de datos (PostgreSQL)
+
+| Tabla | Responsabilidad |
+|-------|----------------|
+| `Alumno` | Se consulta por DNI para obtener el `alumnoId` necesario para crear la matrícula |
+| `Matricula` | Destino de los datos importados; se crea o actualiza la relación alumno-asignatura |
+
+---
+
+## flujo de secuencia
+
+1. La Secretaria selecciona el archivo de matrículas (CSV / Excel).
+2. El frontend llama `POST /api/secretaria/import/matriculas` con el archivo en `multipart/form-data`.
+3. `SecretariaController` → `SecretariaService.validarArchivo(archivo)` → devuelve `valido : Boolean`.
+4. **[Archivo válido]** `SecretariaController` → `SecretariaService.importMatriculas(archivo)`.
+5. `SecretariaService` ejecuta por cada fila `SELECT * FROM Alumno WHERE dni = ?` para obtener el `alumnoId`.
+6. `SecretariaService` ejecuta `INSERT INTO Matricula (alumnoId, asignaturaId) ON CONFLICT DO UPDATE` → acumula resultados.
+7. `SecretariaService` devuelve `informe : { creadas, actualizadas, errores }`.
+8. `SecretariaController` responde `200 OK { informe }` → el frontend muestra el informe de importación.
+9. **[Archivo inválido]** `SecretariaController` responde `400 Bad Request { message: "Formato de archivo no válido" }` → el frontend muestra el error.
 
 ---
 

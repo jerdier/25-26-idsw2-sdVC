@@ -1,5 +1,55 @@
-@startuml exportarDispensas-diseno
+@startuml exportarDispensas-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Exportar Dispensas (Vue 3 + Express + Prisma)
+
+actor "Secretaria\nAcademica" as Secretaria
+participant "Frontend\n(Vue 3)" as Frontend
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Secretaria -> Frontend : aplica filtros\n(curso, asignatura, nombre, estado)
+activate Frontend
+
+Frontend -> Controller : GET /api/dispensas?filtros=...
+activate Controller
+
+Controller -> Service : filtrarDispensas(filtros)
+activate Service
+
+Service -> DB : SELECT * FROM Dispensa\nWHERE [filtros aplicados]\nINCLUDE Alumno, Asignatura
+activate DB
+DB --> Service : dispensas : Dispensa[]
+deactivate DB
+
+Service --> Controller : dispensas : Dispensa[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { dispensas }
+deactivate Controller
+
+Frontend --> Secretaria : muestra dispensas filtradas\ny selector de formato (PDF / CSV)
+
+Secretaria -> Frontend : selecciona formato y solicita descarga
+
+Frontend -> Controller : GET /api/dispensas/export?filtros=...&formato=...
+activate Controller
+
+Controller -> Service : exportarDispensas(filtros, formato)
+activate Service
+
+Service -> DB : SELECT * FROM Dispensa\nWHERE [filtros aplicados]\nINCLUDE Alumno, Asignatura
+activate DB
+DB --> Service : datos : Dispensa[]
+deactivate DB
+
+Service --> Controller : archivo : Blob
+deactivate Service
+
+Controller --> Frontend : 200 OK\n(Content-Disposition: attachment)
+deactivate Controller
+
+Frontend --> Secretaria : descarga archivo generado
+deactivate Frontend
 
 @enduml

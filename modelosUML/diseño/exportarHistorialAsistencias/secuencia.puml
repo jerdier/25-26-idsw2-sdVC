@@ -1,5 +1,75 @@
-@startuml exportarHistorialAsistencias-diseno
+@startuml exportarHistorialAsistencias-diseno-secuencia
 
-' pendiente
+title Diagrama de Secuencia - Exportar Historial de Asistencias (Vue 3 + Express + Prisma)
+
+actor "Profesor" as Profesor
+participant ":Collaboration\nCerrarSesionClase" as CerrarSesionClase
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AttendanceController" as AttendanceController
+participant "AcademicController" as AcademicController
+participant "AttendanceService" as AttendanceService
+participant "AcademicService" as AcademicService
+database "Base de Datos\n(PostgreSQL)" as DB
+
+CerrarSesionClase -> Frontend : <<include>> exportarHistorialAsistencias(sesionId)
+activate Frontend
+
+Frontend -> AttendanceController : GET /api/attendance/session/:sesionId
+activate AttendanceController
+
+AttendanceController -> AttendanceService : getAttendanceBySession(sesionId)
+activate AttendanceService
+
+AttendanceService -> DB : SELECT * FROM Asistencia\nWHERE sesionId = ?
+activate DB
+DB --> AttendanceService : asistencias : Asistencia[]
+deactivate DB
+
+AttendanceService --> AttendanceController : asistencias : Asistencia[]
+deactivate AttendanceService
+
+AttendanceController --> Frontend : 200 OK { asistencias }
+deactivate AttendanceController
+
+Frontend -> AcademicController : GET /api/academic/sessions/:sesionId
+activate AcademicController
+
+AcademicController -> AcademicService : getSession(sesionId)
+activate AcademicService
+
+AcademicService -> DB : SELECT * FROM SesionDeClase\nWHERE id = ?
+activate DB
+DB --> AcademicService : sesion : SesionDeClase
+deactivate DB
+
+AcademicService --> AcademicController : sesion : SesionDeClase
+deactivate AcademicService
+
+AcademicController --> Frontend : 200 OK { sesion }
+deactivate AcademicController
+
+Frontend --> Profesor : muestra historial de asistencias\ny selector de formato (PDF / Excel)
+
+Profesor -> Frontend : selecciona formato y solicita descarga
+
+Frontend -> AttendanceController : GET /api/attendance/session/:sesionId/export?formato=...
+activate AttendanceController
+
+AttendanceController -> AttendanceService : exportHistorial(sesionId, formato)
+activate AttendanceService
+
+AttendanceService -> DB : SELECT * FROM Asistencia\nJOIN Alumno ON ...\nWHERE sesionId = ?
+activate DB
+DB --> AttendanceService : datos : Asistencia[]
+deactivate DB
+
+AttendanceService --> AttendanceController : archivo : Blob
+deactivate AttendanceService
+
+AttendanceController --> Frontend : 200 OK\n(Content-Disposition: attachment)
+deactivate AttendanceController
+
+Frontend --> Profesor : descarga archivo generado
+deactivate Frontend
 
 @enduml

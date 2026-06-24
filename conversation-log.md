@@ -671,3 +671,21 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 4. **READMEs de diseño:** Completados los tres en `documents/diseño/` con imagen SVG, tabla de clases por capa (frontend/backend/base de datos) y flujo de secuencia numerado.
 
 **Decisión:** Los grupos Guardar, Cerrar y Registrar tienen completa la fase de diseño. Quedan 4 casos por completar en diseño: Exportar e Importar.
+
+## [17:15] Martes, 24 de junio de 2026 - Diseño de secuencia de los grupos Exportar e Importar
+
+**Prompt:** Crear los diagramas de secuencia de diseño y READMEs para los casos de uso de Exportar e Importar.
+
+**Resultado:**
+
+1. **Diagrama exportarHistorialAsistencias:** Se activa por `<<include>>` desde `cerrarSesionClase`. Dos cargas: asistencias (`GET /api/attendance/session/:sesionId`) y datos de sesión (`GET /api/academic/sessions/:sesionId`). Profesor selecciona formato (PDF/Excel) → `GET /api/attendance/session/:sesionId/export?formato=...` → `AttendanceService.exportHistorial` genera Blob → `Content-Disposition: attachment`.
+
+2. **Diagrama exportarDispensas:** Secretaria aplica filtros → `GET /api/dispensas?filtros=...` → muestra dispensas filtradas. Selecciona formato → `GET /api/dispensas/export?filtros=...&formato=...` → `DispensaService.exportarDispensas` genera Blob → descarga.
+
+3. **Diagrama importarListasAlumnos:** Secretaria sube archivo → `POST /api/secretaria/import/alumnos` (multipart). `SecretariaService` valida y ejecuta `INSERT INTO Alumno ON CONFLICT (dni) DO UPDATE` por cada fila. Devuelve informe `{ creados, actualizados, errores }`. Bloque `alt` para archivo inválido → 400.
+
+4. **Diagrama importarMatriculas:** Secretaria sube archivo → `POST /api/secretaria/import/matriculas` (multipart). `SecretariaService` valida, busca alumno por DNI (`SELECT FROM Alumno WHERE dni = ?`) y ejecuta `INSERT INTO Matricula ON CONFLICT DO UPDATE`. Devuelve informe `{ creadas, actualizadas, errores }`. Bloque `alt` para archivo inválido → 400.
+
+5. **READMEs de diseño:** Completados los cuatro en `documents/diseño/` con imagen SVG, tabla de clases por capa y flujo de secuencia numerado.
+
+**Decisión:** La fase de diseño (diagramas de secuencia y READMEs) queda completamente cerrada para los 18 casos de uso. Todos los artefactos de análisis y diseño están documentados.

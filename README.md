@@ -2,6 +2,8 @@
 
 > Sistema que centraliza los procesos de gestión académica en una única plataforma, integrando las operaciones de secretaría, dirección de grado y docentes: gestión de estudiantes, asistencias, dispensas y procedimientos administrativos.
 
+> **Requisitado (CGU):** [github.com/enmabry/25-26-IdSw1-SdR](https://github.com/enmabry/25-26-IdSw1-SdR)
+
 ---
 
 ## Navegación

@@ -1,7 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import { useAuth } from '../services/authService';
-
-import HomeView from '../views/HomeView.vue';
 import LoginView from '../views/LoginView.vue';
 import ProfesorDashboard from '../views/ProfesorDashboard.vue';
 import AlumnoDashboard from '../views/AlumnoDashboard.vue';
@@ -12,7 +9,7 @@ import AdministradorDashboard from '../views/AdministradorDashboard.vue';
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    { path: '/', name: 'home', component: HomeView },
+    { path: '/', redirect: '/login' },
     { path: '/login', name: 'login', component: LoginView },
     { path: '/profesor', name: 'profesor-dashboard', component: ProfesorDashboard, meta: { requiresAuth: true, role: 'profesor' } },
     { path: '/alumno', name: 'alumno-dashboard', component: AlumnoDashboard, meta: { requiresAuth: true, role: 'alumno' } },

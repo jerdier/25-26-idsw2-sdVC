@@ -3,13 +3,12 @@ import { usuarioController } from '../controllers/UsuarioController';
 
 const router = Router();
 
-// CU: Consultar Usuario
+// CU: consultarUsuario
+router.get('/', usuarioController.consultarUsuario);
 router.get('/:id', usuarioController.getUsuario);
 
-// CU: Editar Usuario
-router.put('/:id', usuarioController.updateUsuario);
-
-// CU: Eliminar Usuario
+// CU: editarUsuario
+router.put('/:id', usuarioController.editarUsuario);
 router.delete('/:id', usuarioController.deleteUsuario);
 
 export default router;

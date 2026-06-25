@@ -21,9 +21,9 @@ const handleLogin = async () => {
   if (result.success) {
     if (result.role === 'administrador') router.push('/administrador');
     else if (result.role === 'secretaria') router.push('/secretaria');
-    else if (result.role === 'professor') router.push('/professor');
-    else if (result.role === 'director') router.push('/director');
-    else router.push('/student');
+    else if (result.role === 'profesor') router.push('/profesor');
+    else if (result.role === 'directorDeGrado') router.push('/director');
+    else router.push('/alumno');
   } else {
     errorMsg.value = result.message || 'Error de autenticación.';
   }
@@ -66,11 +66,11 @@ const quickLogin = (e: string, p: string = 'password123') => {
       <footer class="demo-zone">
         <label class="form-label text-center">Entorno de Pruebas</label>
         <div class="btn-grid">
-          <button class="btn-outline" @click="quickLogin('test.alumno1@mail.com')">Alumno</button>
-          <button class="btn-outline" @click="quickLogin('test.profesor1@universidad.edu')">Profesor</button>
-          <button class="btn-outline" @click="quickLogin('test.director1@universidad.edu')">Director</button>
-          <button class="btn-outline" @click="quickLogin('test.secretaria1@universidad.edu')">Secretaría</button>
-          <button class="btn-outline root" @click="quickLogin('admin@universidad.edu', 'admin123')">Administrador</button>
+          <button class="btn-outline" @click="quickLogin('testalumno1@cgu.es', 'password1')">Alumno</button>
+          <button class="btn-outline" @click="quickLogin('testprofesor1@cgu.es', 'password1')">Profesor</button>
+          <button class="btn-outline" @click="quickLogin('testdirector1@cgu.es', 'password1')">Director</button>
+          <button class="btn-outline" @click="quickLogin('testsecretaria1@cgu.es', 'password1')">Secretaría</button>
+          <button class="btn-outline root" @click="quickLogin('testadmin1@cgu.es', 'password1')">Administrador</button>
         </div>
       </footer>
     </div>

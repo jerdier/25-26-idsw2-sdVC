@@ -2,87 +2,67 @@ import { Request, Response } from 'express';
 import { dispensaService } from '../services/DispensaService';
 
 export class DispensaController {
-  async createDispensa(req: Request, res: Response) {
+  async getDispensa(req: Request, res: Response) {
     try {
-      const dispensa = await dispensaService.createDispensa(req.body);
-      res.status(201).json(dispensa);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al crear la dispensa',
-        error: error.message 
-      });
-    }
+      const id = req.params['id'] as string;
+      res.json(await dispensaService.getDispensa(id));
+    } catch (error: any) { res.status(404).json({ message: error.message }); }
   }
 
-  async updateStatus(req: Request, res: Response) {
+  async getDispensasByProfesor(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      const dispensa = await dispensaService.updateStatus(id as string, req.body);
-      res.status(200).json(dispensa);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al actualizar el estado de la dispensa',
-        error: error.message 
-      });
-    }
-  }
-
-  async updateDispensa(req: Request, res: Response) {
-    try {
-      const { id } = req.params;
-      const dispensa = await dispensaService.updateDispensa(id as string, req.body);
-      res.status(200).json(dispensa);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al rectificar la dispensa',
-        error: error.message 
-      });
-    }
-  }
-
-  async getByAlumno(req: Request, res: Response) {
-    try {
-      const { alumnoId } = req.params;
-      const dispensas = await dispensaService.getDispensasByAlumno(alumnoId as string);
-      res.status(200).json(dispensas);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al obtener las dispensas del alumno',
-        error: error.message 
-      });
-    }
-  }
-
-  async getByProfesor(req: Request, res: Response) {
-    try {
-      const { profesorId } = req.params;
-      const dispensas = await dispensaService.getDispensasByProfesor(profesorId as string);
-      res.status(200).json(dispensas);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: 'Error al obtener las dispensas para el profesor',
-        error: error.message 
-      });
-    }
-  }
-
-  async getAllDispensas(req: Request, res: Response) {
-    try {
-      const dispensas = await dispensaService.getAllDispensas();
-      res.status(200).json(dispensas);
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error al obtener las dispensas', error: error.message });
-    }
+      const profesorId = req.params['profesorId'] as string;
+      res.json(await dispensaService.getDispensasByProfesor(profesorId));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
   async deleteDispensa(req: Request, res: Response) {
     try {
-      const { id } = req.params;
-      await dispensaService.deleteDispensa(id as string);
+      const id = req.params['id'] as string;
+      await dispensaService.deleteDispensa(id);
       res.status(204).send();
-    } catch (error: any) {
-      res.status(500).json({ message: 'Error al eliminar la dispensa', error: error.message });
-    }
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: crearSolicitudDispensa
+  async crearSolicitudDispensa(req: Request, res: Response) {
+    try {
+      res.status(201).json(await dispensaService.crearSolicitudDispensa(req.body));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(req: Request, res: Response) {
+    try {
+      res.json(await dispensaService.consultarSolicitudDispensa(req.query));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: editarSolicitudDispensa
+  async editarSolicitudDispensa(req: Request, res: Response) {
+    try {
+      const id = req.params['id'] as string;
+      res.json(await dispensaService.editarSolicitudDispensa(id, req.body));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: guardarSolicitudDispensa
+  async guardarSolicitudDispensa(req: Request, res: Response) {
+    try {
+      const id = req.params['id'] as string;
+      res.json(await dispensaService.guardarSolicitudDispensa(id, req.body));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: exportarDispensas
+  async exportarDispensas(req: Request, res: Response) {
+    try {
+      const formato = (req.query['formato'] as string) || 'CSV';
+      const archivo = await dispensaService.exportarDispensas(req.query, formato);
+      res.setHeader('Content-Disposition', 'attachment; filename="dispensas.csv"');
+      res.setHeader('Content-Type', 'text/csv');
+      res.send(archivo);
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 }
 

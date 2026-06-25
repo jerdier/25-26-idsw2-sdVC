@@ -1,68 +1,25 @@
 import api from './api';
-import type { 
-  Alumno, 
-  Profesor, 
-  SecretariaStats, 
-  CreateAlumnoDTO, 
-  CreateProfesorDTO, 
-  CreateMatriculaDTO 
-} from '../types';
 
-export class SecretariaService {
-  async getStats(): Promise<SecretariaStats> {
-    const response = await api.get<SecretariaStats>('/secretaria/stats');
-    return response.data;
+export const secretariaService = {
+  // CU: consultarListaAlumnos / consultarDetalleAlumno
+  async consultarListaAlumnos() {
+    return (await api.get('/secretaria/alumnos')).data;
+  },
+
+  // CU: consultarDetalleMatricula
+  async consultarDetalleMatricula(alumnoId: string) {
+    return (await api.get(`/secretaria/alumnos/${alumnoId}/matriculas`)).data;
+  },
+
+  // CU: importarListasAlumnos
+  async importarListasAlumnos(data: { alumnos: { nombre: string; email: string; dni: string }[] }) {
+    return (await api.post('/secretaria/import/alumnos', data)).data;
+  },
+
+  // CU: importarMatriculas
+  async importarMatriculas(data: { matriculas: { dni: string; asignaturaId: string }[]; secretariaId: string; gradoId: string }) {
+    return (await api.post('/secretaria/import/matriculas', data)).data;
   }
+};
 
-  async getAlumnos(): Promise<Alumno[]> {
-    const response = await api.get<Alumno[]>('/secretaria/alumnos');
-    return response.data;
-  }
-
-  async createAlumno(data: CreateAlumnoDTO): Promise<Alumno> {
-    const response = await api.post<Alumno>('/secretaria/alumnos', data);
-    return response.data;
-  }
-
-  async getProfesores(): Promise<Profesor[]> {
-    const response = await api.get<Profesor[]>('/secretaria/profesores');
-    return response.data;
-  }
-
-  async createProfesor(data: CreateProfesorDTO): Promise<Profesor> {
-    const response = await api.post<Profesor>('/secretaria/profesores', data);
-    return response.data;
-  }
-
-  async getDirectores(): Promise<any[]> {
-    const response = await api.get<any[]>('/secretaria/directores');
-    return response.data;
-  }
-
-  async createDirector(data: any): Promise<any> {
-    const response = await api.post<any>('/secretaria/directores', data);
-    return response.data;
-  }
-
-  async getSecretarias(): Promise<any[]> {
-    const response = await api.get<any[]>('/secretaria/secretarias');
-    return response.data;
-  }
-
-  async createSecretaria(data: any): Promise<any> {
-    const response = await api.post<any>('/secretaria/secretarias', data);
-    return response.data;
-  }
-
-  async createMatricula(data: CreateMatriculaDTO): Promise<any> {
-    const response = await api.post('/secretaria/matriculas', data);
-    return response.data;
-  }
-
-  async importAlumnos(data: { alumnos: CreateAlumnoDTO[], gradoId: string, secretariaId: string }): Promise<any> {
-    const response = await api.post('/secretaria/import/alumnos', data);
-    return response.data;
-  }
-}
-
-export const secretariaService = new SecretariaService();
+export default secretariaService;

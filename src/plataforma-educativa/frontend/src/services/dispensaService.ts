@@ -1,57 +1,41 @@
 import api from './api';
-import type { CreateDispensaDTO, UpdateDispensaStatusDTO } from '../types';
 
 export const dispensaService = {
-  /**
-   * Crea una nueva dispensa
-   */
-  async createDispensa(data: CreateDispensaDTO) {
-    const response = await api.post('/dispensas', data);
-    return response.data;
+  async getDispensa(dispensaId: string) {
+    return (await api.get(`/dispensas/${dispensaId}`)).data;
   },
 
-  /**
-   * Rectifica una dispensa
-   */
-  async updateDispensa(id: string, data: Partial<CreateDispensaDTO>) {
-    const response = await api.put(`/dispensas/${id}/rectificar`, data);
-    return response.data;
-  },
-
-  /**
-   * Actualiza el estado (Director)
-   */
-  async updateStatus(id: string, data: UpdateDispensaStatusDTO) {
-    const response = await api.patch(`/dispensas/${id}/status`, data);
-    return response.data;
-  },
-
-  /**
-   * Listado para el alumno
-   */
-  async getDispensasByAlumno(alumnoId: string) {
-    const response = await api.get(`/dispensas/alumno/${alumnoId}`);
-    return response.data;
-  },
-
-  /**
-   * Listado para el profesor
-   */
   async getDispensasByProfesor(profesorId: string) {
-    const response = await api.get(`/dispensas/profesor/${profesorId}`);
-    return response.data;
-  },
-
-  /**
-   * Catálogo total (Secretaría)
-   */
-  async getAllDispensas() {
-    const response = await api.get('/dispensas');
-    return response.data;
+    return (await api.get(`/dispensas/profesor/${profesorId}`)).data;
   },
 
   async deleteDispensa(id: string) {
     await api.delete(`/dispensas/${id}`);
+  },
+
+  // CU: crearSolicitudDispensa
+  async crearSolicitudDispensa(data: { alumnoId: string; motivo: string; secretariaId: string; sesionesIds: string[]; asignaturasIds: string[] }) {
+    return (await api.post('/dispensas', data)).data;
+  },
+
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(filtros?: { estado?: string; alumnoId?: string }) {
+    return (await api.get('/dispensas', { params: filtros })).data;
+  },
+
+  // CU: editarSolicitudDispensa
+  async editarSolicitudDispensa(id: string, data: { motivo?: string; sesionesIds?: string[]; asignaturasIds?: string[] }) {
+    return (await api.put(`/dispensas/${id}/rectificar`, data)).data;
+  },
+
+  // CU: guardarSolicitudDispensa
+  async guardarSolicitudDispensa(id: string, data: { estado: 'APROBADA' | 'RECHAZADA'; directorId: string; observaciones?: string }) {
+    return (await api.patch(`/dispensas/${id}/status`, data)).data;
+  },
+
+  // CU: exportarDispensas
+  async exportarDispensas(filtros?: object, formato: string = 'CSV') {
+    return (await api.get('/dispensas/export', { params: { ...filtros, formato }, responseType: 'blob' })).data;
   }
 };
 

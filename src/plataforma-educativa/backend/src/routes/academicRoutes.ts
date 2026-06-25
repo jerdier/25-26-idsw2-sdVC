@@ -3,22 +3,19 @@ import { academicController } from '../controllers/AcademicController';
 
 const router = Router();
 
-router.get('/asignaturas', academicController.getAllAsignaturas);
-router.get('/teacher/:profesorId/asignaturas', academicController.getTeacherAsignaturas);
-router.get('/asignatura/:asignaturaId/alumnos', academicController.getAsignaturaAlumnos);
-router.get('/alumno/:alumnoId/asignaturas', academicController.getStudentAsignaturas);
-router.put('/asignatura/:id/profesor', academicController.assignProfesorToAsignatura);
-router.delete('/asignatura/:id/profesor', academicController.unassignProfesorFromAsignatura);
-router.post('/asignatura/:id/alumnos/:alumnoId', academicController.addAlumnoToAsignatura);
-router.delete('/asignatura/:id/alumnos/:alumnoId', academicController.removeAlumnoFromAsignatura);
+// CU: crearSesionClase
+router.post('/sessions', academicController.crearSesionClase);
+// CU: editarSesionClase / cerrarSesionClase (cerrar antes que :id)
+router.put('/sessions/:id/cerrar', academicController.cerrarSesionClase);
+router.put('/sessions/:id', academicController.editarSesionClase);
 
-// Gestión de Sesiones
-router.get('/asignatura/:asignaturaId/sessions', academicController.getSessionsByAsignatura);
-router.get('/alumno/:alumnoId/sessions', academicController.getSessionsForAlumno);
+// Helpers de consulta
+router.get('/teacher/:profesorId/asignaturas', academicController.getTeacherAsignaturas);
+router.get('/teacher/:profesorId/sessions', academicController.getTeacherSessions);
+router.get('/sessions/:sesionId', academicController.getSession);
 router.get('/sessions/:id/alumnos', academicController.getSessionAlumnos);
-router.post('/sessions', academicController.createSession);
-router.put('/sessions/:id', academicController.updateSession);
-router.put('/sessions/:id/cerrar', academicController.closeSession);
-router.delete('/sessions/:id', academicController.deleteSession);
+router.get('/alumno/:alumnoId/sessions', academicController.getSessionsForAlumno);
+router.get('/alumno/:alumnoId', academicController.getAlumno);
+router.get('/asignatura/:asignaturaId/alumnos', academicController.getAsignaturaAlumnos);
 
 export default router;

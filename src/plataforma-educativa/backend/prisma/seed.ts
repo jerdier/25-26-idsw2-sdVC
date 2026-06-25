@@ -13,7 +13,6 @@ const prisma = new PrismaClient({ adapter });
 async function main() {
   console.log('--- Iniciando Sembrado ---');
 
-  // Limpieza total
   await prisma.asistencia.deleteMany({});
   await prisma.dispensa.deleteMany({});
   await prisma.sesionDeClase.deleteMany({});
@@ -26,78 +25,65 @@ async function main() {
   await prisma.secretariaAcademica.deleteMany({});
   await prisma.administrador.deleteMany({});
 
-  // 1. Administrador Genuino
-  await prisma.administrador.create({
-    data: {
-      id: 'admin-global-id',
-      nombre: 'ADMINISTRADOR',
-      email: 'admin@universidad.edu',
-      password: 'admin123',
-    },
+  const admin = await prisma.administrador.create({
+    data: { id: 'testadmin1-id', nombre: 'testadmin1', email: 'testadmin1@cgu.es', password: 'password1' }
   });
 
-  // 2. Secretaría
   const secretaria = await prisma.secretariaAcademica.create({
-    data: {
-      id: 'test-secretaria-id',
-      nombre: 'TEST SECRETARIA',
-      email: 'test.secretaria1@universidad.edu',
-      password: 'password123',
-    },
+    data: { id: 'testsecretaria1-id', nombre: 'testsecretaria1', email: 'testsecretaria1@cgu.es', password: 'password1' }
   });
 
-  // 3. Profesores
-  const prof1 = await prisma.profesor.create({
-    data: {
-      id: 'test-profesor-id',
-      nombre: 'TEST PROFESOR 1',
-      email: 'test.profesor1@universidad.edu',
-      password: 'password123',
-    },
+  const profesor = await prisma.profesor.create({
+    data: { id: 'testprofesor1-id', nombre: 'testprofesor1', email: 'testprofesor1@cgu.es', password: 'password1' }
   });
 
-  const prof2 = await prisma.profesor.create({
-    data: {
-      nombre: 'TEST PROFESOR 2',
-      email: 'test.profesor2@universidad.edu',
-      password: 'password123',
-    },
-  });
-
-  // 4. Director de Grado
   const director = await prisma.directorDeGrado.create({
-    data: { 
-      id: 'test-director-id',
-      nombre: 'TEST DIRECTOR',
-      email: 'test.director1@universidad.edu',
-      password: 'password123'
-    },
+    data: { id: 'testdirector1-id', nombre: 'testdirector1', email: 'testdirector1@cgu.es', password: 'password1' }
   });
 
-  // 5. Grado
   const grado = await prisma.grado.create({
-    data: { nombre: 'TEST GRADO SOFTWARE', directorId: director.id },
+    data: { id: 'grado1-id', nombre: 'Ingeniería del Software', directorId: director.id }
   });
 
-  // 6. Alumnos
-  const alumno1 = await prisma.alumno.create({
-    data: { nombre: 'TEST ALUMNO 1', numeroRegistro: 'ALU001', email: 'test.alumno1@mail.com', password: 'password123' }
-  });
-
-  // 7. Asignaturas
-  await prisma.asignatura.create({
+  const alumno = await prisma.alumno.create({
     data: {
-      nombre: 'TEST ASIGNATURA A',
-      gradoId: grado.id,
-      profesorId: prof1.id,
-      alumnos: { connect: [{ id: alumno1.id }] },
-    },
+      id: 'testalumno1-id',
+      nombre: 'testalumno1',
+      numeroRegistro: 'ALU001',
+      dni: '00000001A',
+      email: 'testalumno1@cgu.es',
+      password: 'password1'
+    }
   });
 
-  // 8. Matrículas
-  await prisma.matricula.create({ data: { alumnoId: alumno1.id, gradoId: grado.id, secretariaId: secretaria.id } });
+  const asignatura = await prisma.asignatura.create({
+    data: {
+      id: 'asignatura1-id',
+      nombre: 'Ingeniería del Software II',
+      gradoId: grado.id,
+      profesorId: profesor.id,
+      alumnos: { connect: [{ id: alumno.id }] }
+    }
+  });
+
+  await prisma.matricula.create({
+    data: { alumnoId: alumno.id, gradoId: grado.id, secretariaId: secretaria.id }
+  });
+
+  const sesion = await prisma.sesionDeClase.create({
+    data: { id: 'sesion1-id', asignaturaId: asignatura.id, fecha: new Date(), aula: 'Aula A1', duracion: 90 }
+  });
+
+  await prisma.asistencia.create({
+    data: { sesionId: sesion.id, alumnoId: alumno.id, profesorId: profesor.id, presente: true }
+  });
 
   console.log('--- Sembrado Completado ---');
+  console.log('testalumno1@cgu.es / password1');
+  console.log('testprofesor1@cgu.es / password1');
+  console.log('testdirector1@cgu.es / password1');
+  console.log('testsecretaria1@cgu.es / password1');
+  console.log('testadmin1@cgu.es / password1');
 }
 
 main().catch(e => { console.error(e); process.exit(1); }).finally(async () => { await prisma.$disconnect(); });

@@ -1,31 +1,27 @@
 import api from './api';
 
 export const usuarioService = {
-  /**
-   * Obtiene un usuario por su ID
-   * CU: Consultar Usuario
-   */
   async getUsuario(id: string) {
-    const response = await api.get(`/usuarios/${id}`);
-    return response.data;
+    return (await api.get(`/usuarios/${id}`)).data;
   },
 
-  /**
-   * Actualiza un usuario
-   * CU: Editar Usuario
-   */
-  async updateUsuario(id: string, data: any) {
-    const response = await api.put(`/usuarios/${id}`, data);
-    return response.data;
-  },
-
-  /**
-   * Elimina un usuario
-   * CU: Eliminar Usuario
-   */
   async deleteUsuario(id: string) {
-    const response = await api.delete(`/usuarios/${id}`);
-    return response.data;
+    await api.delete(`/usuarios/${id}`);
+  },
+
+  // CU: consultarUsuario
+  async consultarUsuario(filtro?: string) {
+    return (await api.get('/usuarios', { params: filtro ? { filtro } : undefined })).data;
+  },
+
+  // CU: editarUsuario
+  async editarUsuario(id: string, data: any) {
+    return (await api.put(`/usuarios/${id}`, data)).data;
+  },
+
+  // CU: crearUsuario
+  async crearUsuario(data: { nombre: string; email: string; password?: string; rol: string; numeroRegistro?: string }) {
+    return (await api.post('/admin/usuarios', data)).data;
   }
 };
 

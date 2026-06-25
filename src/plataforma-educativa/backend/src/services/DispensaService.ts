@@ -2,119 +2,83 @@ import prisma from '../lib/prisma';
 import { CreateDispensaDTO, UpdateDispensaStatusDTO } from '../types';
 
 export class DispensaService {
-  /**
-   * Crea una nueva solicitud de dispensa.
-   */
-  async createDispensa(data: CreateDispensaDTO) {
+  async getDispensa(dispensaId: string) {
+    const dispensa = await prisma.dispensa.findUnique({
+      where: { id: dispensaId },
+      include: { alumno: true, sesionesEximidas: { include: { asignatura: true } }, asignaturas: true }
+    });
+    if (!dispensa) throw new Error('Dispensa no encontrada');
+    return dispensa;
+  }
+
+  async getDispensasByProfesor(profesorId: string) {
+    return await prisma.dispensa.findMany({
+      where: { estado: 'APROBADA', asignaturas: { some: { profesorId } } },
+      include: { alumno: true, asignaturas: true }
+    });
+  }
+
+  async deleteDispensa(id: string) {
+    return await prisma.dispensa.delete({ where: { id } });
+  }
+
+  // CU: crearSolicitudDispensa
+  async crearSolicitudDispensa(data: CreateDispensaDTO) {
     return await prisma.dispensa.create({
       data: {
         alumnoId: data.alumnoId,
         motivo: data.motivo,
         secretariaId: data.secretariaId,
-        sesionesEximidas: {
-          connect: data.sesionesIds.map(id => ({ id })),
-        },
-        asignaturas: {
-          connect: data.asignaturasIds.map(id => ({ id })),
-        },
+        sesionesEximidas: { connect: data.sesionesIds.map(id => ({ id })) },
+        asignaturas: { connect: data.asignaturasIds.map(id => ({ id })) }
       },
-      include: {
-        alumno: true,
-        sesionesEximidas: true,
-        asignaturas: true,
-      },
+      include: { alumno: true, sesionesEximidas: true, asignaturas: true }
     });
   }
 
-  /**
-   * Actualiza el estado de una dispensa (Aprobada/Rechazada).
-   */
-  async updateStatus(id: string, data: UpdateDispensaStatusDTO) {
-    return await prisma.dispensa.update({
-      where: { id },
-      data: {
-        estado: data.estado,
-        directorId: data.directorId,
-      },
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(filtros: any) {
+    const where: any = {};
+    if (filtros.estado) where.estado = filtros.estado;
+    if (filtros.alumnoId) where.alumnoId = filtros.alumnoId;
+    return await prisma.dispensa.findMany({
+      where,
+      include: { alumno: true, asignaturas: true },
+      orderBy: { fechaSolicitud: 'desc' }
     });
   }
 
-  /**
-   * Actualiza los datos de una dispensa existente (rectificación).
-   */
-  async updateDispensa(id: string, data: Partial<CreateDispensaDTO>) {
+  // CU: editarSolicitudDispensa
+  async editarSolicitudDispensa(id: string, data: Partial<CreateDispensaDTO>) {
     return await prisma.dispensa.update({
       where: { id },
       data: {
         motivo: data.motivo,
-        sesionesEximidas: data.sesionesIds ? {
-          set: data.sesionesIds.map(id => ({ id })),
-        } : undefined,
-        asignaturas: data.asignaturasIds ? {
-          set: data.asignaturasIds.map(id => ({ id })),
-        } : undefined,
+        sesionesEximidas: data.sesionesIds ? { set: data.sesionesIds.map(id => ({ id })) } : undefined,
+        asignaturas: data.asignaturasIds ? { set: data.asignaturasIds.map(id => ({ id })) } : undefined
       },
-      include: {
-        alumno: true,
-        sesionesEximidas: true,
-        asignaturas: true,
-      },
+      include: { alumno: true, sesionesEximidas: true, asignaturas: true }
     });
   }
 
-  /**
-   * Obtiene las dispensas aprobadas que afectan a las asignaturas de un profesor.
-   */
-  async getDispensasByProfesor(profesorId: string) {
-    return await prisma.dispensa.findMany({
-      where: {
-        estado: 'APROBADA',
-        asignaturas: {
-          some: { profesorId },
-        },
-      },
-      include: {
-        alumno: true,
-        asignaturas: true,
-      },
-    });
-  }
-
-  /**
-   * Obtiene todas las dispensas de un alumno específico.
-   */
-  async getDispensasByAlumno(alumnoId: string) {
-    return await prisma.dispensa.findMany({
-      where: { alumnoId },
-      include: {
-        sesionesEximidas: {
-          include: { asignatura: true },
-        },
-        asignaturas: true,
-      },
-      orderBy: { fechaSolicitud: 'desc' },
-    });
-  }
-
-  /**
-   * Obtiene todas las dispensas para revisión de secretaría o dirección.
-   */
-  async getAllDispensas() {
-    return await prisma.dispensa.findMany({
-      include: {
-        alumno: true,
-        asignaturas: true,
-      },
-      orderBy: { fechaSolicitud: 'desc' },
-    });
-  }
-
-  async deleteDispensa(id: string) {
-    await prisma.dispensa.update({
+  // CU: guardarSolicitudDispensa
+  async guardarSolicitudDispensa(id: string, data: UpdateDispensaStatusDTO & { observaciones?: string }) {
+    return await prisma.dispensa.update({
       where: { id },
-      data: { sesionesEximidas: { set: [] }, asignaturas: { set: [] } }
+      data: { estado: data.estado, directorId: data.directorId, observaciones: data.observaciones }
     });
-    return await prisma.dispensa.delete({ where: { id } });
+  }
+
+  // CU: exportarDispensas
+  async exportarDispensas(filtros: any, formato: string) {
+    const dispensas = await this.consultarSolicitudDispensa(filtros);
+    const csv = [
+      'Fecha,Alumno,Motivo,Estado',
+      ...dispensas.map((d: any) =>
+        `${d.fechaSolicitud.toISOString().split('T')[0]},${d.alumno.nombre},${d.motivo},${d.estado}`
+      )
+    ].join('\n');
+    return csv;
   }
 }
 

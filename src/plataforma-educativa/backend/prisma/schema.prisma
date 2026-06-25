@@ -6,10 +6,6 @@ datasource db {
   provider = "postgresql"
 }
 
-// ==========================================
-// ACTORES Y ROLES (Identity & Access)
-// ==========================================
-
 model SecretariaAcademica {
   id         String      @id @default(uuid())
   nombre     String
@@ -47,6 +43,7 @@ model DirectorDeGrado {
 model Alumno {
   id             String       @id @default(uuid())
   numeroRegistro String       @unique
+  dni            String?      @unique
   nombre         String
   email          String       @unique
   password       String       @default("password123")
@@ -66,10 +63,6 @@ model Administrador {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
-
-// ==========================================
-// DOMINIO ACADÉMICO (Core Business)
-// ==========================================
 
 model Grado {
   id           String               @id @default(uuid())
@@ -109,15 +102,11 @@ model Matricula {
   secretaria   SecretariaAcademica @relation(fields: [secretariaId], references: [id], onDelete: Restrict)
 }
 
-// ==========================================
-// ASISTENCIA Y DISPENSAS (Transaccional)
-// ==========================================
-
 model SesionDeClase {
   id           String       @id @default(uuid())
   fecha        DateTime
   aula         String?
-  duracion     Int?         @default(60) // en minutos
+  duracion     Int?         @default(60)
   estado       EstadoSesion @default(ACTIVA)
   asignaturaId String
   asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
@@ -149,6 +138,7 @@ model Asistencia {
 model Dispensa {
   id               String              @id @default(uuid())
   motivo           String
+  observaciones    String?
   estado           EstadoDispensa      @default(PENDIENTE)
   fechaSolicitud   DateTime            @default(now())
   alumnoId         String

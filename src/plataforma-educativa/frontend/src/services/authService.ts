@@ -3,7 +3,7 @@ import api from '../services/api';
 
 interface UserState {
   user: any | null;
-  role: 'student' | 'professor' | 'director' | 'secretaria' | 'administrador' | null;
+  role: 'alumno' | 'profesor' | 'directorDeGrado' | 'secretaria' | 'administrador' | null;
   isAuthenticated: boolean;
   directorId?: string;
 }
@@ -32,7 +32,6 @@ export const useAuth = () => {
 
       return { success: true, role };
     } catch (error: any) {
-      console.error('Login failed:', error);
       const message = error.response?.data?.message || 'Error de conexión con el servidor';
       return { success: false, message };
     }
@@ -48,9 +47,5 @@ export const useAuth = () => {
     localStorage.removeItem('cgu_director_id');
   };
 
-  return {
-    state: readonly(state),
-    login,
-    logout
-  };
+  return { state: readonly(state), login, logout };
 };

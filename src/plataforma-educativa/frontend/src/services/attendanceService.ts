@@ -1,29 +1,18 @@
 import api from './api';
-import type { CreateAttendanceDTO } from '../types';
 
 export const attendanceService = {
-  /**
-   * Registra una asistencia
-   */
-  async recordAttendance(data: CreateAttendanceDTO) {
-    const response = await api.post('/attendance/record', data);
-    return response.data;
-  },
-
-  /**
-   * Obtiene la asistencia de una sesión
-   */
   async getAttendanceBySession(sesionId: string) {
-    const response = await api.get(`/attendance/session/${sesionId}`);
-    return response.data;
+    return (await api.get(`/attendance/session/${sesionId}`)).data;
   },
 
-  /**
-   * Obtiene el historial por grupo/asignatura
-   */
-  async getHistory(asignaturaId: string) {
-    const response = await api.get(`/attendance/history/${asignaturaId}`);
-    return response.data;
+  // CU: registrarTomaAsistencia
+  async registrarTomaAsistencia(data: { sesionId: string; alumnoId: string; profesorId: string; presente: boolean }) {
+    return (await api.post('/attendance/record', data)).data;
+  },
+
+  // CU: exportarHistorialAsistencias
+  async exportarHistorialAsistencias(sesionId: string, formato: string = 'CSV') {
+    return (await api.get(`/attendance/session/${sesionId}/export`, { params: { formato }, responseType: 'blob' })).data;
   }
 };
 

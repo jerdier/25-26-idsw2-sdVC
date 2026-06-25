@@ -3,25 +3,16 @@ import { dispensaController } from '../controllers/DispensaController';
 
 const router = Router();
 
-// POST /api/dispensas
-router.post('/', dispensaController.createDispensa);
+// Rutas estáticas primero (antes de /:id)
+router.post('/', dispensaController.crearSolicitudDispensa);
+router.get('/export', dispensaController.exportarDispensas);
+router.get('/profesor/:profesorId', dispensaController.getDispensasByProfesor);
+router.get('/', dispensaController.consultarSolicitudDispensa);
 
-// PUT /api/dispensas/:id/rectificar (Para Alumno y Secretaría)
-router.put('/:id/rectificar', dispensaController.updateDispensa);
-
-// PATCH /api/dispensas/:id/status (Para Director de Grado)
-router.patch('/:id/status', dispensaController.updateStatus);
-
-// GET /api/dispensas/alumno/:alumnoId (Para Alumno)
-router.get('/alumno/:alumnoId', dispensaController.getByAlumno);
-
-// GET /api/dispensas/profesor/:profesorId (Para Profesor)
-router.get('/profesor/:profesorId', dispensaController.getByProfesor);
-
-// GET /api/dispensas (Para Secretaría - Catálogo Total)
-router.get('/', dispensaController.getAllDispensas);
-
-// DELETE /api/dispensas/:id
+// Rutas dinámicas después
+router.get('/:id', dispensaController.getDispensa);
+router.put('/:id/rectificar', dispensaController.editarSolicitudDispensa);
+router.patch('/:id/status', dispensaController.guardarSolicitudDispensa);
 router.delete('/:id', dispensaController.deleteDispensa);
 
 export default router;

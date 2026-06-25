@@ -1,287 +1,257 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import { secretariaService } from '../services/secretariaService';
-import { dispensaService } from '../services/dispensaService';
+import { ref, reactive, watch } from 'vue';
 import { useAuth } from '../services/authService';
-import type { Alumno, SecretariaStats } from '../types';
+import secretariaService from '../services/secretariaService';
+import dispensaService from '../services/dispensaService';
+import attendanceService from '../services/attendanceService';
 
 const { state } = useAuth();
-const stats = ref<SecretariaStats>({ alumnos: 0, profesores: 0, grados: 0, dispensasPendientes: 0 });
-const alumnos = ref<Alumno[]>([]);
-const dispensas = ref<any[]>([]);
-const activeTab = ref('dispensas');
-const loading = ref(true);
-const mensaje = ref({ texto: '', tipo: '' });
+const uid = state.user?.id ?? '';
+const panel = ref<string | null>(null);
+const toggle = (c: string) => { panel.value = panel.value === c ? null : c; };
+const msg = ref(''); const err = ref('');
+const ok = (m: string) => { msg.value = m; err.value = ''; };
+const ko = (e: any) => { err.value = e.response?.data?.message ?? e.message; msg.value = ''; };
 
-const busquedaAlumnoId = ref('');
-const detalleMatricula = ref<any>(null);
+const alumnos = ref<any[]>([]);
+const alumnoSel = ref<any>(null);
+const matriculasSel = ref<any[]>([]);
+const dispensasSel = ref<any[]>([]);
 
-const detalleDispensa = ref<any>(null);
+watch(panel, async (v) => {
+  msg.value = ''; err.value = ''; alumnoSel.value = null; matriculasSel.value = []; dispensasSel.value = [];
+  if (v === 'lista' || v === 'detalle-alumno' || v === 'detalle-matricula') {
+    try { alumnos.value = await secretariaService.consultarListaAlumnos(); } catch {}
+  }
+});
 
-const verDispensa = (d: any) => { detalleDispensa.value = d; };
+const selAlumno = async (a: any) => {
+  alumnoSel.value = a;
+  if (panel.value === 'detalle-matricula') {
+    try { matriculasSel.value = await secretariaService.consultarDetalleMatricula(a.id); } catch {}
+  }
+  if (panel.value === 'detalle-alumno') {
+    try { dispensasSel.value = await dispensaService.consultarSolicitudDispensa({ alumnoId: a.id }); } catch {}
+  }
+};
 
-const eliminarDispensa = async () => {
-  if (!detalleDispensa.value) return;
-  if (!confirm('¿Eliminar esta dispensa? La acción no se puede deshacer.')) return;
+const handleEliminarDispensa = async (id: string) => {
   try {
-    await dispensaService.deleteDispensa(detalleDispensa.value.id);
-    detalleDispensa.value = null;
-    mensaje.value = { texto: 'Dispensa eliminada', tipo: 'success' };
-    await cargarDatos();
-  } catch {
-    mensaje.value = { texto: 'Error al eliminar la dispensa', tipo: 'error' };
-  } finally {
-    setTimeout(() => mensaje.value.texto = '', 3000);
-  }
+    await dispensaService.deleteDispensa(id);
+    dispensasSel.value = dispensasSel.value.filter(d => d.id !== id);
+    ok('Dispensa eliminada.');
+  } catch (e: any) { ko(e); }
 };
 
-const cargarDatos = async () => {
-  loading.value = true;
+// Exportar Dispensas
+const handleExportar = async () => {
   try {
-    const [s, a, d] = await Promise.all([
-      secretariaService.getStats(),
-      secretariaService.getAlumnos(),
-      dispensaService.getAllDispensas()
-    ]);
-    stats.value = s;
-    alumnos.value = a;
-    dispensas.value = d;
-  } finally {
-    loading.value = false;
-  }
+    const blob = await dispensaService.exportarDispensas(undefined, 'CSV');
+    const url = URL.createObjectURL(blob); const a = document.createElement('a');
+    a.href = url; a.download = 'dispensas.csv'; a.click(); ok('Descarga iniciada.');
+  } catch (e: any) { ko(e); }
 };
 
-onMounted(cargarDatos);
-
-const buscarMatricula = async () => {
-  if (!busquedaAlumnoId.value) return;
-  const res = await secretariaService.getAlumnos();
-  const alu = res.find((a: any) => a.numeroRegistro === busquedaAlumnoId.value || a.id === busquedaAlumnoId.value);
-  if (alu) {
-    detalleMatricula.value = {
-      alumno: alu,
-      estado: 'EXPEDIENTE ACTIVO',
-      grados: ['TEST GRADO SOFTWARE'],
-      fechaIngreso: '2026-02-01'
-    };
-  } else {
-    mensaje.value = { texto: 'REGISTRO NO ENCONTRADO.', tipo: 'error' };
-    detalleMatricula.value = null;
-    setTimeout(() => mensaje.value.texto = '', 3000);
-  }
+// Importar Alumnos
+const importAlumnosJson = ref('[\n  {"nombre":"Nuevo Alumno","email":"nuevo@cgu.es","dni":"12345678Z"}\n]');
+const handleImportAlumnos = async () => {
+  try {
+    const alumnos = JSON.parse(importAlumnosJson.value);
+    const res = await secretariaService.importarListasAlumnos({ alumnos });
+    ok(`Importación: ${res.informe.creados} creados, ${res.informe.actualizados} actualizados, ${res.informe.errores} errores.`);
+  } catch (e: any) { ko(e); }
 };
 
-const exportarDispensas = () => {
-  const csv = "data:text/csv;charset=utf-8,Fecha,Alumno,Motivo,Estado\n" + 
-    dispensas.value.map((d: any) => `${d.fechaSolicitud},${d.alumno.nombre},${d.motivo},${d.estado}`).join("\n");
-  const link = document.createElement("a");
-  link.setAttribute("href", encodeURI(csv));
-  link.setAttribute("download", "cat_dispensas.csv");
-  link.click();
+// Importar Matrículas
+const importMatJson = ref('');
+const gradoIdImport = ref('grado1-id');
+const handleImportMat = async () => {
+  try {
+    const matriculas = JSON.parse(importMatJson.value || '[]');
+    const res = await secretariaService.importMatriculas({ matriculas, secretariaId: uid, gradoId: gradoIdImport.value });
+    ok(`Importación: ${res.informe.creadas} creadas, ${res.informe.actualizadas} actualizadas, ${res.informe.errores} errores.`);
+  } catch (e: any) { ko(e); }
 };
 
-const formatDate = (dateStr: string) => new Date(dateStr).toLocaleDateString('es-ES');
+// Crear Dispensa
+const crearDispForm = reactive({ alumnoId: '', motivo: '' });
+const handleCrearDisp = async () => {
+  try {
+    await dispensaService.crearSolicitudDispensa({ alumnoId: crearDispForm.alumnoId, motivo: crearDispForm.motivo, secretariaId: uid, sesionesIds: [], asignaturasIds: [] });
+    ok('Solicitud de dispensa creada.'); crearDispForm.alumnoId = ''; crearDispForm.motivo = '';
+  } catch (e: any) { ko(e); }
+};
+
+const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZADA' ? 'tag-ko' : 'tag';
 </script>
 
 <template>
-  <div class="container-wide">
-    <header class="page-header">
-      <div class="header-info">
-        <h1>Gestión Académica</h1>
-        <p class="dim">Administración de dispensas, matrículas y listados oficiales.</p>
-      </div>
-    </header>
+  <div class="page">
+    <div class="hero card-base">
+      <p class="role-label">Secretaría Académica</p>
+      <h1>{{ state.user?.nombre }}</h1>
+    </div>
+    <p class="section-lbl">Casos de uso</p>
+    <div class="grid">
+      <button :class="['cu-btn', { active: panel === 'lista' }]" @click="toggle('lista')">Consultar Lista de Alumnos</button>
+      <button :class="['cu-btn', { active: panel === 'detalle-alumno' }]" @click="toggle('detalle-alumno')">Consultar Detalle de Alumno</button>
+      <button :class="['cu-btn', { active: panel === 'detalle-matricula' }]" @click="toggle('detalle-matricula')">Consultar Detalle de Matrícula</button>
+      <button :class="['cu-btn', { active: panel === 'exportar' }]" @click="toggle('exportar')">Exportar Dispensas</button>
+      <button :class="['cu-btn', { active: panel === 'import-alumnos' }]" @click="toggle('import-alumnos')">Importar Listas de Alumnos</button>
+      <button :class="['cu-btn', { active: panel === 'import-matriculas' }]" @click="toggle('import-matriculas')">Importar Matrículas</button>
+      <button :class="['cu-btn', { active: panel === 'crear-dispensa' }]" @click="toggle('crear-dispensa')">Crear Solicitud de Dispensa</button>
+    </div>
 
-    <nav class="nav-tabs">
-      <button @click="activeTab = 'dispensas'" :class="{ active: activeTab === 'dispensas' }">Control de Dispensas</button>
-      <button @click="activeTab = 'alumnos'" :class="{ active: activeTab === 'alumnos' }">Base de Alumnos</button>
-      <button @click="activeTab = 'matriculas'" :class="{ active: activeTab === 'matriculas' }">Expedientes Matrícula</button>
-    </nav>
+    <div v-if="msg" class="fb-ok">{{ msg }}</div>
+    <div v-if="err" class="fb-ko">{{ err }}</div>
 
-    <div v-if="mensaje.texto" :class="['toast-alert', mensaje.tipo]">{{ mensaje.texto }}</div>
+    <!-- Lista de Alumnos -->
+    <div v-if="panel === 'lista'" class="panel card-base">
+      <h2 class="panel-h">Consultar Lista de Alumnos</h2>
+      <table v-if="alumnos.length" class="table-corp">
+        <thead><tr><th>Nombre</th><th>Nº Registro</th><th>Email</th></tr></thead>
+        <tbody>
+          <tr v-for="a in alumnos" :key="a.id"><td>{{ a.nombre }}</td><td>{{ a.numeroRegistro }}</td><td>{{ a.email }}</td></tr>
+        </tbody>
+      </table>
+      <p v-else class="dim">Sin alumnos registrados.</p>
+    </div>
 
-    <main class="tab-content">
-      <!-- SECCIÓN DISPENSAS -->
-      <section v-if="activeTab === 'dispensas'" class="card-base">
-        <div class="panel-header flex-between">
-          <h3>Catálogo de Dispensas</h3>
-          <button @click="exportarDispensas" class="btn-outline btn-sm">Exportar CSV</button>
+    <!-- Detalle Alumno -->
+    <div v-if="panel === 'detalle-alumno'" class="panel card-base">
+      <h2 class="panel-h">Consultar Detalle de Alumno</h2>
+      <template v-if="!alumnoSel">
+        <div class="lista">
+          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="selAlumno(a)">
+            <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
+          </div>
         </div>
-        <table class="table-corp">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Estudiante</th>
-              <th>Asignatura</th>
-              <th>Estado</th>
-              <th class="text-right">Acciones</th>
-            </tr>
-          </thead>
+      </template>
+      <template v-else>
+        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null">← Volver</button>
+        <div class="info-grid">
+          <div class="info-block"><p class="form-label">Nombre</p><p>{{ alumnoSel.nombre }}</p></div>
+          <div class="info-block"><p class="form-label">Email</p><p>{{ alumnoSel.email }}</p></div>
+          <div class="info-block"><p class="form-label">Nº Registro</p><p>{{ alumnoSel.numeroRegistro }}</p></div>
+          <div class="info-block"><p class="form-label">DNI</p><p>{{ alumnoSel.dni ?? '—' }}</p></div>
+        </div>
+        <div v-if="alumnoSel.matriculas?.length">
+          <p class="form-label">Matrículas</p>
+          <div v-for="m in alumnoSel.matriculas" :key="m.id" class="info-block">{{ m.grado?.nombre ?? m.gradoId }}</div>
+        </div>
+        <div>
+          <p class="form-label" style="margin-bottom:.5rem">Dispensas</p>
+          <div v-if="dispensasSel.length" class="lista">
+            <div v-for="d in dispensasSel" :key="d.id" class="dispensa-row">
+              <div style="flex:1;min-width:0">
+                <p style="font-size:.85rem;margin-bottom:2px">{{ d.motivo }}</p>
+                <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
+              </div>
+              <button class="btn-del" @click.stop="handleEliminarDispensa(d.id)">Eliminar</button>
+            </div>
+          </div>
+          <p v-else class="dim">Sin dispensas.</p>
+        </div>
+      </template>
+    </div>
+
+    <!-- Detalle Matrícula -->
+    <div v-if="panel === 'detalle-matricula'" class="panel card-base">
+      <h2 class="panel-h">Consultar Detalle de Matrícula</h2>
+      <template v-if="!alumnoSel">
+        <div class="lista">
+          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="selAlumno(a)">
+            <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null">← Volver</button>
+        <p class="form-label">Matrículas de {{ alumnoSel.nombre }}</p>
+        <table v-if="matriculasSel.length" class="table-corp">
+          <thead><tr><th>Grado</th><th>Secretaría</th></tr></thead>
           <tbody>
-            <tr v-for="d in dispensas" :key="d.id">
-              <td class="dim">{{ formatDate(d.fechaSolicitud) }}</td>
-              <td>
-                <span class="bold">{{ d.alumno.nombre }}</span>
-                <code class="code-sm ml-2">{{ d.alumno.numeroRegistro }}</code>
-              </td>
-              <td>
-                <span v-if="d.asignaturas?.length" class="asig-tag">{{ d.asignaturas.map((a: any) => a.nombre).join(', ') }}</span>
-                <span v-else class="dim">—</span>
-              </td>
-              <td><span :class="['status-badge', d.estado.toLowerCase()]">{{ d.estado }}</span></td>
-              <td class="text-right">
-                <button @click="verDispensa(d)" class="btn-icon">Ver</button>
-              </td>
+            <tr v-for="m in matriculasSel" :key="m.id">
+              <td>{{ m.grado?.nombre ?? m.gradoId }}</td>
+              <td>{{ m.grado?.secretaria?.nombre ?? '—' }}</td>
             </tr>
           </tbody>
         </table>
-      </section>
+        <p v-else class="dim">Sin matrículas.</p>
+      </template>
+    </div>
 
-      <!-- SECCIÓN ALUMNOS -->
-      <section v-if="activeTab === 'alumnos'" class="card-base">
-        <div class="panel-header"><h3>Listado General de Alumnos</h3></div>
-        <table class="table-corp">
-          <thead><tr><th>Nº Registro</th><th>Nombre Completo</th><th>Email Académico</th></tr></thead>
-          <tbody>
-            <tr v-for="a in alumnos" :key="a.id">
-              <td><code class="code-sm">{{ a.numeroRegistro }}</code></td>
-              <td class="bold">{{ a.nombre }}</td>
-              <td class="dim">{{ a.email }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+    <!-- Exportar Dispensas -->
+    <div v-if="panel === 'exportar'" class="panel card-base">
+      <h2 class="panel-h">Exportar Dispensas</h2>
+      <p class="dim">Descarga todas las solicitudes de dispensa en formato CSV.</p>
+      <button class="btn-primary" style="align-self:start" @click="handleExportar">Descargar CSV</button>
+    </div>
 
-      <!-- SECCIÓN MATRÍCULAS -->
-      <section v-if="activeTab === 'matriculas'" class="card-base">
-        <div class="panel-header"><h3>Consulta de Expedientes</h3></div>
-        <div class="search-panel">
-          <div class="input-row">
-            <input v-model="busquedaAlumnoId" class="form-input" placeholder="ID o Número de Registro..." @keyup.enter="buscarMatricula" />
-            <button @click="buscarMatricula" class="btn-primary">Buscar Expediente</button>
-          </div>
-          
-          <div v-if="detalleMatricula" class="expediente-box">
-            <div class="expediente-header">
-              <h4>{{ detalleMatricula.alumno.nombre }}</h4>
-              <span class="status-badge aprobada">{{ detalleMatricula.estado }}</span>
-            </div>
-            <div class="expediente-grid">
-              <div class="e-item"><label class="form-label">Registro</label><span>{{ detalleMatricula.alumno.numeroRegistro }}</span></div>
-              <div class="e-item"><label class="form-label">Email</label><span>{{ detalleMatricula.alumno.email }}</span></div>
-              <div class="e-item"><label class="form-label">Fecha Ingreso</label><span>{{ detalleMatricula.fechaIngreso }}</span></div>
-              <div class="e-item full"><label class="form-label">Grados Adscritos</label><span>{{ detalleMatricula.grados.join(', ') }}</span></div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Modal Detalle Dispensa -->
-    <div v-if="detalleDispensa" class="modal-backdrop">
-      <div class="card-base modal-content">
-        <header class="modal-header">
-          <h3>Detalle de Dispensa</h3>
-          <button @click="detalleDispensa = null" class="btn-close">×</button>
-        </header>
-        <div class="modal-body detail-grid">
-          <div class="detail-item">
-            <label class="form-label">Estudiante</label>
-            <span class="bold">{{ detalleDispensa.alumno.nombre }}</span>
-            <code class="code-sm ml-2">{{ detalleDispensa.alumno.numeroRegistro }}</code>
-          </div>
-          <div class="detail-item">
-            <label class="form-label">Estado</label>
-            <span :class="['status-badge', detalleDispensa.estado.toLowerCase()]">{{ detalleDispensa.estado }}</span>
-          </div>
-          <div class="detail-item full">
-            <label class="form-label">Asignatura(s)</label>
-            <span v-if="detalleDispensa.asignaturas?.length">
-              <span v-for="a in detalleDispensa.asignaturas" :key="a.id" class="asig-tag mr-1">{{ a.nombre }}</span>
-            </span>
-            <span v-else class="dim">Sin asignaturas registradas</span>
-          </div>
-          <div class="detail-item full">
-            <label class="form-label">Motivo</label>
-            <p class="motivo-text">{{ detalleDispensa.motivo }}</p>
-          </div>
-          <div class="detail-item">
-            <label class="form-label">Fecha Solicitud</label>
-            <span>{{ formatDate(detalleDispensa.fechaSolicitud) }}</span>
-          </div>
-        </div>
-        <footer class="modal-footer">
-          <button @click="eliminarDispensa" class="btn-outline btn-danger-outline">Eliminar Dispensa</button>
-          <button @click="detalleDispensa = null" class="btn-primary">Cerrar</button>
-        </footer>
+    <!-- Importar Alumnos -->
+    <div v-if="panel === 'import-alumnos'" class="panel card-base">
+      <h2 class="panel-h">Importar Listas de Alumnos</h2>
+      <div class="frow">
+        <label class="form-label">JSON de alumnos <span class="dim">[{nombre, email, dni}]</span></label>
+        <textarea class="form-input" v-model="importAlumnosJson" rows="6" style="font-family:monospace;font-size:.82rem" />
       </div>
+      <button class="btn-primary" style="align-self:start" @click="handleImportAlumnos">Importar</button>
+    </div>
+
+    <!-- Importar Matrículas -->
+    <div v-if="panel === 'import-matriculas'" class="panel card-base">
+      <h2 class="panel-h">Importar Matrículas</h2>
+      <div class="frow"><label class="form-label">ID del Grado</label><input class="form-input" v-model="gradoIdImport" /></div>
+      <div class="frow">
+        <label class="form-label">JSON de matrículas <span class="dim">[{dni, asignaturaId}]</span></label>
+        <textarea class="form-input" v-model="importMatJson" rows="5" placeholder='[{"dni":"00000001A","asignaturaId":"asignatura1-id"}]' style="font-family:monospace;font-size:.82rem" />
+      </div>
+      <button class="btn-primary" style="align-self:start" @click="handleImportMat">Importar</button>
+    </div>
+
+    <!-- Crear Dispensa -->
+    <div v-if="panel === 'crear-dispensa'" class="panel card-base">
+      <h2 class="panel-h">Crear Solicitud de Dispensa</h2>
+      <div class="frow">
+        <label class="form-label">Alumno</label>
+        <select class="form-input" v-model="crearDispForm.alumnoId">
+          <option value="">— selecciona alumno —</option>
+          <option v-for="a in alumnos" :key="a.id" :value="a.id">{{ a.nombre }} ({{ a.numeroRegistro }})</option>
+        </select>
+      </div>
+      <div class="frow"><label class="form-label">Motivo</label><textarea class="form-input" v-model="crearDispForm.motivo" rows="3" /></div>
+      <button class="btn-primary" style="align-self:start" @click="handleCrearDisp">Crear</button>
     </div>
   </div>
 </template>
 
 <style scoped>
-.page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; }
-.header-info h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; color: var(--text-primary); }
-
-.nav-tabs { display: flex; gap: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
-.nav-tabs button { background: none; border: none; padding: 1rem 0; color: var(--text-secondary); font-weight: 600; cursor: pointer; position: relative; font-size: 0.9rem; }
-.nav-tabs button.active { color: var(--accent-primary); }
-.nav-tabs button.active::after { content: ''; position: absolute; bottom: -1px; left: 0; right: 0; height: 3px; background: var(--accent-primary); border-radius: 3px 3px 0 0; }
-
-.panel-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
-.panel-header h3 { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-.flex-between { display: flex; justify-content: space-between; align-items: center; }
-
-.btn-sm { padding: 0.4rem 0.8rem; font-size: 0.7rem; }
-.text-right { text-align: right; }
-.ml-2 { margin-left: 0.5rem; }
-.btn-icon { background: none; border: none; font-size: 0.8rem; font-weight: 600; color: var(--accent-primary); cursor: pointer; }
-.btn-icon:hover { color: var(--accent-hover); text-decoration: underline; }
-
-.status-badge.pendiente { background: var(--warning-bg); color: var(--warning); border: 1px solid rgba(217, 119, 6, 0.2); }
-.status-badge.aprobada { background: var(--success-bg); color: var(--success); border: 1px solid rgba(5, 150, 105, 0.2); }
-
-.truncate { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: inline-block; vertical-align: middle; }
-
-/* Search Panel */
-.search-panel { padding: 2rem; }
-.input-row { display: flex; gap: 1rem; margin-bottom: 2rem; }
-.input-row input { flex: 1; }
-
-.expediente-box { background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1.5rem; }
-.expediente-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-.expediente-header h4 { font-size: 1.1rem; font-weight: 600; }
-
-.expediente-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
-.e-item span { font-weight: 500; font-size: 0.95rem; }
-.e-item.full { grid-column: span 3; }
-
-/* Modal */
-.modal-backdrop { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(2px); display: flex; align-items: center; justify-content: center; z-index: 2000; }
-.modal-content { width: 100%; max-width: 540px; box-shadow: var(--shadow-lg); }
-.modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-.modal-header h3 { font-size: 1.1rem; font-weight: 600; }
-.modal-body { padding: 1.5rem; }
-.form-layout { display: flex; flex-direction: column; gap: 1.25rem; }
-.sessions-list-check { max-height: 150px; overflow-y: auto; background: var(--bg-main); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 1rem; }
-.session-row { display: flex; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem; }
-.custom-checkbox { width: 1rem; height: 1rem; cursor: pointer; }
-.modal-footer { padding: 1.25rem 1.5rem; background: var(--bg-main); border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; border-radius: 0 0 var(--radius-md) var(--radius-md); }
-.btn-close { background: none; border: none; font-size: 1.5rem; line-height: 1; color: var(--text-secondary); cursor: pointer; }
-.btn-close:hover { color: var(--text-primary); }
-
-.asig-tag { display: inline-block; padding: 0.15rem 0.5rem; background: var(--accent-surface); color: var(--accent-primary); font-size: 0.75rem; font-weight: 600; border-radius: 999px; border: 1px solid var(--accent-primary); white-space: nowrap; }
-.mr-1 { margin-right: 0.25rem; }
-
-.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; padding: 1.5rem; }
-.detail-item { display: flex; flex-direction: column; gap: 0.25rem; }
-.detail-item.full { grid-column: span 2; }
-.motivo-text { font-size: 0.9rem; color: var(--text-primary); margin: 0; line-height: 1.5; }
-
-.btn-danger-outline { color: var(--error); border-color: var(--error); }
-.btn-danger-outline:hover { background: var(--error-bg); }
-
-.toast-alert { position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 500; box-shadow: var(--shadow-md); z-index: 3000; }
-.toast-alert.success { border-left: 4px solid var(--success); }
-.toast-alert.error { border-left: 4px solid var(--error); }
+.page { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.hero { padding: 2rem 2.5rem; }
+.role-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 4px; }
+h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
+.section-lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: .75rem; }
+.cu-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 1rem 1.4rem; font-size: .88rem; font-weight: 500; border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: all .15s; box-shadow: var(--shadow-sm); font-family: inherit; }
+.cu-btn:hover { background: var(--bg-main); border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.cu-btn.active { border-color: var(--text-primary); background: var(--bg-main); }
+.panel { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.panel-h { font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: .75rem; }
+.frow { display: flex; flex-direction: column; gap: .35rem; }
+.lista { display: flex; flex-direction: column; gap: .5rem; }
+.list-item { display: flex; justify-content: space-between; align-items: center; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background .1s; }
+.list-item:hover { background: var(--bg-main); }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; }
+.info-block { background: var(--bg-main); padding: .75rem 1rem; border-radius: var(--radius-sm); }
+.info-block .form-label { margin-bottom: 4px; }
+.tag { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--bg-input); color: var(--text-secondary); text-transform: uppercase; }
+.tag-ok { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--success-bg); color: var(--success); text-transform: uppercase; }
+.tag-ko { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--error-bg); color: var(--error); text-transform: uppercase; }
+.dim { color: var(--text-secondary); font-size: .85rem; }
+.fb-ok { padding: .75rem 1rem; background: var(--success-bg); color: var(--success); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
+.fb-ko { padding: .75rem 1rem; background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
+textarea.form-input { resize: vertical; }
+.dispensa-row { display: flex; align-items: center; gap: .75rem; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.btn-del { background: var(--error-bg); border: 1px solid var(--error); color: var(--error); padding: .35rem .7rem; border-radius: var(--radius-sm); cursor: pointer; font-size: .78rem; font-weight: 600; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+.btn-del:hover { background: var(--error); color: #fff; }
 </style>

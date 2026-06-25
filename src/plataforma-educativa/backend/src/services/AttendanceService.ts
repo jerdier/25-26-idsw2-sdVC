@@ -2,77 +2,37 @@ import prisma from '../lib/prisma';
 import { CreateAttendanceDTO } from '../types';
 
 export class AttendanceService {
-  /**
-   * Registra o actualiza la asistencia de un alumno en una sesión.
-   */
-  async recordAttendance(data: CreateAttendanceDTO) {
-    return await prisma.asistencia.upsert({
-      where: {
-        sesionId_alumnoId: {
-          sesionId: data.sesionId,
-          alumnoId: data.alumnoId,
-        },
-      },
-      update: {
-        presente: data.presente,
-        profesorId: data.profesorId,
-        fechaHora: new Date(),
-      },
-      create: {
-        sesionId: data.sesionId,
-        alumnoId: data.alumnoId,
-        profesorId: data.profesorId,
-        presente: data.presente,
-      },
-      include: {
-        alumno: true,
-        sesion: {
-          include: {
-            asignatura: true,
-          },
-        },
-      },
-    });
-  }
-
-  /**
-   * Obtiene la asistencia de una sesión específica.
-   */
   async getAttendanceBySession(sesionId: string) {
     return await prisma.asistencia.findMany({
       where: { sesionId },
-      include: {
-        alumno: {
-          select: {
-            id: true,
-            nombre: true,
-            numeroRegistro: true,
-          },
-        },
-      },
+      include: { alumno: { select: { id: true, nombre: true, numeroRegistro: true } } }
     });
   }
 
-  /**
-   * Obtiene el historial de asistencia de una asignatura completa.
-   */
-  async getAttendanceHistoryByGroup(asignaturaId: string) {
-    return await prisma.asistencia.findMany({
-      where: {
-        sesion: {
-          asignaturaId: asignaturaId
-        }
-      },
-      include: {
-        alumno: true,
-        sesion: true
-      },
-      orderBy: {
-        sesion: {
-          fecha: 'desc'
-        }
-      }
+  // CU: registrarTomaAsistencia
+  async registrarTomaAsistencia(data: CreateAttendanceDTO) {
+    return await prisma.asistencia.upsert({
+      where: { sesionId_alumnoId: { sesionId: data.sesionId, alumnoId: data.alumnoId } },
+      update: { presente: data.presente, profesorId: data.profesorId, fechaHora: new Date() },
+      create: { sesionId: data.sesionId, alumnoId: data.alumnoId, profesorId: data.profesorId, presente: data.presente },
+      include: { alumno: true, sesion: { include: { asignatura: true } } }
     });
+  }
+
+  // CU: exportarHistorialAsistencias
+  async exportarHistorialAsistencias(sesionId: string, formato: string) {
+    const asistencias = await prisma.asistencia.findMany({
+      where: { sesionId },
+      include: { alumno: { select: { nombre: true, numeroRegistro: true } } },
+      orderBy: { alumno: { nombre: 'asc' } }
+    });
+
+    const csv = [
+      'Nombre,Número de Registro,Presente',
+      ...asistencias.map(a => `${a.alumno.nombre},${a.alumno.numeroRegistro},${a.presente ? 'Sí' : 'No'}`)
+    ].join('\n');
+
+    return csv;
   }
 }
 

@@ -689,3 +689,32 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 5. **READMEs de diseño:** Completados los cuatro en `documents/diseño/` con imagen SVG, tabla de clases por capa y flujo de secuencia numerado.
 
 **Decisión:** La fase de diseño (diagramas de secuencia y READMEs) queda completamente cerrada para los 18 casos de uso. Todos los artefactos de análisis y diseño están documentados.
+
+## [20:00] Miércoles, 25 de junio de 2026 - Correcciones de negocio y alineación de nombres con casos de uso
+
+**Prompt:** Arreglar error al crear sesión de clase, que alumnos con dispensa aprobada no aparezcan en la lista de asistencia, que el administrador pueda eliminar usuarios en Editar Usuario, que secretaría pueda eliminar dispensas en Consultar Detalle de Alumno, y que todos los métodos del backend y frontend tengan exactamente el mismo nombre que las carpetas de casos de uso.
+
+**Resultado:**
+
+1. **Validación al crear sesión de clase:** Se añadió validación en `ProfesorDashboard.vue` para impedir llamar a `crearSesionClase` sin asignatura seleccionada, mostrando un error descriptivo sin hacer ninguna petición al backend.
+
+2. **Filtrado de alumnos dispensados:** Se corrigió `AcademicService.getSessionAlumnos` para excluir de la lista de asistencia a los alumnos con dispensa `APROBADA` que cubre la asignatura de la sesión. La exclusión usa `asignaturas: { some: { id: asignaturaId } }` en la consulta de Prisma.
+
+3. **Eliminar usuario (Administrador):** Añadido `DELETE /api/usuarios/:id` en backend. `UsuarioService.deleteUsuario` detecta el rol del usuario consultando cada tabla y lo elimina. Añadido botón "Eliminar" en `AdministradorDashboard.vue` dentro del panel Editar Usuario.
+
+4. **Eliminar dispensa (Secretaría):** Añadido `DELETE /api/dispensas/:id` en backend. `DispensaService.deleteDispensa` elimina la dispensa y sus relaciones M2M en cascada (gestionado automáticamente por Prisma). `SecretariaDashboard.vue` carga las dispensas del alumno seleccionado en el panel Consultar Detalle de Alumno y permite eliminarlas individualmente.
+
+5. **Alineación completa de nombres — backend (10 archivos):** Renombrados todos los métodos de los 5 servicios, sus controladores y rutas para coincidir exactamente con los 18 nombres de carpeta en camelCase:
+   - `AcademicService/Controller/Routes`: `crearSesionClase`, `editarSesionClase`, `cerrarSesionClase`
+   - `AttendanceService/Controller/Routes`: `registrarTomaAsistencia`, `exportarHistorialAsistencias`
+   - `DispensaService/Controller/Routes`: `crearSolicitudDispensa`, `consultarSolicitudDispensa`, `editarSolicitudDispensa`, `guardarSolicitudDispensa`, `exportarDispensas`
+   - `SecretariaService/Controller/Routes`: `consultarListaAlumnos`, `consultarDetalleMatricula`, `importarListasAlumnos`, `importarMatriculas`
+   - `UsuarioService/Controller/Routes`: `consultarUsuario`, `editarUsuario`, `crearUsuario`
+
+6. **Alineación completa de nombres — frontend (10 archivos):** Renombrados los métodos en los 5 servicios del frontend y actualizados todos los call sites en los 5 dashboards para que coincidan con los mismos nombres.
+
+7. **Verificación de entidades:** Confirmadas las 11 entidades de los diagramas de secuencia en `schema.prisma`: `Alumno`, `Profesor`, `DirectorDeGrado`, `SecretariaAcademica`, `Administrador`, `Grado`, `Asignatura`, `Matricula`, `SesionDeClase`, `Asistencia`, `Dispensa`.
+
+8. **Fix TypeScript:** Añadido `"ignoreDeprecations": "6.0"` en `backend/tsconfig.json` para suprimir el warning de deprecación de `moduleResolution: "node"` en TypeScript 6.
+
+**Decisión:** Backend y frontend usan exactamente los mismos nombres que las carpetas de casos de uso en `documents/diseño/`. El código está alineado con los artefactos UML. La aplicación completa es funcional de extremo a extremo para todos los roles y casos de uso.

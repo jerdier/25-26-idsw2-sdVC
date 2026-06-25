@@ -1,117 +1,69 @@
 import prisma from '../lib/prisma';
-import { 
-  CreateAlumnoDTO, 
-  CreateProfesorDTO, 
-  CreateGradoDTO, 
-  CreateAsignaturaDTO, 
-  CreateMatriculaDTO 
-} from '../types';
 
 export class SecretariaService {
-  // --- Gestión de Alumnos ---
-  async createAlumno(data: CreateAlumnoDTO) {
-    return await prisma.alumno.create({ data });
+  validarArchivo(archivo: any): boolean {
+    return archivo && (Array.isArray(archivo.alumnos) || Array.isArray(archivo.matriculas));
   }
 
-  async getAllAlumnos() {
+  // CU: consultarListaAlumnos / consultarDetalleAlumno
+  async consultarListaAlumnos() {
     return await prisma.alumno.findMany({
-      include: {
-        matriculas: {
-          include: { grado: true }
+      include: { matriculas: { include: { grado: true } } }
+    });
+  }
+
+  // CU: consultarDetalleMatricula
+  async consultarDetalleMatricula(alumnoId: string) {
+    return await prisma.matricula.findMany({
+      where: { alumnoId },
+      include: { grado: { include: { director: true, secretaria: true } } }
+    });
+  }
+
+  // CU: importarListasAlumnos
+  async importarListasAlumnos(archivo: { alumnos: { nombre: string; email: string; dni: string; numeroRegistro?: string }[] }) {
+    const resultados = { creados: 0, actualizados: 0, errores: 0 };
+
+    for (const fila of archivo.alumnos) {
+      try {
+        const existing = fila.dni ? await prisma.alumno.findUnique({ where: { dni: fila.dni } }) : null;
+        if (existing) {
+          await prisma.alumno.update({ where: { dni: fila.dni! }, data: { nombre: fila.nombre, email: fila.email } });
+          resultados.actualizados++;
+        } else {
+          await prisma.alumno.create({
+            data: { nombre: fila.nombre, email: fila.email, dni: fila.dni, numeroRegistro: fila.numeroRegistro || `REG-${Date.now()}` }
+          });
+          resultados.creados++;
         }
-      }
-    });
+      } catch { resultados.errores++; }
+    }
+
+    return resultados;
   }
 
-  // --- Gestión de Profesores ---
-  async createProfesor(data: any) {
-    return await prisma.profesor.create({ data });
-  }
+  // CU: importarMatriculas
+  async importarMatriculas(archivo: { matriculas: { dni: string; asignaturaId: string }[]; secretariaId: string; gradoId: string }) {
+    const resultados = { creadas: 0, actualizadas: 0, errores: 0 };
 
-  async getAllProfesores() {
-    return await prisma.profesor.findMany();
-  }
+    for (const fila of archivo.matriculas) {
+      try {
+        const alumno = await prisma.alumno.findUnique({ where: { dni: fila.dni } });
+        if (!alumno) { resultados.errores++; continue; }
 
-  // --- Gestión de Directores ---
-  async createDirector(data: any) {
-    return await prisma.directorDeGrado.create({ data });
-  }
+        const existente = await prisma.matricula.findFirst({ where: { alumnoId: alumno.id, gradoId: archivo.gradoId } });
+        if (existente) {
+          resultados.actualizadas++;
+        } else {
+          await prisma.matricula.create({
+            data: { alumnoId: alumno.id, gradoId: archivo.gradoId, secretariaId: archivo.secretariaId }
+          });
+          resultados.creadas++;
+        }
+      } catch { resultados.errores++; }
+    }
 
-  async getAllDirectores() {
-    return await prisma.directorDeGrado.findMany();
-  }
-
-  // --- Gestión Académica ---
-  async createGrado(data: CreateGradoDTO) {
-    return await prisma.grado.create({ data });
-  }
-
-  async getAllGrados() {
-    return await prisma.grado.findMany({
-      include: { director: true }
-    });
-  }
-
-  // --- Gestión de Secretarías (Solo para el Administrador Global) ---
-  async createSecretaria(data: any) {
-    return await prisma.secretariaAcademica.create({ data });
-  }
-
-  async getAllSecretarias() {
-    return await prisma.secretariaAcademica.findMany();
-  }
-
-  async createAsignatura(data: CreateAsignaturaDTO) {
-    return await prisma.asignatura.create({ data });
-  }
-
-  async createMatricula(data: CreateMatriculaDTO) {
-    return await prisma.matricula.create({ data });
-  }
-
-  // --- Importación Masiva ---
-  async importAlumnos(data: { alumnos: CreateAlumnoDTO[], gradoId: string, secretariaId: string }) {
-    const { alumnos, gradoId, secretariaId } = data;
-    
-    // Usamos una transacción para asegurar que o se crean todos o ninguno
-    return await prisma.$transaction(async (tx) => {
-      const createdAlumnos = [];
-      
-      for (const alumnoData of alumnos) {
-        // 1. Crear el Alumno
-        const alumno = await tx.alumno.create({
-          data: alumnoData
-        });
-        
-        // 2. Crear la Matrícula asociada al Grado
-        await tx.matricula.create({
-          data: {
-            alumnoId: alumno.id,
-            gradoId: gradoId,
-            secretariaId: secretariaId
-          }
-        });
-        
-        createdAlumnos.push(alumno);
-      }
-      
-      return {
-        count: createdAlumnos.length,
-        alumnos: createdAlumnos
-      };
-    });
-  }
-
-  // --- Consultas Consolidadas ---
-  async getDashboardStats() {
-    const [alumnos, profesores, grados, dispensas] = await Promise.all([
-      prisma.alumno.count(),
-      prisma.profesor.count(),
-      prisma.grado.count(),
-      prisma.dispensa.count({ where: { estado: 'PENDIENTE' } })
-    ]);
-
-    return { alumnos, profesores, grados, dispensasPendientes: dispensas };
+    return resultados;
   }
 }
 

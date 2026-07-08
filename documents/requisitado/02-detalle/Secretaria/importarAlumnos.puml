@@ -1,0 +1,45 @@
+@startuml
+skinparam nodesep 60
+skinparam ranksep 60
+skinparam linetype polyline
+skinparam NoteBackgroundColor lightyellow
+skinparam NoteBorderColor gray
+skinparam StateBackgroundColor #F5F5F5
+skinparam StateBorderColor gray
+
+state "importarAlumnos()" as importarAlumnos {
+
+    state " " as Paso1
+    state " " as Paso2
+
+    [*] -[#green]-> Paso1
+    note on link
+      <b>Secretaría</b> solicita importar listado de alumnos
+    end note
+
+    Paso1 -[#green]-> Paso2
+    note on link
+      <b>Sistema</b> permite adjuntar un archivo de alumnos
+    end note
+
+    Paso2 -[#green]-> [*]
+    note on link
+      <b>Secretaría</b> adjunta el archivo
+      <b>Sistema</b> permite importar datos
+      • Permite solicitar confirmar importación
+      • Permite solicitar cancelar operación
+    end note
+}
+
+state "ALUMNOS_ABIERTO" as ALUMNOS_ABIERTO
+
+importarAlumnos -[#green]---> ALUMNOS_ABIERTO
+note right on link
+  abrirAlumnos() - lista actualizada
+end note
+
+importarAlumnos -[#blue]---> ALUMNOS_ABIERTO
+note right on link
+  abrirAlumnos() - cancelar operación
+end note
+@enduml

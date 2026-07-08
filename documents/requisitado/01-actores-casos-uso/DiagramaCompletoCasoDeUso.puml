@@ -1,59 +1,95 @@
-@startuml DiagramaDeCasosDeUsoSecretaria
+@startuml DiagramaCompletoCasoDeUso
+Title Diagrama Completo de Casos de Uso
 left to right direction
 skinparam packageStyle rectangle
 
+actor Alumno
+actor Profesor
+actor DirectorDeGrado
 actor SecretariaAcademica
+actor Administrador
 
+Profesor          <|-- DirectorDeGrado
+DirectorDeGrado   <|-- Administrador
+SecretariaAcademica <|-- Administrador
+Alumno            <|-- Administrador
 
+package "Usuarios y roles" {
+    usecase "crearUsuario()"     as UsuariosCrear
+    usecase "consultarUsuario()" as UsuariosConsultar
+    usecase "editarUsuario()"    as UsuariosEditar
+}
 
-    '=========================
-    ' MÓDULO LISTAS
-    '=========================
-    package "Listas de alumnos" {
-        usecase "importarListasAlumnos()" as ListasImportarListas
-        usecase "consultarListaAlumnos()" as ListasConsultarLista
-    }
+package "Módulo Alumnos (Secretaria)" {
+    usecase "importarAlumnos()"    as AlumnosImportar
+    usecase "consultarAlumno()"    as AlumnosConsultar
+}
 
-    '=========================
-    ' MÓDULO ALUMNOS
-    '=========================
-    package "Alumnos" {
-        usecase "importarAlumnos()"      as AlumnosImportar
-        usecase "verDetalleAlumno()"     as AlumnosVerDetalle
-    }
+package "Módulo Alumnos (Profesor)" {
+    usecase "consultarDetalleAlumno()" as ProfesorConsultarAlumno
+}
 
-    '=========================
-    ' MÓDULO MATRÍCULAS
-    '=========================
-    package "Matrículas" {
-        usecase "importarMatriculas()"   as MatriculasImportar
-        usecase "consultarDetalleMatricula()"  as MatriculasVerDetalle
-    }
+package "Módulo Matrículas" {
+    usecase "importarMatriculas()"        as MatriculasImportar
+    usecase "consultarDetalleMatricula()" as MatriculasVerDetalle
+    usecase "cerrarCicloAcademico()"      as MatriculasCerrarCiclo
+}
 
-    '=========================
-    ' MÓDULO DISPENSAS
-    '=========================
-    package "Dispensas" {
-        usecase "crearSolicitudDispensa()"        as DispensasCrear
-        usecase "consultarSolicitudDispensa()"    as DispensasConsultar
-        usecase "editarSolicitudDispensa()"       as DispensasEditar
-        usecase "guardarSolicitudDispensa()"      as DispensasGuardar
-        usecase "cerrarSolicitudDispensa()"       as DispensasCerrar
-    }
+package "Módulo Asistencias" {
+    usecase "crearSesionClase()"             as AsistenciasCrearSesion
+    usecase "editarSesionClase()"            as AsistenciasEditarSesion
+    usecase "registrarTomaAsistencia()"      as AsistenciasRegistrarToma
+    usecase "cerrarSesionClase()"            as AsistenciasCerrarSesion
+    usecase "exportarHistorialAsistencias()" as AsistenciasExportarHistorial
+}
 
-    SecretariaAcademica --> ListasImportarListas
-    SecretariaAcademica --> ListasConsultarLista
+package "Módulo Dispensas (Alumno)" {
+    usecase "crearSolicitudDispensa()"   as AlumnoCrearDispensa
+    usecase "consultarEstadoDispensa()"  as AlumnoConsultarDispensa
+    usecase "editarSolicitudDispensa()"  as AlumnoEditarDispensa
+}
 
-    SecretariaAcademica --> AlumnosImportar
-    SecretariaAcademica --> AlumnosVerDetalle
+package "Módulo Dispensas (Profesor)" {
+    usecase "consultarSolicitudDispensa()" as ProfesorConsultarDispensa
+}
 
-    SecretariaAcademica --> MatriculasImportar
-    SecretariaAcademica --> MatriculasVerDetalle
+package "Módulo Dispensas (Director)" {
+    usecase "consultarSolicitudesDispensa()" as DirectorConsultarDispensa
+    usecase "editarSolicitudDispensa()"      as DirectorEditarDispensa
+}
 
-    SecretariaAcademica --> DispensasCrear
-    SecretariaAcademica --> DispensasConsultar
-    SecretariaAcademica --> DispensasEditar
-    SecretariaAcademica --> DispensasGuardar
-    SecretariaAcademica --> DispensasCerrar
+package "Módulo Dispensas (Secretaria)" {
+    usecase "crearSolicitudDispensa()"     as SecCrearDispensa
+    usecase "consultarSolicitudDispensa()" as SecConsultarDispensa
+    usecase "editarSolicitudDispensa()"    as SecEditarDispensa
+}
+
+Administrador --> UsuariosCrear
+Administrador --> UsuariosConsultar
+Administrador --> UsuariosEditar
+
+Alumno --> AlumnoCrearDispensa
+Alumno --> AlumnoConsultarDispensa
+Alumno --> AlumnoEditarDispensa
+
+Profesor --> ProfesorConsultarAlumno
+Profesor --> AsistenciasCrearSesion
+Profesor --> AsistenciasEditarSesion
+Profesor --> AsistenciasRegistrarToma
+Profesor --> AsistenciasCerrarSesion
+Profesor --> AsistenciasExportarHistorial
+Profesor --> ProfesorConsultarDispensa
+
+DirectorDeGrado --> DirectorConsultarDispensa
+DirectorDeGrado --> DirectorEditarDispensa
+
+SecretariaAcademica --> AlumnosImportar
+SecretariaAcademica --> AlumnosConsultar
+SecretariaAcademica --> MatriculasImportar
+SecretariaAcademica --> MatriculasVerDetalle
+SecretariaAcademica --> MatriculasCerrarCiclo
+SecretariaAcademica --> SecCrearDispensa
+SecretariaAcademica --> SecConsultarDispensa
+SecretariaAcademica --> SecEditarDispensa
 
 @enduml

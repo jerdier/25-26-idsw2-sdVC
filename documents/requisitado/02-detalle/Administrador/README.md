@@ -5,6 +5,7 @@
 
 | Caso de uso | SVG | PUML |
 |-------------|-----|------|
+| abrirUsuarios | ![abrirUsuarios](abrirUsuarios.svg) | [abrirUsuarios.puml](abrirUsuarios.puml) |
 | crearUsuario | ![crearUsuario](crearUsuario.svg) | [crearUsuario.puml](crearUsuario.puml) |
 | consultarUsuario | ![consultarUsuario](consultarUsuario.svg) | [consultarUsuario.puml](consultarUsuario.puml) |
 | editarUsuario | ![editarUsuario](editarUsuario.svg) | [editarUsuario.puml](editarUsuario.puml) |

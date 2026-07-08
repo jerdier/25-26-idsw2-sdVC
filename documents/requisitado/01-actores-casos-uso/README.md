@@ -19,6 +19,7 @@
 | Alumno | ![Alumno](Alumno.svg) | [Alumno.puml](Alumno.puml) |
 | Profesor | ![Profesor](Profesor.svg) | [Profesor.puml](Profesor.puml) |
 | DirectorDeGrado | ![DirectorDeGrado](DirectorDeGrado.svg) | [DirectorDeGrado.puml](DirectorDeGrado.puml) |
+| SecretariaAcademica | ![Secretaria](Secretaria.svg) | [Secretaria.puml](Secretaria.puml) |
 
 ---
 

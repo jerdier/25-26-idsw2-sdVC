@@ -23,12 +23,6 @@
 
 ---
 
-## Diagrama completo
-
-![CasoDeUsosCompleto](CasoDeUsosCompleto.svg) -- [DiagramaCompletoCasoDeUso.puml](DiagramaCompletoCasoDeUso.puml)
-
----
-
 ## Diagrama de contexto
 
 ![DiagramaDeContexto](DiagramaDeContexto.svg) -- [DiagramaDeContexto.puml](DiagramaDeContexto.puml)

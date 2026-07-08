@@ -1,4 +1,4 @@
-@startuml Dispensas_Estado
+@startuml
 skinparam style strictuml
 title Diagrama de Estados: Dispensa
 

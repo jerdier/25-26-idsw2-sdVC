@@ -1,4 +1,4 @@
-@startuml EstadoMatricula
+@startuml
 skinparam style strictuml
 title Diagrama de Estados: Matrícula
 

@@ -29,10 +29,23 @@ export class AcademicService {
   async getAlumno(alumnoId: string) {
     const alumno = await prisma.alumno.findUnique({
       where: { id: alumnoId },
-      select: { id: true, nombre: true, numeroRegistro: true, email: true, dni: true }
+      select: { id: true, nombre: true, numeroRegistro: true, email: true, dni: true, asignaturas: true }
     });
     if (!alumno) throw new Error('Alumno no encontrado');
-    return alumno;
+    
+    // Obtener asignaturas a partir de las matrículas (grados)
+    const matriculas = await prisma.matricula.findMany({
+      where: { alumnoId },
+      select: { grado: { select: { asignaturas: true } } }
+    });
+    
+    const asignaturasPorGrado = matriculas.flatMap(m => m.grado?.asignaturas || []);
+    const asignaturasTotales = [...(alumno.asignaturas || []), ...asignaturasPorGrado];
+    
+    // Eliminar duplicados
+    const map = new Map(asignaturasTotales.map(a => [a.id, a]));
+    
+    return { ...alumno, asignaturas: Array.from(map.values()) };
   }
 
   async getSessionAlumnos(sesionId: string) {
@@ -44,9 +57,26 @@ export class AcademicService {
 
     const asignatura = await prisma.asignatura.findUnique({
       where: { id: sesion.asignaturaId },
-      include: { alumnos: { select: { id: true, nombre: true, numeroRegistro: true, email: true } } }
+      include: {
+        alumnos: { select: { id: true, nombre: true, numeroRegistro: true, email: true } },
+        grado: {
+          include: {
+            matriculas: {
+              include: { alumno: { select: { id: true, nombre: true, numeroRegistro: true, email: true } } }
+            }
+          }
+        }
+      }
     });
     if (!asignatura) throw new Error('Asignatura no encontrada');
+
+    const alumnosTotales = [
+      ...asignatura.alumnos,
+      ...(asignatura.grado?.matriculas.map(m => m.alumno) || [])
+    ];
+
+    const map = new Map(alumnosTotales.map(a => [a.id, a]));
+    const alumnosUnicos = Array.from(map.values());
 
     const dispensasAprobadas = await prisma.dispensa.findMany({
       where: { estado: 'APROBADA', asignaturas: { some: { id: sesion.asignaturaId } } },
@@ -54,8 +84,8 @@ export class AcademicService {
     });
 
     const eximidos = new Set(dispensasAprobadas.map(d => d.alumnoId));
-    // Devuelve todos los alumnos, marcando los dispensados en lugar de ocultarlos
-    return asignatura.alumnos.map(a => ({ ...a, dispensado: eximidos.has(a.id) }));
+    // Devuelve los alumnos filtrando completamente a los que tienen dispensa aprobada
+    return alumnosUnicos.filter(a => !eximidos.has(a.id)).map(a => ({ ...a, dispensado: false }));
   }
 
   async getTeacherSessions(profesorId: string) {
@@ -114,13 +144,25 @@ export class AcademicService {
       where: { profesorId },
       include: {
         alumnos: { select: { id: true, nombre: true, numeroRegistro: true, email: true } },
-        grado: { select: { nombre: true } }
+        grado: {
+          select: {
+            nombre: true,
+            matriculas: {
+              include: { alumno: { select: { id: true, nombre: true, numeroRegistro: true, email: true } } }
+            }
+          }
+        }
       }
     });
     const seen = new Set<string>();
     const result: any[] = [];
     for (const a of asignaturas) {
-      for (const al of a.alumnos) {
+      const alumnosTotales = [
+        ...a.alumnos,
+        ...(a.grado?.matriculas.map(m => m.alumno) || [])
+      ];
+      
+      for (const al of alumnosTotales) {
         if (!seen.has(al.id)) {
           seen.add(al.id);
           result.push({ ...al, asignatura: { id: a.id, nombre: a.nombre } });

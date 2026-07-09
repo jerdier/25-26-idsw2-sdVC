@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue';
+import { ref, reactive, onMounted, computed } from 'vue';
 import { useAuth } from '../services/authService';
 import dispensaService from '../services/dispensaService';
 import academicService from '../services/academicService';
@@ -17,9 +17,15 @@ const dispensas = ref<any[]>([]);
 const sel = ref<any>(null);
 const asignaturas = ref<any[]>([]);
 
+const asignaturasDisponibles = computed(() => {
+  const dispensadas = new Set(dispensas.value.flatMap(d => d.asignaturas?.map((a:any)=>a.id) || []));
+  return asignaturas.value.filter(a => !dispensadas.has(a.id));
+});
+
 onMounted(async () => {
-  try { asignaturas.value = await academicService.getSessionsForAlumno(uid)
-    .then(ss => { const m: Record<string,any>={}; ss.forEach((s:any)=>{ if(s.asignatura) m[s.asignatura.id]=s.asignatura; }); return Object.values(m); });
+  try {
+    const alumno = await academicService.getAlumno(uid);
+    asignaturas.value = alumno.asignaturas || [];
   } catch {}
 });
 
@@ -83,16 +89,16 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
   <div class="page">
     <div class="topbar">
       <div class="breadcrumb">
-        <span class="bc-root" @click="vista = 'menu'; sel = null">Inicio</span>
+        <span class="bc-root" @click="vista = 'menu'; sel = null">completarGestionDispensas</span>
         <template v-if="vista === 'lista' || vista === 'crear'">
           <span class="bc-sep">›</span>
-          <span class="bc-item">{{ vista === 'crear' ? 'Nueva solicitud' : 'Mis dispensas' }}</span>
+          <span class="bc-item">{{ vista === 'crear' ? 'crearSolicitudDispensa' : 'abrirDispensas' }}</span>
         </template>
         <template v-if="vista === 'detalle' || vista === 'editar'">
           <span class="bc-sep">›</span>
-          <span class="bc-root" @click="vista = 'lista'">Mis dispensas</span>
+          <span class="bc-root" @click="vista = 'lista'">abrirDispensas</span>
           <span class="bc-sep">›</span>
-          <span class="bc-item">{{ vista === 'editar' ? 'Editar' : 'Detalle' }}</span>
+          <span class="bc-item">{{ vista === 'editar' ? 'editarSolicitudDispensa' : 'consultarSolicitudDispensa' }}</span>
         </template>
       </div>
       <div class="user-chip">
@@ -106,20 +112,12 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- MENÚ PRINCIPAL -->
     <template v-if="vista === 'menu'">
-      <h2 class="section-title">¿Qué quieres hacer?</h2>
+      <h2 class="section-title">SISTEMA_DISPONIBLE</h2>
       <div class="menu-grid">
         <button class="menu-card" @click="irLista">
-          <div class="menu-card-icon">📋</div>
           <div>
-            <p class="menu-card-title">Abrir dispensas</p>
+            <p class="menu-card-title">abrirDispensas</p>
             <p class="menu-card-desc">Consulta el estado de tus solicitudes</p>
-          </div>
-        </button>
-        <button class="menu-card" @click="vista = 'crear'">
-          <div class="menu-card-icon">✏️</div>
-          <div>
-            <p class="menu-card-title">Crear solicitud de dispensa</p>
-            <p class="menu-card-desc">Envía una nueva solicitud al director</p>
           </div>
         </button>
       </div>
@@ -128,8 +126,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     <!-- LISTA DE DISPENSAS (Abrir dispensas) -->
     <template v-else-if="vista === 'lista'">
       <div class="section-header">
-        <h2 class="section-title">Mis dispensas</h2>
-        <button class="btn-outline btn-sm" @click="vista = 'crear'">+ Nueva solicitud</button>
+        <h2 class="section-title">DISPENSAS_ABIERTO</h2>
+        <button class="btn-outline btn-sm" @click="vista = 'crear'">crearSolicitudDispensa</button>
       </div>
       <div v-if="dispensas.length" class="disp-list">
         <div v-for="d in dispensas" :key="d.id" class="disp-card" @click="irDetalle(d)">
@@ -149,8 +147,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     <template v-else-if="vista === 'detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
-          <button v-if="sel?.estado === 'PENDIENTE'" class="btn-primary btn-sm" @click="irEditar">Editar solicitud</button>
+          <button class="back-btn" @click="volver">← abrirDispensas</button>
+          <button v-if="sel?.estado === 'PENDIENTE'" class="btn-primary btn-sm" @click="irEditar">editarSolicitudDispensa</button>
         </div>
         <div class="detail-kv-grid">
           <div class="kv"><p class="kv-label">Estado</p><span :class="estadoClass(sel?.estado)">{{ sel?.estado }}</span></div>
@@ -182,14 +180,17 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
           <label class="form-label">Motivo de la dispensa</label>
           <textarea class="form-input" v-model="crearForm.motivo" rows="4" placeholder="Describe el motivo por el que solicitas la dispensa…" />
         </div>
-        <div v-if="asignaturas.length" class="frow">
+        <div v-if="asignaturasDisponibles.length" class="frow">
           <label class="form-label">Asignaturas afectadas</label>
           <div class="check-list">
-            <label v-for="a in asignaturas" :key="a.id" class="check-row">
+            <label v-for="a in asignaturasDisponibles" :key="a.id" class="check-row">
               <input type="checkbox" :value="a.id" v-model="crearForm.asignaturasIds" />
               <span>{{ a.nombre }}</span>
             </label>
           </div>
+        </div>
+        <div v-else class="empty-state" style="padding: 1rem 0;">
+          <p>No tienes asignaturas disponibles para solicitar dispensa.</p>
         </div>
       </div>
     </template>

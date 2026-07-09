@@ -134,14 +134,14 @@ const asignaturasPorGrado = () => {
   <div class="page">
     <div class="topbar">
       <div class="breadcrumb">
-        <span class="bc-root" @click="vista = 'menu'">Inicio</span>
+        <span class="bc-root" @click="vista = 'menu'">completarGestionUsuarios</span>
         <template v-if="vista === 'lista' || vista === 'crear'">
           <span class="bc-sep">›</span>
-          <span class="bc-item">{{ vista === 'crear' ? 'Nuevo usuario' : 'Usuarios' }}</span>
+          <span class="bc-item">{{ vista === 'crear' ? 'crearUsuario' : 'abrirUsuarios' }}</span>
         </template>
         <template v-if="vista === 'detalle' || vista === 'editar' || vista === 'asignaturas'">
           <span class="bc-sep">›</span>
-          <span class="bc-root" @click="vista = 'lista'">Usuarios</span>
+          <span class="bc-root" @click="vista = 'lista'">abrirUsuarios</span>
           <span class="bc-sep">›</span>
           <span :class="vista !== 'detalle' ? 'bc-root' : 'bc-item'" @click="vista !== 'detalle' ? volver() : null">{{ sel?.nombre }}</span>
           <template v-if="vista === 'editar'"><span class="bc-sep">›</span><span class="bc-item">Editar</span></template>
@@ -162,12 +162,7 @@ const asignaturasPorGrado = () => {
       <h2 class="section-title">Gestión de usuarios</h2>
       <div class="menu-grid">
         <button class="menu-card" @click="irLista">
-          <div class="menu-card-icon">👥</div>
-          <div><p class="menu-card-title">Abrir usuarios</p><p class="menu-card-desc">Ver y gestionar todos los usuarios</p></div>
-        </button>
-        <button class="menu-card" @click="irCrear">
-          <div class="menu-card-icon">➕</div>
-          <div><p class="menu-card-title">Crear usuario</p><p class="menu-card-desc">Registrar un nuevo usuario en el sistema</p></div>
+          <div><p class="menu-card-title">abrirUsuarios</p><p class="menu-card-desc">Ver y gestionar todos los usuarios</p></div>
         </button>
       </div>
     </template>
@@ -175,11 +170,11 @@ const asignaturasPorGrado = () => {
     <!-- LISTA DE USUARIOS (Abrir usuarios) -->
     <template v-else-if="vista === 'lista'">
       <div class="section-header">
-        <h2 class="section-title">Usuarios</h2>
+        <h2 class="section-title">abrirUsuarios</h2>
         <div class="row-h">
           <input class="form-input search-input" v-model="filtro" placeholder="Buscar…" @keyup.enter="cargarUsuarios(filtro || undefined)" />
           <button class="btn-outline btn-sm" @click="cargarUsuarios(filtro || undefined)">Buscar</button>
-          <button class="btn-primary btn-sm" @click="irCrear">+ Nuevo</button>
+          <button class="btn-primary btn-sm" @click="irCrear">crearUsuario</button>
         </div>
       </div>
       <div v-if="usuarios.length" class="user-list">
@@ -199,10 +194,10 @@ const asignaturasPorGrado = () => {
     <template v-else-if="vista === 'detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
+          <button class="back-btn" @click="volver">← abrirUsuarios</button>
           <div class="row-h">
             <button v-if="sel?.rol === 'alumno'" class="btn-outline btn-sm" @click="irAsignaturas">Asignaturas</button>
-            <button class="btn-primary btn-sm" @click="irEditar">Editar</button>
+            <button class="btn-primary btn-sm" @click="irEditar">editarUsuario</button>
           </div>
         </div>
         <div class="avatar-row">

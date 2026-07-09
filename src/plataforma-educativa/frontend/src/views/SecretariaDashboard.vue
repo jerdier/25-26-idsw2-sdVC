@@ -7,7 +7,7 @@ import dispensaService from '../services/dispensaService';
 const { state } = useAuth();
 const uid = state.user?.id ?? '';
 const panel = ref<string | null>(null);
-const toggle = (c: string) => { panel.value = panel.value === c ? null : c; };
+
 const msg = ref(''); const err = ref('');
 const ok = (m: string) => { msg.value = m; err.value = ''; };
 const ko = (e: any) => { err.value = e.response?.data?.message ?? e.message; msg.value = ''; };
@@ -127,35 +127,38 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
       <p class="role-label">Secretaría Académica</p>
       <h1>{{ state.user?.nombre }}</h1>
     </div>
-    <p class="section-lbl">Casos de uso</p>
-    <div class="grid">
-      <button :class="['cu-btn', { active: panel === 'abrir-alumnos' }]" @click="toggle('abrir-alumnos')">Abrir alumnos</button>
-      <button :class="['cu-btn', { active: panel === 'import-alumnos' }]" @click="toggle('import-alumnos')">Importar listas de alumnos</button>
-      <button :class="['cu-btn', { active: panel === 'consultar-alumno' }]" @click="toggle('consultar-alumno')">Consultar alumno</button>
-      <button :class="['cu-btn', { active: panel === 'abrir-matriculas' }]" @click="toggle('abrir-matriculas')">Abrir matrículas</button>
-      <button :class="['cu-btn', { active: panel === 'import-matriculas' }]" @click="toggle('import-matriculas')">Importar matrículas</button>
-      <button :class="['cu-btn', { active: panel === 'consultar-matricula' }]" @click="toggle('consultar-matricula')">Consultar detalle de matrícula</button>
-      <button :class="['cu-btn', { active: panel === 'cerrar-ciclo' }]" @click="toggle('cerrar-ciclo')">Cerrar ciclo académico</button>
-      <button :class="['cu-btn', { active: panel === 'abrir-dispensas' }]" @click="toggle('abrir-dispensas')">Abrir dispensas</button>
-      <button :class="['cu-btn', { active: panel === 'crear-dispensa' }]" @click="toggle('crear-dispensa')">Crear solicitud de dispensa</button>
-      <button :class="['cu-btn', { active: panel === 'consultar-dispensa' }]" @click="toggle('consultar-dispensa')">Consultar solicitud de dispensa</button>
-      <button :class="['cu-btn', { active: panel === 'editar-dispensa' }]" @click="toggle('editar-dispensa')">Editar solicitud de dispensa</button>
-    </div>
+
+    <!-- SISTEMA_DISPONIBLE (Main Menu) -->
+    <template v-if="!panel">
+      <p class="section-lbl">SISTEMA_DISPONIBLE</p>
+      <div class="grid">
+        <button class="cu-btn" @click="panel = 'abrir-alumnos'">abrirAlumnos</button>
+        <button class="cu-btn" @click="panel = 'abrir-matriculas'">abrirMatriculas</button>
+        <button class="cu-btn" @click="panel = 'abrir-dispensas'">abrirDispensas</button>
+      </div>
+    </template>
 
     <div v-if="msg" class="fb-ok">{{ msg }}</div>
     <div v-if="err" class="fb-ko">{{ err }}</div>
 
     <!-- CU: abrirAlumnos -->
     <div v-if="panel === 'abrir-alumnos'" class="panel card-base">
-      <h2 class="panel-h">Abrir alumnos</h2>
+      <div class="detail-header">
+        <button class="back-btn" @click="panel = null">← completarGestionAlumnos</button>
+        <button class="btn-primary" @click="panel = 'import-alumnos'">importarAlumnos</button>
+      </div>
+      <h2 class="panel-h">ALUMNOS_ABIERTO</h2>
       <div class="row-h">
         <input class="form-input" v-model="filtroAlumnos" placeholder="Filtrar por nombre o email…" @keyup.enter="handleFiltrarAlumnos" />
         <button class="btn-primary" @click="handleFiltrarAlumnos">Filtrar</button>
       </div>
       <table v-if="alumnos.length" class="table-corp">
-        <thead><tr><th>Nombre</th><th>Nº Registro</th><th>Email</th></tr></thead>
+        <thead><tr><th>Nombre</th><th>Nº Registro</th><th>Email</th><th>Acción</th></tr></thead>
         <tbody>
-          <tr v-for="a in alumnos" :key="a.id"><td>{{ a.nombre }}</td><td>{{ a.numeroRegistro }}</td><td>{{ a.email }}</td></tr>
+          <tr v-for="a in alumnos" :key="a.id">
+            <td>{{ a.nombre }}</td><td>{{ a.numeroRegistro }}</td><td>{{ a.email }}</td>
+            <td><button class="btn-outline btn-sm" @click="handleConsultarAlumno(a); panel = 'consultar-alumno'">consultarAlumno</button></td>
+          </tr>
         </tbody>
       </table>
       <p v-else class="dim">Sin alumnos registrados.</p>
@@ -163,7 +166,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: importarListasAlumnos -->
     <div v-if="panel === 'import-alumnos'" class="panel card-base">
-      <h2 class="panel-h">Importar listas de alumnos</h2>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-alumnos'">← abrirAlumnos</button></div>
+      <h2 class="panel-h">importarAlumnos</h2>
       <div class="frow">
         <label class="form-label">JSON de alumnos <span class="dim">[{nombre, email, dni}]</span></label>
         <textarea class="form-input mono" v-model="importAlumnosJson" rows="6" />
@@ -173,39 +177,37 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: consultarAlumno -->
     <div v-if="panel === 'consultar-alumno'" class="panel card-base">
-      <h2 class="panel-h">Consultar alumno</h2>
-      <template v-if="!alumnoSel">
-        <div class="lista">
-          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="handleConsultarAlumno(a)">
-            <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
-          </div>
-        </div>
-        <p v-if="!alumnos.length" class="dim">Sin alumnos.</p>
-      </template>
-      <template v-else>
-        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null; alumnoDetalle = null">← Volver</button>
-        <div class="info-grid">
-          <div class="info-block"><p class="form-label">Nombre</p><p>{{ alumnoDetalle?.nombre ?? alumnoSel.nombre }}</p></div>
-          <div class="info-block"><p class="form-label">Email</p><p>{{ alumnoDetalle?.email ?? alumnoSel.email }}</p></div>
-          <div class="info-block"><p class="form-label">Nº Registro</p><p>{{ alumnoDetalle?.numeroRegistro ?? alumnoSel.numeroRegistro }}</p></div>
-          <div class="info-block"><p class="form-label">DNI</p><p>{{ alumnoDetalle?.dni ?? '—' }}</p></div>
-        </div>
-      </template>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-alumnos'">← abrirAlumnos</button></div>
+      <h2 class="panel-h">ALUMNO_DETALLE_ABIERTO</h2>
+      <div class="info-grid">
+        <div class="info-block"><p class="form-label">Nombre</p><p>{{ alumnoDetalle?.nombre ?? alumnoSel?.nombre }}</p></div>
+        <div class="info-block"><p class="form-label">Email</p><p>{{ alumnoDetalle?.email ?? alumnoSel?.email }}</p></div>
+        <div class="info-block"><p class="form-label">Nº Registro</p><p>{{ alumnoDetalle?.numeroRegistro ?? alumnoSel?.numeroRegistro }}</p></div>
+        <div class="info-block"><p class="form-label">DNI</p><p>{{ alumnoDetalle?.dni ?? '—' }}</p></div>
+      </div>
     </div>
 
     <!-- CU: abrirMatriculas -->
     <div v-if="panel === 'abrir-matriculas'" class="panel card-base">
-      <h2 class="panel-h">Abrir matrículas</h2>
+      <div class="detail-header">
+        <button class="back-btn" @click="panel = null">← completarGestionMatriculas</button>
+        <div class="row-h">
+          <button class="btn-outline" @click="panel = 'cerrar-ciclo'">cerrarCicloAcademico</button>
+          <button class="btn-primary" @click="panel = 'import-matriculas'">importarMatriculas</button>
+        </div>
+      </div>
+      <h2 class="panel-h">MATRICULAS_ABIERTO</h2>
       <div class="row-h">
         <input class="form-input" v-model="filtroMat" placeholder="Filtrar…" @keyup.enter="handleAbrirMatriculas" />
         <button class="btn-primary" @click="handleAbrirMatriculas">Buscar</button>
       </div>
       <table v-if="matriculas.length" class="table-corp">
-        <thead><tr><th>Alumno</th><th>Grado</th></tr></thead>
+        <thead><tr><th>Alumno</th><th>Grado</th><th>Acción</th></tr></thead>
         <tbody>
           <tr v-for="m in matriculas" :key="m.id">
             <td>{{ m.alumno?.nombre ?? '—' }}</td>
             <td>{{ m.grado?.nombre ?? m.gradoId ?? '—' }}</td>
+            <td><button class="btn-outline btn-sm" @click="handleConsultarMatricula(m.alumno); panel = 'consultar-matricula'">consultarDetalleMatricula</button></td>
           </tr>
         </tbody>
       </table>
@@ -214,7 +216,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: importarMatriculas -->
     <div v-if="panel === 'import-matriculas'" class="panel card-base">
-      <h2 class="panel-h">Importar matrículas</h2>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-matriculas'">← abrirMatriculas</button></div>
+      <h2 class="panel-h">importarMatriculas</h2>
       <div class="frow"><label class="form-label">ID del Grado</label><input class="form-input" v-model="gradoIdImport" placeholder="ID del grado" /></div>
       <div class="frow">
         <label class="form-label">JSON de matrículas <span class="dim">[{dni, asignaturaId}]</span></label>
@@ -225,34 +228,25 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: consultarDetalleMatricula -->
     <div v-if="panel === 'consultar-matricula'" class="panel card-base">
-      <h2 class="panel-h">Consultar detalle de matrícula</h2>
-      <template v-if="!alumnoMatSel">
-        <div class="lista">
-          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="handleConsultarMatricula(a)">
-            <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
-          </div>
-        </div>
-        <p v-if="!alumnos.length" class="dim">Sin alumnos.</p>
-      </template>
-      <template v-else>
-        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoMatSel = null; detalleMatriculas = []">← Volver</button>
-        <p class="form-label">Matrículas de {{ alumnoMatSel.nombre }}</p>
-        <table v-if="detalleMatriculas.length" class="table-corp">
-          <thead><tr><th>Grado</th><th>Secretaría</th></tr></thead>
-          <tbody>
-            <tr v-for="m in detalleMatriculas" :key="m.id">
-              <td>{{ m.grado?.nombre ?? m.gradoId }}</td>
-              <td>{{ m.grado?.secretaria?.nombre ?? '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
-        <p v-else class="dim">Sin matrículas.</p>
-      </template>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-matriculas'">← abrirMatriculas</button></div>
+      <h2 class="panel-h">MATRICULA_DETALLE_ABIERTA</h2>
+      <p class="form-label">Matrículas de {{ alumnoMatSel?.nombre }}</p>
+      <table v-if="detalleMatriculas.length" class="table-corp">
+        <thead><tr><th>Grado</th><th>Secretaría</th></tr></thead>
+        <tbody>
+          <tr v-for="m in detalleMatriculas" :key="m.id">
+            <td>{{ m.grado?.nombre ?? m.gradoId }}</td>
+            <td>{{ m.grado?.secretaria?.nombre ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="dim">Sin matrículas.</p>
     </div>
 
     <!-- CU: cerrarCicloAcademico -->
     <div v-if="panel === 'cerrar-ciclo'" class="panel card-base">
-      <h2 class="panel-h">Cerrar ciclo académico</h2>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-matriculas'">← abrirMatriculas</button></div>
+      <h2 class="panel-h">cerrarCicloAcademico</h2>
       <p class="dim">Esta acción archivará todas las matrículas del ciclo actual.</p>
       <template v-if="!confirmarCierre">
         <button class="btn-primary" style="align-self:start" @click="confirmarCierre = true">Iniciar cierre</button>
@@ -268,15 +262,25 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: abrirDispensas -->
     <div v-if="panel === 'abrir-dispensas'" class="panel card-base">
-      <h2 class="panel-h">Abrir dispensas</h2>
+      <div class="detail-header">
+        <button class="back-btn" @click="panel = null">← completarGestionDispensas</button>
+        <button class="btn-primary" @click="panel = 'crear-dispensa'">crearSolicitudDispensa</button>
+      </div>
+      <h2 class="panel-h">DISPENSAS_ABIERTO</h2>
       <table v-if="dispensas.length" class="table-corp">
-        <thead><tr><th>Alumno</th><th>Motivo</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <thead><tr><th>Alumno</th><th>Motivo</th><th>Estado</th><th>Fecha</th><th>Acción</th></tr></thead>
         <tbody>
           <tr v-for="d in dispensas" :key="d.id">
             <td>{{ d.alumno?.nombre ?? '—' }}</td>
             <td>{{ d.motivo.slice(0, 50) }}{{ d.motivo.length > 50 ? '…' : '' }}</td>
             <td><span :class="estadoClass(d.estado)">{{ d.estado }}</span></td>
             <td>{{ new Date(d.fechaSolicitud).toLocaleDateString() }}</td>
+            <td>
+              <div class="row-h">
+                <button class="btn-outline btn-sm" @click="handleConsultarDisp(d); panel = 'consultar-dispensa'">consultarSolicitudDispensa</button>
+                <button v-if="d.estado === 'PENDIENTE'" class="btn-primary btn-sm" @click="selEditarDisp(d); panel = 'editar-dispensa'">editarSolicitudDispensa</button>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
@@ -285,7 +289,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: crearSolicitudDispensa -->
     <div v-if="panel === 'crear-dispensa'" class="panel card-base">
-      <h2 class="panel-h">Crear solicitud de dispensa</h2>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-dispensas'">← abrirDispensas</button></div>
+      <h2 class="panel-h">crearSolicitudDispensa</h2>
       <div class="frow">
         <label class="form-label">Alumno</label>
         <select class="form-input" v-model="crearDispForm.alumnoId">
@@ -299,45 +304,24 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 
     <!-- CU: consultarSolicitudDispensa -->
     <div v-if="panel === 'consultar-dispensa'" class="panel card-base">
-      <h2 class="panel-h">Consultar solicitud de dispensa</h2>
-      <template v-if="!dispensaSel">
-        <div class="lista">
-          <div v-for="d in dispensas" :key="d.id" class="list-item" @click="handleConsultarDisp(d)">
-            <span>{{ d.alumno?.nombre ?? '—' }} — {{ d.motivo.slice(0, 40) }}{{ d.motivo.length > 40 ? '…' : '' }}</span>
-            <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
-          </div>
-        </div>
-        <p v-if="!dispensas.length" class="dim">No hay solicitudes de dispensa.</p>
-      </template>
-      <template v-else>
-        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="dispensaSel = null">← Volver</button>
-        <div class="info-grid">
-          <div class="info-block"><p class="form-label">Estado</p><span :class="estadoClass(dispensaSel.estado)">{{ dispensaSel.estado }}</span></div>
-          <div class="info-block"><p class="form-label">Fecha</p><p>{{ new Date(dispensaSel.fechaSolicitud).toLocaleDateString() }}</p></div>
-          <div class="info-block"><p class="form-label">Alumno</p><p>{{ dispensaSel.alumno?.nombre ?? '—' }}</p></div>
-        </div>
-        <div class="info-block"><p class="form-label">Motivo</p><p>{{ dispensaSel.motivo }}</p></div>
-        <div class="info-block" v-if="dispensaSel.observaciones"><p class="form-label">Observaciones</p><p>{{ dispensaSel.observaciones }}</p></div>
-      </template>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-dispensas'">← abrirDispensas</button></div>
+      <h2 class="panel-h">SOLICITUD_DISPENSA_ABIERTA (Consultar)</h2>
+      <div class="info-grid">
+        <div class="info-block"><p class="form-label">Estado</p><span :class="estadoClass(dispensaSel?.estado)">{{ dispensaSel?.estado }}</span></div>
+        <div class="info-block"><p class="form-label">Fecha</p><p>{{ dispensaSel ? new Date(dispensaSel.fechaSolicitud).toLocaleDateString() : '' }}</p></div>
+        <div class="info-block"><p class="form-label">Alumno</p><p>{{ dispensaSel?.alumno?.nombre ?? '—' }}</p></div>
+      </div>
+      <div class="info-block"><p class="form-label">Motivo</p><p>{{ dispensaSel?.motivo }}</p></div>
+      <div class="info-block" v-if="dispensaSel?.observaciones"><p class="form-label">Observaciones</p><p>{{ dispensaSel.observaciones }}</p></div>
     </div>
 
     <!-- CU: editarSolicitudDispensa -->
     <div v-if="panel === 'editar-dispensa'" class="panel card-base">
-      <h2 class="panel-h">Editar solicitud de dispensa</h2>
-      <template v-if="!editDispSel">
-        <div class="lista">
-          <div v-for="d in dispensas.filter(x => x.estado === 'PENDIENTE')" :key="d.id" class="list-item" @click="selEditarDisp(d)">
-            <span>{{ d.alumno?.nombre ?? '—' }} — {{ d.motivo.slice(0, 40) }}{{ d.motivo.length > 40 ? '…' : '' }}</span>
-            <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
-          </div>
-        </div>
-        <p v-if="!dispensas.filter(x => x.estado === 'PENDIENTE').length" class="dim">No hay solicitudes pendientes de editar.</p>
-      </template>
-      <template v-else>
-        <div class="info-block"><p class="form-label">Alumno</p><p>{{ editDispSel.alumno?.nombre ?? '—' }}</p></div>
-        <div class="frow"><label class="form-label">Motivo</label><textarea class="form-input" v-model="editDispForm.motivo" rows="3" /></div>
-        <div class="row-h"><button class="btn-primary" @click="handleEditarDisp">Guardar</button><button class="btn-outline" @click="editDispSel = null">Cancelar</button></div>
-      </template>
+      <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-dispensas'">← abrirDispensas</button></div>
+      <h2 class="panel-h">SOLICITUD_DISPENSA_ABIERTA (Editar)</h2>
+      <div class="info-block"><p class="form-label">Alumno</p><p>{{ editDispSel?.alumno?.nombre ?? '—' }}</p></div>
+      <div class="frow"><label class="form-label">Motivo</label><textarea class="form-input" v-model="editDispForm.motivo" rows="3" /></div>
+      <div class="row-h"><button class="btn-primary" @click="handleEditarDisp">Guardar</button></div>
     </div>
   </div>
 </template>
@@ -353,6 +337,9 @@ h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
 .cu-btn:hover { background: var(--bg-main); border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
 .cu-btn.active { border-color: var(--text-primary); background: var(--bg-main); }
 .panel { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.back-btn { background: none; border: none; color: var(--text-secondary); font-size: .85rem; cursor: pointer; font-family: inherit; padding: 0; }
+.back-btn:hover { color: var(--text-primary); }
 .panel-h { font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: .75rem; }
 .frow { display: flex; flex-direction: column; gap: .35rem; }
 .row-h { display: flex; gap: .75rem; align-items: center; }

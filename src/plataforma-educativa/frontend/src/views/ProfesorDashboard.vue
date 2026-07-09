@@ -205,28 +205,28 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <!-- TOPBAR -->
     <div class="topbar">
       <div class="breadcrumb">
-        <span class="bc-root" @click="vista = 'menu'">Inicio</span>
+        <span class="bc-root" @click="vista = 'menu'">SISTEMA_DISPONIBLE</span>
         <template v-if="vista === 'sesiones' || vista === 'crear-sesion'">
-          <span class="bc-sep">›</span><span class="bc-item">{{ vista === 'crear-sesion' ? 'Nueva sesión' : 'Sesiones de clase' }}</span>
+          <span class="bc-sep">›</span><span class="bc-item">{{ vista === 'crear-sesion' ? 'crearSesionClase' : 'abrirAsistencias' }}</span>
         </template>
         <template v-if="vista === 'sesion-detalle' || vista === 'asistencia'">
           <span class="bc-sep">›</span>
-          <span class="bc-root" @click="vista = 'sesiones'">Sesiones</span>
+          <span class="bc-root" @click="vista = 'sesiones'">abrirAsistencias</span>
           <span class="bc-sep">›</span>
           <span :class="vista === 'asistencia' ? 'bc-root' : 'bc-item'" @click="vista === 'asistencia' ? (vista = 'sesion-detalle') : null">
             {{ sesionSel?.asignatura?.nombre }}
           </span>
-          <template v-if="vista === 'asistencia'"><span class="bc-sep">›</span><span class="bc-item">Asistencia</span></template>
+          <template v-if="vista === 'asistencia'"><span class="bc-sep">›</span><span class="bc-item">registrarTomaAsistencia</span></template>
         </template>
         <template v-if="vista === 'alumnos' || vista === 'alumno-detalle'">
           <span class="bc-sep">›</span>
-          <span :class="vista === 'alumno-detalle' ? 'bc-root' : 'bc-item'" @click="vista === 'alumno-detalle' ? (vista = 'alumnos') : null">Alumnos</span>
+          <span :class="vista === 'alumno-detalle' ? 'bc-root' : 'bc-item'" @click="vista === 'alumno-detalle' ? (vista = 'alumnos') : null">abrirAlumnos</span>
           <template v-if="vista === 'alumno-detalle'"><span class="bc-sep">›</span><span class="bc-item">{{ alumnoSel?.nombre }}</span></template>
         </template>
         <template v-if="vista === 'dispensas' || vista === 'dispensa-detalle'">
           <span class="bc-sep">›</span>
-          <span :class="vista === 'dispensa-detalle' ? 'bc-root' : 'bc-item'" @click="vista === 'dispensa-detalle' ? (vista = 'dispensas') : null">Dispensas</span>
-          <template v-if="vista === 'dispensa-detalle'"><span class="bc-sep">›</span><span class="bc-item">Detalle</span></template>
+          <span :class="vista === 'dispensa-detalle' ? 'bc-root' : 'bc-item'" @click="vista === 'dispensa-detalle' ? (vista = 'dispensas') : null">abrirDispensas</span>
+          <template v-if="vista === 'dispensa-detalle'"><span class="bc-sep">›</span><span class="bc-item">consultarSolicitudDispensa</span></template>
         </template>
       </div>
       <div class="user-chip">
@@ -240,23 +240,16 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
 
     <!-- MENÚ PRINCIPAL -->
     <template v-if="vista === 'menu'">
-      <h2 class="section-title">Panel del profesor</h2>
+      <h2 class="section-title">SISTEMA_DISPONIBLE</h2>
       <div class="menu-grid">
-        <button class="menu-card" @click="irSesiones">
-          <div class="menu-card-icon">🗓️</div>
-          <div><p class="menu-card-title">Sesiones de clase</p><p class="menu-card-desc">Gestiona tus sesiones y registra asistencia</p></div>
-        </button>
-        <button class="menu-card" @click="irCrearSesion">
-          <div class="menu-card-icon">➕</div>
-          <div><p class="menu-card-title">Crear sesión de clase</p><p class="menu-card-desc">Abre una nueva sesión para una asignatura</p></div>
-        </button>
         <button class="menu-card" @click="irAlumnos">
-          <div class="menu-card-icon">👥</div>
-          <div><p class="menu-card-title">Alumnos</p><p class="menu-card-desc">Consulta el perfil y asistencia de tus alumnos</p></div>
+          <div><p class="menu-card-title">abrirAlumnos</p><p class="menu-card-desc">Consulta el perfil y asistencia de tus alumnos</p></div>
+        </button>
+        <button class="menu-card" @click="irSesiones">
+          <div><p class="menu-card-title">abrirAsistencias</p><p class="menu-card-desc">Gestiona tus sesiones y registra asistencia</p></div>
         </button>
         <button class="menu-card" @click="irDispensas">
-          <div class="menu-card-icon">📄</div>
-          <div><p class="menu-card-title">Dispensas</p><p class="menu-card-desc">Consulta las solicitudes de dispensa activas</p></div>
+          <div><p class="menu-card-title">abrirDispensas</p><p class="menu-card-desc">Consulta las solicitudes de dispensa activas</p></div>
         </button>
       </div>
     </template>
@@ -264,8 +257,8 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <!-- LISTA DE SESIONES (Abrir sesiones) -->
     <template v-else-if="vista === 'sesiones'">
       <div class="section-header">
-        <h2 class="section-title">Sesiones de clase</h2>
-        <button class="btn-primary btn-sm" @click="irCrearSesion">+ Nueva sesión</button>
+        <h2 class="section-title">ASISTENCIAS_ABIERTO</h2>
+        <button class="btn-primary btn-sm" @click="irCrearSesion">crearSesionClase</button>
       </div>
       <div v-if="sesiones.length" class="sesion-list">
         <div v-for="s in sesiones" :key="s.id" class="sesion-card" @click="irDetalleSesion(s)">
@@ -284,12 +277,12 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <template v-else-if="vista === 'sesion-detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
+          <button class="back-btn" @click="volver">← abrirAsistencias</button>
           <div class="row-h" v-if="!editandoSesion">
             <button class="btn-del-sm" @click="handleEliminarSesion">Eliminar</button>
             <button v-if="sesionSel.estado !== 'CERRADA'" class="btn-outline btn-sm" @click="handleCerrarSesion">Cerrar sesión</button>
-            <button class="btn-outline btn-sm" @click="handleExportar">Exportar CSV</button>
-            <button v-if="sesionSel.estado !== 'CERRADA'" class="btn-primary btn-sm" @click="irAsistencia(sesionSel)">Registrar asistencia</button>
+            <button class="btn-outline btn-sm" @click="handleExportar">exportarHistorialAsistencias</button>
+            <button v-if="sesionSel.estado !== 'CERRADA'" class="btn-primary btn-sm" @click="irAsistencia(sesionSel)">registrarTomaAsistencia</button>
           </div>
         </div>
 
@@ -323,7 +316,7 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <template v-else-if="vista === 'asistencia'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Cancelar</button>
+          <button class="back-btn" @click="volver">← Volver</button>
           <div class="row-h">
             <span class="asis-counter">{{ presentes() }}/{{ sesAlumnos.length - dispensados() }} presentes</span>
             <button class="btn-primary" @click="handleRegistrarAsistencia">Guardar asistencia</button>
@@ -375,7 +368,7 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <!-- LISTA DE ALUMNOS (Abrir alumnos) -->
     <template v-else-if="vista === 'alumnos'">
       <div class="section-header">
-        <h2 class="section-title">Alumnos</h2>
+        <h2 class="section-title">ALUMNOS_ABIERTO</h2>
         <span class="count-badge">{{ listaAlumnos.length }}</span>
       </div>
       <div v-if="listaAlumnos.length" class="user-list">
@@ -394,7 +387,7 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <template v-else-if="vista === 'alumno-detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
+          <button class="back-btn" @click="volver">← abrirAlumnos</button>
         </div>
         <div class="avatar-row">
           <div class="user-avatar" style="width:48px;height:48px;font-size:1.2rem">{{ alumnoSel?.nombre?.charAt(0).toUpperCase() }}</div>
@@ -423,7 +416,7 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <!-- LISTA DE DISPENSAS (Abrir dispensas) -->
     <template v-else-if="vista === 'dispensas'">
       <div class="section-header">
-        <h2 class="section-title">Solicitudes de dispensa</h2>
+        <h2 class="section-title">DISPENSAS_ABIERTO</h2>
         <span class="count-badge">{{ dispensas.length }}</span>
       </div>
       <div v-if="dispensas.length" class="disp-list">
@@ -445,7 +438,7 @@ const dispensados = () => sesAlumnos.value.filter((a: any) => a.dispensado).leng
     <template v-else-if="vista === 'dispensa-detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
+          <button class="back-btn" @click="volver">← abrirDispensas</button>
         </div>
         <div class="detail-kv-grid">
           <div class="kv"><p class="kv-label">Alumno</p><p class="kv-val">{{ dispensaSel?.alumno?.nombre ?? '—' }}</p></div>

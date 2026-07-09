@@ -28,9 +28,9 @@ export class DispensaService {
       data: {
         alumnoId: data.alumnoId,
         motivo: data.motivo,
-        secretariaId: data.secretariaId,
-        sesionesEximidas: { connect: data.sesionesIds.map(id => ({ id })) },
-        asignaturas: { connect: data.asignaturasIds.map(id => ({ id })) }
+        secretariaId: data.secretariaId || undefined,
+        sesionesEximidas: { connect: data.sesionesIds?.map(id => ({ id })) || [] },
+        asignaturas: { connect: data.asignaturasIds?.map(id => ({ id })) || [] }
       },
       include: { alumno: true, sesionesEximidas: true, asignaturas: true }
     });

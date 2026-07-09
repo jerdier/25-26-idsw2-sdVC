@@ -1,155 +1,175 @@
 generator client {
   provider = "prisma-client-js"
+  engineType = "library"
 }
 
 datasource db {
   provider = "postgresql"
 }
 
+// ==========================================
+// ACTORES Y ROLES (Identity & Access)
+// ==========================================
+
+model Administrador {
+  id         String      @id @default(uuid())
+  nombre     String
+  email      String      @unique
+  password   String      @default("123")
+}
+
 model SecretariaAcademica {
   id         String      @id @default(uuid())
   nombre     String
   email      String      @unique
-  password   String      @default("password123")
+  password   String      @default("123")
   matriculas Matricula[]
   dispensas  Dispensa[]
   grados     Grado[]
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
 }
 
 model Profesor {
   id                     String           @id @default(uuid())
   nombre                 String
   email                  String           @unique
-  password               String           @default("password123")
+  password               String           @default("123")
   asignaturas            Asignatura[]
   asistenciasRegistradas Asistencia[]
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+  
+  // Herencia de tu UML: Un Profesor puede ser DirectorDeGrado (1 a 1)
+  directorDeGrado        DirectorDeGrado?
 }
 
 model DirectorDeGrado {
   id                 String     @id @default(uuid())
-  nombre             String
-  email              String     @unique
-  password           String     @default("password123")
+  nombre             String?
+  email              String?    @unique
+  password           String     @default("123")
+  
+  profesorId         String?    @unique
+  profesor           Profesor?  @relation(fields: [profesorId], references: [id], onDelete: Cascade)
+  
   gradosDirigidos    Grado[]
   dispensasAprobadas Dispensa[]
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
 }
 
 model Alumno {
   id             String       @id @default(uuid())
   numeroRegistro String       @unique
-  dni            String?      @unique
   nombre         String
   email          String       @unique
-  password       String       @default("password123")
-  asignaturas    Asignatura[]
+  password       String       @default("123")
+  dni            String?      @unique
+  
+  asignaturas    Asignatura[] // Relación M:N: Asignatura Tiene Alumno
   matriculas     Matricula[]
   dispensas      Dispensa[]
-  asistencias    Asistencia[]
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  asistencias    Asistencia[] // Añadido por lógica de negocio
 }
 
-model Administrador {
-  id        String   @id @default(uuid())
-  nombre    String
-  email     String   @unique
-  password  String   @default("admin123")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
+// ==========================================
+// DOMINIO ACADÉMICO (Core Business)
+// ==========================================
 
 model Grado {
   id           String               @id @default(uuid())
   nombre       String
+  
   directorId   String?
-  director     DirectorDeGrado?     @relation(fields: [directorId], references: [id], onDelete: SetNull)
+  director     DirectorDeGrado?     @relation(fields: [directorId], references: [id])
+  
   secretariaId String?
-  secretaria   SecretariaAcademica? @relation(fields: [secretariaId], references: [id], onDelete: SetNull)
+  secretaria   SecretariaAcademica? @relation(fields: [secretariaId], references: [id])
+  
   asignaturas  Asignatura[]
   matriculas   Matricula[]
-  createdAt    DateTime             @default(now())
-  updatedAt    DateTime             @updatedAt
 }
 
 model Asignatura {
   id         String          @id @default(uuid())
   nombre     String
+  
   gradoId    String
-  grado      Grado           @relation(fields: [gradoId], references: [id], onDelete: Cascade)
-  profesorId String?
-  profesor   Profesor?       @relation(fields: [profesorId], references: [id], onDelete: SetNull)
-  alumnos    Alumno[]
+  grado      Grado           @relation(fields: [gradoId], references: [id])
+  
+  profesorId String
+  profesor   Profesor        @relation(fields: [profesorId], references: [id])
+  
+  alumnos    Alumno[]        // Relación M:N implicita
   sesiones   SesionDeClase[]
   dispensas  Dispensa[]
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
 }
 
 model Matricula {
   id           String              @id @default(uuid())
   fecha        DateTime            @default(now())
+  
   alumnoId     String
-  alumno       Alumno              @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+  alumno       Alumno              @relation(fields: [alumnoId], references: [id])
+  
   gradoId      String
-  grado        Grado               @relation(fields: [gradoId], references: [id], onDelete: Cascade)
+  grado        Grado               @relation(fields: [gradoId], references: [id])
+  
   secretariaId String
-  secretaria   SecretariaAcademica @relation(fields: [secretariaId], references: [id], onDelete: Restrict)
+  secretaria   SecretariaAcademica @relation(fields: [secretariaId], references: [id])
 }
+
+// ==========================================
+// ASISTENCIA Y DISPENSAS (Transaccional)
+// ==========================================
 
 model SesionDeClase {
   id           String       @id @default(uuid())
   fecha        DateTime
   aula         String?
-  duracion     Int?         @default(60)
-  estado       EstadoSesion @default(ACTIVA)
+  duracion     Int?
+  estado       String       @default("ACTIVA")
+  
   asignaturaId String
-  asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id], onDelete: Cascade)
+  asignatura   Asignatura   @relation(fields: [asignaturaId], references: [id])
+  
   asistencias  Asistencia[]
-  dispensas    Dispensa[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-}
-
-enum EstadoSesion {
-  ACTIVA
-  CERRADA
+  
+  // Relación M:N: Una dispensa exime de una o más sesiones
+  dispensas    Dispensa[]   
 }
 
 model Asistencia {
   id         String        @id @default(uuid())
   presente   Boolean       @default(false)
   fechaHora  DateTime      @default(now())
+  
   sesionId   String
   sesion     SesionDeClase @relation(fields: [sesionId], references: [id], onDelete: Cascade)
+  
   alumnoId   String
-  alumno     Alumno        @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
+  alumno     Alumno        @relation(fields: [alumnoId], references: [id])
+  
   profesorId String
-  profesor   Profesor      @relation(fields: [profesorId], references: [id], onDelete: Restrict)
+  profesor   Profesor      @relation(fields: [profesorId], references: [id])
 
+  // Restricción: Un alumno solo tiene un registro por sesión
   @@unique([sesionId, alumnoId])
 }
 
 model Dispensa {
   id               String              @id @default(uuid())
   motivo           String
-  observaciones    String?
   estado           EstadoDispensa      @default(PENDIENTE)
   fechaSolicitud   DateTime            @default(now())
+  
   alumnoId         String
-  alumno           Alumno              @relation(fields: [alumnoId], references: [id], onDelete: Cascade)
-  secretariaId     String
-  secretaria       SecretariaAcademica @relation(fields: [secretariaId], references: [id], onDelete: Restrict)
+  alumno           Alumno              @relation(fields: [alumnoId], references: [id])
+  
+  secretariaId     String?
+  secretaria       SecretariaAcademica? @relation(fields: [secretariaId], references: [id])
+  
   directorId       String?
-  director         DirectorDeGrado?    @relation(fields: [directorId], references: [id], onDelete: SetNull)
+  director         DirectorDeGrado?    @relation(fields: [directorId], references: [id])
+  
   sesionesEximidas SesionDeClase[]
   asignaturas      Asignatura[]
-  updatedAt        DateTime            @updatedAt
+  observaciones    String?
 }
 
 enum EstadoDispensa {

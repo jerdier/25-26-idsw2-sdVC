@@ -5,6 +5,10 @@ export const attendanceService = {
     return (await api.get(`/attendance/session/${sesionId}`)).data;
   },
 
+  async getAttendanceByAlumno(alumnoId: string) {
+    return (await api.get(`/attendance/alumno/${alumnoId}`)).data;
+  },
+
   // CU: registrarTomaAsistencia
   async registrarTomaAsistencia(data: { sesionId: string; alumnoId: string; profesorId: string; presente: boolean }) {
     return (await api.post('/attendance/record', data)).data;

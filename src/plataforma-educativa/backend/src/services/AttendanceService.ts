@@ -9,6 +9,14 @@ export class AttendanceService {
     });
   }
 
+  async getAttendanceByAlumno(alumnoId: string) {
+    return await prisma.asistencia.findMany({
+      where: { alumnoId },
+      include: { sesion: { include: { asignatura: true } } },
+      orderBy: { fechaHora: 'desc' }
+    });
+  }
+
   // CU: registrarTomaAsistencia
   async registrarTomaAsistencia(data: CreateAttendanceDTO) {
     return await prisma.asistencia.upsert({

@@ -6,8 +6,8 @@ import dispensaService from '../services/dispensaService';
 const { state } = useAuth();
 const uid = state.user?.id ?? '';
 
-// Navegación: 'lista' | 'detalle' | 'editar'
-const vista = ref<'lista' | 'detalle' | 'editar'>('lista');
+// Navegación: 'menu' | 'lista' | 'detalle' | 'editar'
+const vista = ref<'menu' | 'lista' | 'detalle' | 'editar'>('menu');
 const msg = ref(''); const err = ref('');
 const ok = (m: string) => { msg.value = m; err.value = ''; };
 const ko = (e: any) => { err.value = e.response?.data?.message ?? e.message; msg.value = ''; };
@@ -22,6 +22,10 @@ const cargarDispensas = async () => {
 };
 
 onMounted(cargarDispensas);
+
+const irLista = () => {
+  vista.value = 'lista';
+};
 
 const irDetalle = async (d: any) => {
   msg.value = ''; err.value = '';
@@ -46,7 +50,7 @@ const guardar = async () => {
   } catch (e: any) { ko(e); }
 };
 
-const volver = () => { msg.value = ''; err.value = ''; vista.value = vista.value === 'editar' ? 'detalle' : 'lista'; };
+const volver = () => { msg.value = ''; err.value = ''; vista.value = vista.value === 'editar' ? 'detalle' : vista.value === 'detalle' ? 'lista' : 'menu'; };
 const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZADA' ? 'tag-ko' : 'tag-pend';
 </script>
 
@@ -55,16 +59,20 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     <!-- Cabecera con breadcrumb -->
     <div class="topbar">
       <div class="breadcrumb">
-        <span class="bc-root" @click="vista = 'lista'; sel = null">Dispensas</span>
-        <template v-if="vista !== 'lista'">
+        <span class="bc-root" @click="vista = 'menu'; sel = null">SISTEMA_DISPONIBLE</span>
+        <template v-if="vista !== 'menu'">
+          <span class="bc-sep">›</span>
+          <span class="bc-item" :class="{ 'bc-root': vista === 'lista' }" @click="vista = 'lista'; sel = null">abrirDispensas</span>
+        </template>
+        <template v-if="vista === 'detalle' || vista === 'editar'">
           <span class="bc-sep">›</span>
           <span class="bc-item" :class="{ 'bc-root': vista === 'editar' }" @click="vista === 'editar' ? volver() : null">
-            {{ sel?.alumno?.nombre ?? '—' }}
+            consultarSolicitudDispensa
           </span>
         </template>
         <template v-if="vista === 'editar'">
           <span class="bc-sep">›</span>
-          <span class="bc-item">Editar</span>
+          <span class="bc-item">resolverSolicitudDispensa</span>
         </template>
       </div>
       <div class="user-chip">
@@ -76,10 +84,21 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     <div v-if="msg" class="fb-ok">{{ msg }}</div>
     <div v-if="err" class="fb-ko">{{ err }}</div>
 
+    <!-- VISTA: SISTEMA_DISPONIBLE -->
+    <template v-if="vista === 'menu'">
+      <h2 class="section-title">SISTEMA_DISPONIBLE</h2>
+      <div class="menu-grid">
+        <button class="menu-card" @click="irLista">
+          <div><p class="menu-card-title">abrirDispensas</p><p class="menu-card-desc">Consultar y resolver las solicitudes de dispensa de los alumnos.</p></div>
+        </button>
+      </div>
+    </template>
+
     <!-- VISTA: lista de dispensas (Abrir dispensas) -->
-    <template v-if="vista === 'lista'">
+    <template v-else-if="vista === 'lista'">
       <div class="section-header">
-        <h2 class="section-title">Solicitudes de dispensa</h2>
+        <button class="back-btn" @click="volver">← Volver</button>
+        <h2 class="section-title">DISPENSAS_ABIERTO</h2>
         <span class="count-badge">{{ dispensas.length }}</span>
       </div>
       <div v-if="dispensas.length" class="disp-list">
@@ -94,17 +113,15 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
           </div>
         </div>
       </div>
-      <div v-else class="empty-state">
-        <p>No hay solicitudes de dispensa.</p>
-      </div>
+      <p v-else class="dim">No hay solicitudes de dispensa.</p>
     </template>
 
     <!-- VISTA: detalle de dispensa (Consultar solicitud de dispensa) -->
     <template v-else-if="vista === 'detalle'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Volver</button>
-          <button class="btn-primary" @click="irEditar">Editar resolución</button>
+          <button class="back-btn" @click="volver">← abrirDispensas</button>
+          <button class="btn-primary" @click="irEditar">resolverSolicitudDispensa</button>
         </div>
         <div class="detail-kv-grid">
           <div class="kv"><p class="kv-label">Alumno</p><p class="kv-val">{{ sel?.alumno?.nombre ?? '—' }}</p></div>
@@ -127,8 +144,8 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     <template v-else-if="vista === 'editar'">
       <div class="detail-card card-base">
         <div class="detail-header">
-          <button class="back-btn" @click="volver">← Cancelar</button>
-          <button class="btn-primary" @click="guardar">Guardar resolución</button>
+          <button class="back-btn" @click="volver">← consultarSolicitudDispensa</button>
+          <button class="btn-primary" @click="guardar">resolverSolicitudDispensa</button>
         </div>
         <div class="kv full"><p class="kv-label">Alumno</p><p class="kv-val">{{ sel?.alumno?.nombre ?? '—' }}</p></div>
         <div class="kv full"><p class="kv-label">Motivo</p><p class="kv-val">{{ sel?.motivo }}</p></div>
@@ -163,6 +180,13 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 .section-header { display: flex; align-items: baseline; gap: .75rem; }
 .section-title { font-size: 1.2rem; font-weight: 700; letter-spacing: -.02em; }
 .count-badge { font-size: .72rem; font-weight: 700; background: var(--bg-input); color: var(--text-secondary); padding: 2px 8px; border-radius: 99px; }
+
+.menu-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .85rem; margin-top: .5rem; }
+.menu-card { display: flex; align-items: center; gap: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1.25rem 1.5rem; cursor: pointer; text-align: left; transition: all .15s; box-shadow: var(--shadow-sm); font-family: inherit; }
+.menu-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.menu-card-title { font-size: .9rem; font-weight: 600; margin-bottom: 3px; }
+.menu-card-desc { font-size: .78rem; color: var(--text-secondary); }
+
 .disp-list { display: flex; flex-direction: column; gap: .6rem; }
 .disp-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; transition: all .15s; box-shadow: var(--shadow-sm); }
 .disp-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
@@ -188,7 +212,7 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
 .tag-pend { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--bg-input); color: var(--text-secondary); text-transform: uppercase; }
 .tag-ok { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--success-bg); color: var(--success); text-transform: uppercase; }
 .tag-ko { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--error-bg); color: var(--error); text-transform: uppercase; }
-.empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-secondary); font-size: .9rem; }
+.dim { color: var(--text-secondary); font-size: .85rem; }
 .fb-ok { padding: .75rem 1rem; background: var(--success-bg); color: var(--success); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
 .fb-ko { padding: .75rem 1rem; background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
 textarea.form-input { resize: vertical; min-height: 90px; }

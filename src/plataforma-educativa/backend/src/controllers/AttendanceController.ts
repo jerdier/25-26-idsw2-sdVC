@@ -9,6 +9,13 @@ export class AttendanceController {
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
+  async getAttendanceByAlumno(req: Request, res: Response) {
+    try {
+      const alumnoId = req.params['alumnoId'] as string;
+      res.json(await attendanceService.getAttendanceByAlumno(alumnoId));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
   // CU: registrarTomaAsistencia
   async registrarTomaAsistencia(req: Request, res: Response) {
     try {

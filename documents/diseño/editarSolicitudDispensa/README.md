@@ -5,7 +5,7 @@
 
 **Actor:** Alumno · DirectorDeGrado · Secretaria
 
-Permite al actor modificar una solicitud de dispensa. El Frontend (Vue 3) envía los cambios al controlador (Express) y el servicio actualiza los datos o el estado de resolución en la base de datos (PostgreSQL).
+El Frontend (Vue 3) precarga los datos actuales de la dispensa desde Express y envía los cambios para que el servicio actualice el registro o el estado de resolución en PostgreSQL.
 
 ---
 
@@ -31,19 +31,11 @@ Permite al actor modificar una solicitud de dispensa. El Frontend (Vue 3) envía
 
 ## Flujo de secuencia
 
-1. El Usuario accede a editar solicitud de dispensa (dispensaId) en el Frontend (Vue 3).
-2. El Frontend (Vue 3) realiza una petición HTTP GET a `/api/dispensas/:dispensaId` al Controlador (`DispensaController`).
-3. El Controlador (`DispensaController`) delega la lógica en el Servicio (`DispensaService`) llamando a `getDispensa(dispensaId)`.
-4. El Servicio (`DispensaService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM Dispensa WHERE id = ?`.
-5. La Base de Datos retorna el resultado `dispensa : Dispensa` al Servicio (`DispensaService`).
-6. El DispensaService retorna el resultado `dispensa : Dispensa` al Controlador (`DispensaController`).
-7. El Controlador (`DispensaController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ dispensa }`.
-8. El Frontend (Vue 3) muestra formulario con datos actuales al Usuario.
-9. El Usuario modifica datos y confirma en el Frontend (Vue 3).
-10. El Frontend (Vue 3) realiza una petición HTTP PUT a `/api/dispensas/:dispensaId { datos }` al Controlador (`DispensaController`).
-11. El Controlador (`DispensaController`) delega la lógica en el Servicio (`DispensaService`) llamando a `editarSolicitudDispensa(dispensaId, datos)`.
-12. El Servicio (`DispensaService`) realiza una consulta a la Base de Datos (PostgreSQL): `UPDATE Dispensa SET ... WHERE id = ?`.
-13. La Base de Datos retorna el resultado `dispensa : Dispensa` al Servicio (`DispensaService`).
-14. El DispensaService retorna el resultado `dispensa : Dispensa` al Controlador (`DispensaController`).
-15. El Controlador (`DispensaController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ dispensa }`.
-16. El Frontend (Vue 3) muestra el mensaje "solicitud actualizada correctamente" al Usuario.
+1. El actor selecciona la dispensa a editar en el Frontend
+2. Frontend → `GET /api/dispensas/:dispensaId` → `DispensaController.getDispensa(dispensaId)`
+3. `DispensaService` consulta: `SELECT * FROM Dispensa WHERE id = ?`
+4. Frontend muestra el formulario precargado con los datos actuales
+5. El actor modifica los campos y confirma
+6. Frontend → `PUT /api/dispensas/:dispensaId { datos }` → `DispensaController.editarSolicitudDispensa(dispensaId, datos)`
+7. `DispensaService` ejecuta: `UPDATE Dispensa SET ... WHERE id = ?`
+8. Frontend muestra confirmación "solicitud actualizada correctamente"

@@ -5,7 +5,7 @@
 
 **Actor:** Alumno · Profesor · DirectorDeGrado · Secretaria
 
-Permite al actor consultar el detalle completo de una solicitud de dispensa. El Frontend (Vue 3) solicita los datos al controlador (Express), el cual los recupera de la base de datos (PostgreSQL) a través del servicio.
+El Frontend (Vue 3) solicita el detalle de una dispensa concreta al controlador Express, que la recupera de PostgreSQL mediante Prisma y la muestra en pantalla.
 
 ---
 
@@ -31,19 +31,7 @@ Permite al actor consultar el detalle completo de una solicitud de dispensa. El 
 
 ## Flujo de secuencia
 
-1. El Usuario accede a consultar solicitudes de dispensa en el Frontend (Vue 3).
-2. El Frontend (Vue 3) realiza una petición HTTP GET a `/api/dispensas` al Controlador (`DispensaController`).
-3. El Controlador (`DispensaController`) delega la lógica en el Servicio (`DispensaService`) llamando a `getDispensas(usuarioId, rol)`.
-4. El Servicio (`DispensaService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM Dispensa (con filtros según rol)`.
-5. La Base de Datos retorna el resultado `dispensas : Dispensa[]` al Servicio (`DispensaService`).
-6. El DispensaService retorna el resultado `dispensas : Dispensa[]` al Controlador (`DispensaController`).
-7. El Controlador (`DispensaController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ dispensas }`.
-8. El Frontend (Vue 3) muestra lista de solicitudes al Usuario.
-9. El Usuario selecciona una solicitud (dispensaId) en el Frontend (Vue 3).
-10. El Frontend (Vue 3) realiza una petición HTTP GET a `/api/dispensas/:dispensaId` al Controlador (`DispensaController`).
-11. El Controlador (`DispensaController`) delega la lógica en el Servicio (`DispensaService`) llamando a `getDispensa(dispensaId)`.
-12. El Servicio (`DispensaService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM Dispensa WHERE id = ?`.
-13. La Base de Datos retorna el resultado `dispensa : Dispensa` al Servicio (`DispensaService`).
-14. El DispensaService retorna el resultado `dispensa : Dispensa` al Controlador (`DispensaController`).
-15. El Controlador (`DispensaController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ dispensa }`.
-16. El Frontend (Vue 3) muestra detalle de la solicitud al Usuario.
+1. El actor selecciona una solicitud del listado de dispensas en el Frontend
+2. Frontend → `GET /api/dispensas/:dispensaId` → `DispensaController.getDispensa(dispensaId)`
+3. `DispensaService` consulta: `SELECT * FROM Dispensa WHERE id = ?`
+4. Frontend muestra el detalle completo de la solicitud (estado, asignatura, motivo, franja horaria)

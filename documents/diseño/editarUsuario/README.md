@@ -5,7 +5,7 @@
 
 **Actor:** Administrador
 
-Permite al Administrador modificar los datos de un usuario. El Frontend (Vue 3) precarga la información y envía las modificaciones al controlador (Express), el cual actualiza el registro en la base de datos (PostgreSQL) mediante el servicio.
+El Frontend (Vue 3) precarga los datos del usuario desde Express y envía los cambios. El servicio verifica que el correo no esté en uso por otro usuario antes de actualizar el registro en PostgreSQL.
 
 ---
 
@@ -31,26 +31,12 @@ Permite al Administrador modificar los datos de un usuario. El Frontend (Vue 3) 
 
 ## Flujo de secuencia
 
-1. El Administrador selecciona usuario y modifica campos (nombre, email, rol) en el Frontend (Vue 3).
-2. El Frontend (Vue 3) realiza una petición HTTP GET a `/api/usuarios/:id` al Controlador (`UsuarioController`).
-3. El Controlador (`UsuarioController`) delega la lógica en el Servicio (`UsuarioService`) llamando a `getUsuario(id)`.
-4. El Servicio (`UsuarioService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM [tabla_rol] WHERE id = ?`.
-5. La Base de Datos retorna el resultado `usuario : Usuario` al Servicio (`UsuarioService`).
-6. El UsuarioService retorna el resultado `usuario : Usuario` al Controlador (`UsuarioController`).
-7. El Controlador (`UsuarioController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ usuario }`.
-8. El Frontend (Vue 3) muestra formulario con datos actuales al Administrador.
-9. El Administrador confirma cambios (nombre, email, rol) en el Frontend (Vue 3).
-10. El Frontend (Vue 3) realiza una petición HTTP PUT a `/api/usuarios/:id { nombre, email, rol }` al Controlador (`UsuarioController`).
-11. El Controlador (`UsuarioController`) delega la lógica en el Servicio (`UsuarioService`) llamando a `updateUsuario(id, nombre, email, rol)`.
-12. El Servicio (`UsuarioService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM Usuario WHERE email = ? AND id != ?`.
-13. La Base de Datos retorna el resultado `Optional<Usuario>` al Servicio (`UsuarioService`).
-14. **ALT email no en uso**:
-  - El Servicio (`UsuarioService`) realiza una consulta a la Base de Datos (PostgreSQL): `UPDATE [tabla_rol] SET nombre=?, email=?, rol=? WHERE id=?`.
-  - La Base de Datos retorna el resultado `usuarioActualizado : Usuario` al Servicio (`UsuarioService`).
-  - El UsuarioService retorna el resultado `usuarioActualizado : Usuario` al Controlador (`UsuarioController`).
-  - El Controlador (`UsuarioController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ usuarioActualizado }`.
-  - El Frontend (Vue 3) muestra el mensaje "usuario actualizado correctamente" al Administrador.
-15. **Else / De lo contrario**:
-  - El UsuarioService retorna el resultado `throw Error("Email ya en uso")` al Controlador (`UsuarioController`).
-  - El Controlador (`UsuarioController`) responde al Frontend (Vue 3) con un estado `400 Bad` con los datos `Request { message: "Email ya en uso" }`.
-  - El Frontend (Vue 3) muestra error "Email ya en uso" al Administrador.
+1. El Administrador selecciona el usuario a editar en el Frontend
+2. Frontend → `GET /api/usuarios/:id` → `UsuarioController.getUsuario(id)`
+3. `UsuarioService` consulta: `SELECT * FROM Usuario WHERE id = ?`
+4. Frontend muestra el formulario precargado con los datos actuales
+5. El Administrador modifica los campos (nombre, email, rol) y confirma
+6. Frontend → `PUT /api/usuarios/:id { nombre, email, rol }` → `UsuarioController.updateUsuario(id, ...)`
+7. `UsuarioService` verifica: `SELECT * FROM Usuario WHERE email = ? AND id != ?`
+8. Si el correo no está en uso → `UPDATE Usuario SET nombre=?, email=?, rol=? WHERE id=?` → Frontend muestra "usuario actualizado correctamente"
+9. Si el correo ya está en uso → Frontend muestra error "Email ya en uso" con `400 Bad Request`

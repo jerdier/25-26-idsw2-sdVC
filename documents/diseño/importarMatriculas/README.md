@@ -5,7 +5,7 @@
 
 **Actor:** Secretaria
 
-Permite a la Secretaria importar matrículas desde un archivo Excel o CSV. El Frontend (Vue 3) sube el archivo al controlador (Express), y el servicio procesa los registros para insertarlos o actualizarlos en la base de datos (PostgreSQL).
+El Frontend (Vue 3) sube el archivo al controlador Express como `multipart/form-data`. El servicio valida el formato, localiza al alumno por DNI y crea o actualiza cada matrícula en PostgreSQL.
 
 ---
 
@@ -32,19 +32,8 @@ Permite a la Secretaria importar matrículas desde un archivo Excel o CSV. El Fr
 
 ## Flujo de secuencia
 
-1. La Secretaria Academica selecciona archivo de matrículas (CSV / Excel) en el Frontend (Vue 3).
-2. El Frontend (Vue 3) realiza una petición HTTP POST a `/api/secretaria/import/matriculas (multipart/form-data: archivo)` al Controlador (`SecretariaController`).
-3. El Controlador (`SecretariaController`) delega la lógica en el Servicio (`SecretariaService`) llamando a `validarArchivo(archivo)`.
-4. El SecretariaService retorna el resultado `valido : Boolean` al Controlador (`SecretariaController`).
-5. **ALT archivo válido**:
-  - El Controlador (`SecretariaController`) delega la lógica en el Servicio (`SecretariaService`) llamando a `importMatriculas(archivo)`.
-  - El Servicio (`SecretariaService`) realiza una consulta a la Base de Datos (PostgreSQL): `SELECT * FROM Alumno WHERE dni = ?`.
-  - La Base de Datos retorna el resultado `alumno : Alumno` al Servicio (`SecretariaService`).
-  - El Servicio (`SecretariaService`) realiza una consulta a la Base de Datos (PostgreSQL): `INSERT INTO Matricula (alumnoId, asignaturaId) ON CONFLICT DO UPDATE`.
-  - La Base de Datos retorna el resultado `resultados : { creadas, actualizadas, errores }` al Servicio (`SecretariaService`).
-  - El SecretariaService retorna el resultado `informe : ImportResult` al Controlador (`SecretariaController`).
-  - El Controlador (`SecretariaController`) responde al Frontend (Vue 3) con un estado `200 OK` con los datos `{ informe }`.
-  - El Frontend (Vue 3) muestra informe de importación (creadas, actualizadas, errores) a la Secretaria Academica.
-6. **Else / De lo contrario**:
-  - El Controlador (`SecretariaController`) responde al Frontend (Vue 3) con un estado `400 Bad` con los datos `Request { message: "Formato de archivo no válido" }`.
-  - El Frontend (Vue 3) muestra error de formato a la Secretaria Academica.
+1. La Secretaria selecciona el archivo (CSV / Excel) en el Frontend
+2. Frontend → `POST /api/secretaria/import/matriculas (multipart/form-data)` → `SecretariaController.importarMatriculas(archivo)`
+3. `SecretariaService` valida el formato del archivo
+4. Si el archivo es válido → por cada fila: `SELECT * FROM Alumno WHERE dni = ?` → `INSERT INTO Matricula (...) ON CONFLICT DO UPDATE` → Frontend muestra informe (creadas, actualizadas, errores)
+5. Si el archivo no es válido → Frontend muestra error "Formato de archivo no válido" con `400 Bad Request`

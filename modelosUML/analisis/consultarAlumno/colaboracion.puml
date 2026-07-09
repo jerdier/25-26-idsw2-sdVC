@@ -11,10 +11,7 @@ package consultarAlumno as "consultarAlumno()" {
 }
 
 AlumnosAbierto -r-> ConsultarAlumnoView: consultarAlumno()
-ConsultarAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId)
-AlumnoController -d-> AlumnoRepository: findById(alumnoId)
-AlumnoRepository -d-> Alumno: findById(alumnoId)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> AlumnoController
-AlumnoController --u-> ConsultarAlumnoView
+ConsultarAlumnoView -d-> AlumnoController: consultarAlumno(alumnoId)
+AlumnoController --> AlumnoRepository: findById(alumnoId)
+AlumnoRepository -- Alumno
 @enduml

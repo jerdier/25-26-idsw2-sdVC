@@ -11,10 +11,7 @@ package abrirAlumnos as "abrirAlumnos()" {
 }
 
 SistemaDisponible -r-> AbrirAlumnosView: abrirAlumnos()
-AbrirAlumnosView -d-> AlumnoController: getAlumnos(filtros)
-AlumnoController -d-> AlumnoRepository: findAll(filtros)
-AlumnoRepository -d-> Alumno: findAll(filtros)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> AlumnoController
-AlumnoController --u-> AbrirAlumnosView
+AbrirAlumnosView -d-> AlumnoController: listarAlumnos(filtros)
+AlumnoController --> AlumnoRepository: findAll(filtros)
+AlumnoRepository -- Alumno
 @enduml

@@ -11,11 +11,7 @@ package abrirDispensas as "abrirDispensas()" {
 }
 
 SistemaDisponible -r-> AbrirDispensasView: abrirDispensas()
-AbrirDispensasView -d-> DispensaController: getDispensas(usuarioId, rol)
-DispensaController -d-> DispensaRepository: findByUsuario(usuarioId, rol)
-DispensaRepository -d-> Dispensa: findAll(filtros)
-Dispensa --u-> DispensaRepository
-DispensaRepository --u-> DispensaController
-DispensaController --u-> AbrirDispensasView
-
+AbrirDispensasView -d-> DispensaController: listarDispensas(filtros)
+DispensaController --> DispensaRepository: findAll(filtros)
+DispensaRepository -- Dispensa
 @enduml

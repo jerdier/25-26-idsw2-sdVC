@@ -12,9 +12,6 @@ package cerrarCicloAcademico as "cerrarCicloAcademico()" {
 
 MatriculasAbierto -r-> CerrarCicloAcademicoView: cerrarCicloAcademico()
 CerrarCicloAcademicoView -d-> MatriculaController: cerrarCicloAcademico()
-MatriculaController -d-> MatriculaRepository: actualizarEstado(Historica)
-MatriculaRepository -d-> Matricula: actualizarEstado(Historica)
-Matricula --u-> MatriculaRepository
-MatriculaRepository --u-> MatriculaController
-MatriculaController --u-> CerrarCicloAcademicoView
+MatriculaController --> MatriculaRepository: actualizarEstado(Historica)
+MatriculaRepository -- Matricula
 @enduml

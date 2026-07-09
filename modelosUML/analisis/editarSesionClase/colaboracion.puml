@@ -14,17 +14,11 @@ package editarSesionClase as "editarSesionClase()" {
 
 SesionClaseAbierta -r-> EditarSesionClaseView: editarSesionClase()
 EditarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId)
-SesionClaseController -d-> SesionClaseRepository: obtenerPorId(sesionId)
-SesionClaseRepository -d-> SesionDeClase: findById(sesionId)
-SesionDeClase --u-> SesionClaseRepository
-SesionClaseRepository --u-> SesionClaseController
-SesionClaseController -d-> AsignaturaRepository: obtenerPorProfesor(profesorId)
-AsignaturaRepository -d-> Asignatura: findByProfesor(profesorId)
-Asignatura --u-> AsignaturaRepository
-AsignaturaRepository --u-> SesionClaseController
-SesionClaseController -d-> SesionClaseRepository: actualizar(sesionId, datos)
-SesionClaseRepository -d-> SesionDeClase: update(datos)
-SesionDeClase --u-> SesionClaseRepository
-SesionClaseRepository --u-> SesionClaseController
-SesionClaseController --u-> EditarSesionClaseView
+SesionClaseController --> SesionClaseRepository: findById(sesionId)
+SesionClaseRepository -- SesionDeClase
+EditarSesionClaseView -d-> SesionClaseController: cargarAsignaturas(profesorId)
+SesionClaseController --> AsignaturaRepository: findByProfesor(profesorId)
+AsignaturaRepository -- Asignatura
+EditarSesionClaseView -d-> SesionClaseController: editarSesionClase(sesionId, asignaturaId, fecha, horaInicio, horaFin, tipo)
+SesionClaseController --> SesionClaseRepository: update(sesionId, datos)
 @enduml

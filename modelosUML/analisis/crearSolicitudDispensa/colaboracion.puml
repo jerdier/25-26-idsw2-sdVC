@@ -11,10 +11,7 @@ package crearSolicitudDispensa as "crearSolicitudDispensa()" {
 }
 
 DispensasAbierto -r-> CrearSolicitudDispensaView: crearSolicitudDispensa()
-CrearSolicitudDispensaView -d-> DispensaController: crearSolicitudDispensa(alumnoId, asignaturaId, periodo, horario, motivo)
-DispensaController -d-> DispensaRepository: create(alumnoId, asignaturaId, periodo, horario, motivo)
-DispensaRepository -d-> Dispensa: new(alumnoId, asignaturaId, periodo, horario, motivo)
-Dispensa --u-> DispensaRepository
-DispensaRepository --u-> DispensaController
-DispensaController --u-> CrearSolicitudDispensaView
+CrearSolicitudDispensaView -d-> DispensaController: crearSolicitudDispensa(asignatura, motivo, dias, franjaHoraria, asignaturaSolapada, justificacion)
+DispensaController --> DispensaRepository: create(asignatura, motivo, dias, franjaHoraria, asignaturaSolapada, justificacion)
+DispensaRepository -- Dispensa
 @enduml

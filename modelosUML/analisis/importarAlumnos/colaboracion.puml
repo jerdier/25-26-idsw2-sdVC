@@ -11,12 +11,7 @@ package importarAlumnos as "importarAlumnos()" {
 }
 
 AlumnosAbierto -r-> ImportarAlumnosView: importarAlumnos()
-ImportarAlumnosView -d-> AlumnoController: validarArchivo(archivo)
-AlumnoController --u-> ImportarAlumnosView
 ImportarAlumnosView -d-> AlumnoController: importarAlumnos(archivo)
-AlumnoController -d-> AlumnoRepository: crearOActualizar(datosAlumno)
-AlumnoRepository -d-> Alumno: new(datosAlumno)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> AlumnoController
-AlumnoController --u-> ImportarAlumnosView
+AlumnoController --> AlumnoRepository: crearOActualizar(datosAlumno)
+AlumnoRepository -- Alumno
 @enduml

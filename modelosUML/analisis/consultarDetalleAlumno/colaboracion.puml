@@ -13,14 +13,9 @@ package consultarDetalleAlumno as "consultarDetalleAlumno()" {
 }
 
 AlumnosAbierto -r-> ConsultarDetalleAlumnoView: consultarDetalleAlumno()
-ConsultarDetalleAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId)
-AlumnoController -d-> AlumnoRepository: obtenerPorId(alumnoId)
-AlumnoRepository -d-> Alumno: findById(alumnoId)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> AlumnoController
-AlumnoController -d-> AsistenciaRepository: obtenerPorAlumno(alumnoId)
-AsistenciaRepository -d-> Asistencia: findByAlumno(alumnoId)
-Asistencia --u-> AsistenciaRepository
-AsistenciaRepository --u-> AlumnoController
-AlumnoController --u-> ConsultarDetalleAlumnoView
+ConsultarDetalleAlumnoView -d-> AlumnoController: consultarDetalleAlumno(alumnoId)
+AlumnoController --> AlumnoRepository: findById(alumnoId)
+AlumnoRepository -- Alumno
+AlumnoController --> AsistenciaRepository: findByAlumno(alumnoId)
+AsistenciaRepository -- Asistencia
 @enduml

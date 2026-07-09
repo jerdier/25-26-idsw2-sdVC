@@ -11,10 +11,7 @@ package abrirMatriculas as "abrirMatriculas()" {
 }
 
 SistemaDisponible -r-> AbrirMatriculasView: abrirMatriculas()
-AbrirMatriculasView -d-> MatriculaController: getMatriculas(filtros)
-MatriculaController -d-> MatriculaRepository: findAll(filtros)
-MatriculaRepository -d-> Matricula: findAll(filtros)
-Matricula --u-> MatriculaRepository
-MatriculaRepository --u-> MatriculaController
-MatriculaController --u-> AbrirMatriculasView
+AbrirMatriculasView -d-> MatriculaController: listarMatriculas(filtros)
+MatriculaController --> MatriculaRepository: findAll(filtros)
+MatriculaRepository -- Matricula
 @enduml

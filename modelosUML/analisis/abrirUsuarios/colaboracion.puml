@@ -11,10 +11,7 @@ package abrirUsuarios as "abrirUsuarios()" {
 }
 
 SistemaDisponible -r-> AbrirUsuariosView: abrirUsuarios()
-AbrirUsuariosView -d-> UsuarioController: obtenerUsuarios()
-UsuarioController -d-> UsuarioRepository: findAll()
-UsuarioRepository -d-> Usuario: findAll()
-Usuario --u-> UsuarioRepository
-UsuarioRepository --u-> UsuarioController
-UsuarioController --u-> AbrirUsuariosView
+AbrirUsuariosView -d-> UsuarioController: listarUsuarios(filtros)
+UsuarioController --> UsuarioRepository: findAll(filtros)
+UsuarioRepository -- Usuario
 @enduml

@@ -11,10 +11,9 @@ package editarSolicitudDispensa as "editarSolicitudDispensa()" {
 }
 
 SolicitudDispensaAbierta -r-> EditarSolicitudDispensaView: editarSolicitudDispensa()
+EditarSolicitudDispensaView -d-> DispensaController: obtenerDispensa(dispensaId)
+DispensaController --> DispensaRepository: findById(dispensaId)
+DispensaRepository -- Dispensa
 EditarSolicitudDispensaView -d-> DispensaController: editarSolicitudDispensa(dispensaId, datos)
-DispensaController -d-> DispensaRepository: update(dispensaId, datos)
-DispensaRepository -d-> Dispensa: update(datos)
-Dispensa --u-> DispensaRepository
-DispensaRepository --u-> DispensaController
-DispensaController --u-> EditarSolicitudDispensaView
+DispensaController --> DispensaRepository: update(dispensaId, datos)
 @enduml

@@ -11,10 +11,7 @@ package consultarUsuario as "consultarUsuario()" {
 }
 
 UsuariosAbierto -r-> ConsultarUsuarioView: consultarUsuario()
-ConsultarUsuarioView -d-> UsuarioController: buscarUsuarios(filtro)
-UsuarioController -d-> UsuarioRepository: buscarPorFiltro(filtro)
-UsuarioRepository -d-> Usuario: findAll(filtro)
-Usuario --u-> UsuarioRepository
-UsuarioRepository --u-> UsuarioController
-UsuarioController --u-> ConsultarUsuarioView
+ConsultarUsuarioView -d-> UsuarioController: consultarUsuario(usuarioId)
+UsuarioController --> UsuarioRepository: findById(usuarioId)
+UsuarioRepository -- Usuario
 @enduml

@@ -6,21 +6,13 @@ rectangle #CDEBA5 ":Asistencias Abierto" as AsistenciasAbierto
 package exportarHistorialAsistencias as "exportarHistorialAsistencias()" {
     rectangle #629EF9 ExportarHistorialAsistenciasView
     rectangle #b5bd68 AsistenciaController
-    rectangle #F2AC4E SesionClaseRepository
     rectangle #F2AC4E AsistenciaRepository
-    rectangle #F2AC4E SesionDeClase
     rectangle #F2AC4E Asistencia
 }
 
 AsistenciasAbierto -r-> ExportarHistorialAsistenciasView: exportarHistorialAsistencias()
-ExportarHistorialAsistenciasView -d-> AsistenciaController: obtenerSesion(sesionId)
-AsistenciaController -d-> SesionClaseRepository: obtenerPorId(sesionId)
-SesionClaseRepository -d-> SesionDeClase: findById(sesionId)
-SesionDeClase --u-> SesionClaseRepository
-SesionClaseRepository --u-> AsistenciaController
-AsistenciaController -d-> AsistenciaRepository: obtenerPorSesion(sesionId)
-AsistenciaRepository -d-> Asistencia: findBySesion(sesionId)
-Asistencia --u-> AsistenciaRepository
-AsistenciaRepository --u-> AsistenciaController
-AsistenciaController --u-> ExportarHistorialAsistenciasView: generarInforme(sesionId, formato)
+ExportarHistorialAsistenciasView -d-> AsistenciaController: cargarAsistencias(asignaturaId, fechaInicio, fechaFin)
+AsistenciaController --> AsistenciaRepository: findByAsignatura(asignaturaId, fechaInicio, fechaFin)
+AsistenciaRepository -- Asistencia
+ExportarHistorialAsistenciasView -d-> AsistenciaController: generarArchivo(asignaturaId, fechaInicio, fechaFin, formato)
 @enduml

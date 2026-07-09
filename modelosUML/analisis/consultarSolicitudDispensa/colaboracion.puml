@@ -11,10 +11,7 @@ package consultarSolicitudDispensa as "consultarSolicitudDispensa()" {
 }
 
 DispensasAbierto -r-> ConsultarSolicitudDispensaView: consultarSolicitudDispensa()
-ConsultarSolicitudDispensaView -d-> DispensaController: consultarSolicitudDispensa(usuarioId, rol)
-DispensaController -d-> DispensaRepository: findByUsuario(usuarioId, rol)
-DispensaRepository -d-> Dispensa: findAll(filtros)
-Dispensa --u-> DispensaRepository
-DispensaRepository --u-> DispensaController
-DispensaController --u-> ConsultarSolicitudDispensaView
+ConsultarSolicitudDispensaView -d-> DispensaController: consultarSolicitudDispensa(dispensaId)
+DispensaController --> DispensaRepository: findById(dispensaId)
+DispensaRepository -- Dispensa
 @enduml

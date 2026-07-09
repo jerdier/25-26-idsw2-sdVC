@@ -7,20 +7,11 @@ package consultarDetalleMatricula as "consultarDetalleMatricula()" {
     rectangle #629EF9 ConsultarDetalleMatriculaView
     rectangle #b5bd68 MatriculaController
     rectangle #F2AC4E MatriculaRepository
-    rectangle #F2AC4E AlumnoRepository
     rectangle #F2AC4E Matricula
-    rectangle #F2AC4E Alumno
 }
 
 MatriculasAbierto -r-> ConsultarDetalleMatriculaView: consultarDetalleMatricula()
-ConsultarDetalleMatriculaView -d-> MatriculaController: buscarMatriculas(filtro)
-MatriculaController -d-> MatriculaRepository: buscarPorFiltro(filtro)
-MatriculaRepository -d-> Matricula: findAll(filtro)
-Matricula --u-> MatriculaRepository
-MatriculaRepository --u-> MatriculaController
-MatriculaController -d-> AlumnoRepository: obtenerPorId(alumnoId)
-AlumnoRepository -d-> Alumno: findById(alumnoId)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> MatriculaController
-MatriculaController --u-> ConsultarDetalleMatriculaView
+ConsultarDetalleMatriculaView -d-> MatriculaController: consultarDetalleMatricula(alumnoId)
+MatriculaController --> MatriculaRepository: findByAlumno(alumnoId)
+MatriculaRepository -- Matricula
 @enduml

@@ -11,14 +11,9 @@ package editarUsuario as "editarUsuario()" {
 }
 
 UsuarioDetalleAbierto -r-> EditarUsuarioView: editarUsuario()
-EditarUsuarioView -d-> UsuarioController: obtenerUsuario(id)
-UsuarioController -d-> UsuarioRepository: obtenerPorId(id)
-UsuarioRepository -d-> Usuario: findById(id)
-Usuario --u-> UsuarioRepository
-UsuarioRepository --u-> UsuarioController
-UsuarioController -d-> UsuarioRepository: actualizar(id, nombre, email, rol)
-UsuarioRepository -d-> Usuario: update(datos)
-Usuario --u-> UsuarioRepository
-UsuarioRepository --u-> UsuarioController
-UsuarioController --u-> EditarUsuarioView
+EditarUsuarioView -d-> UsuarioController: obtenerUsuario(usuarioId)
+UsuarioController --> UsuarioRepository: findById(usuarioId)
+UsuarioRepository -- Usuario
+EditarUsuarioView -d-> UsuarioController: editarUsuario(usuarioId, nombres, apellidos, correo, rol, estado)
+UsuarioController --> UsuarioRepository: update(usuarioId, datos)
 @enduml

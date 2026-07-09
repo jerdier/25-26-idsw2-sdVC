@@ -14,13 +14,9 @@ package registrarTomaAsistencia as "registrarTomaAsistencia()" {
 
 SesionClaseAbierta -r-> RegistrarTomaAsistenciaView: registrarTomaAsistencia(sesionId)
 RegistrarTomaAsistenciaView -d-> AsistenciaController: cargarAlumnos(sesionId)
-AsistenciaController -d-> AlumnoRepository: obtenerPorSesion(sesionId)
-AlumnoRepository -d-> Alumno: findBySesion(sesionId)
-Alumno --u-> AlumnoRepository
-AlumnoRepository --u-> AsistenciaController
-AsistenciaController -d-> AsistenciaRepository: guardarOActualizar(sesionId, alumnoId, presente)
-AsistenciaRepository -d-> Asistencia: new(sesionId, alumnoId, presente)
-Asistencia --u-> AsistenciaRepository
-AsistenciaRepository --u-> AsistenciaController
-AsistenciaController --u-> RegistrarTomaAsistenciaView
+AsistenciaController --> AlumnoRepository: findBySesion(sesionId)
+AlumnoRepository -- Alumno
+RegistrarTomaAsistenciaView -d-> AsistenciaController: registrarAsistencia(sesionId, alumnoId, estado)
+AsistenciaController --> AsistenciaRepository: crearOActualizar(sesionId, alumnoId, estado)
+AsistenciaRepository -- Asistencia
 @enduml

@@ -14,13 +14,9 @@ package crearSesionClase as "crearSesionClase()" {
 
 AsistenciasAbierto -r-> CrearSesionClaseView: crearSesionClase()
 CrearSesionClaseView -d-> SesionClaseController: cargarAsignaturas(profesorId)
-SesionClaseController -d-> AsignaturaRepository: obtenerPorProfesor(profesorId)
-AsignaturaRepository -d-> Asignatura: findByProfesor(profesorId)
-Asignatura --u-> AsignaturaRepository
-AsignaturaRepository --u-> SesionClaseController
-SesionClaseController -d-> SesionClaseRepository: crear(asignaturaId, fecha, aula, duracion)
-SesionClaseRepository -d-> SesionDeClase: new(asignaturaId, fecha, aula, duracion)
-SesionDeClase --u-> SesionClaseRepository
-SesionClaseRepository --u-> SesionClaseController
-SesionClaseController --u-> CrearSesionClaseView
+SesionClaseController --> AsignaturaRepository: findByProfesor(profesorId)
+AsignaturaRepository -- Asignatura
+CrearSesionClaseView -d-> SesionClaseController: crearSesionClase(asignaturaId, fecha, horaInicio, horaFin, tipo)
+SesionClaseController --> SesionClaseRepository: create(asignaturaId, fecha, horaInicio, horaFin, tipo)
+SesionClaseRepository -- SesionDeClase
 @enduml

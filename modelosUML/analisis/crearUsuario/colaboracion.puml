@@ -11,12 +11,7 @@ package crearUsuario as "crearUsuario()" {
 }
 
 UsuariosAbierto -r-> CrearUsuarioView: crearUsuario()
-CrearUsuarioView -d-> UsuarioController: validarDatos(nombre, email, rol)
-UsuarioController -d-> UsuarioRepository: verificarUnicidad(email)
-UsuarioRepository --u-> UsuarioController
-UsuarioController -d-> UsuarioRepository: crear(nombre, email, password, rol)
-UsuarioRepository -d-> Usuario: new(nombre, email, password, rol)
-Usuario --u-> UsuarioRepository
-UsuarioRepository --u-> UsuarioController
-UsuarioController --u-> CrearUsuarioView
+CrearUsuarioView -d-> UsuarioController: crearUsuario(nombres, apellidos, dni, correo, rol)
+UsuarioController --> UsuarioRepository: create(nombres, apellidos, dni, correo, rol)
+UsuarioRepository -- Usuario
 @enduml

@@ -8,20 +8,23 @@ skinparam StateBackgroundColor #F5F5F5
 skinparam StateBorderColor gray
 
 state "consultarSolicitudDispensa()" as consultarSolicitudDispensa {
-
+   
     state " " as Paso1
     state " " as Paso2
-
+   
     [*] -[#green]-> Paso1
     note on link
       <b>Secretaría</b> solicita mostrar solicitud de dispensa
     end note
-
+   
     Paso1 -[#green]-> Paso2
     note on link
-      <b>Sistema</b> muestra datos de la solicitud
+      <b>Sistema</b> muestra los datos de la solicitud:
+      • Estado de la Dispensa, Asignatura y Tipo/Motivo
+      • Día(s) de la semana y Franja horaria afectada
+      • Asignatura solapada y Justificación / Comentarios
     end note
-
+   
     Paso2 -[#green]-> [*]
     note on link
       <b>Secretaría</b> revisa la información de la solicitud

@@ -8,20 +8,23 @@ skinparam StateBackgroundColor #F5F5F5
 skinparam StateBorderColor gray
 
 state "editarSolicitudDispensa()" as editarSolicitudDispensa {
-
+   
     state " " as Paso1
     state " " as Paso2
-
+   
     [*] -[#green]-> Paso1
     note on link
       <b>Secretaría</b> solicita editar solicitud de dispensa
     end note
-
+   
     Paso1 -[#green]-> Paso2
     note on link
-      <b>Sistema</b> muestra datos de la solicitud
+      <b>Sistema</b> muestra datos de la solicitud a modificar:
+      • Alumno Solicitante y Asignatura
+      • Tipo/Motivo, Día(s) y Franja horaria
+      • Observaciones Internas (Sec.)
     end note
-
+   
     Paso2 -[#green]-> [*]
     note on link
       <b>Secretaría</b> introduce datos actualizados

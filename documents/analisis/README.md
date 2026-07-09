@@ -5,13 +5,24 @@
 
 ---
 
+## Abrir
+
+| Caso de uso | Actores | Enlace |
+|-------------|---------|--------|
+| `abrirAlumnos()` | Secretaria · Profesor | [ver](abrirAlumnos/README.md) |
+| `abrirDispensas()` | Alumno · Profesor · DirectorDeGrado · Secretaria | [ver](abrirDispensas/README.md) |
+| `abrirMatriculas()` | Secretaria | [ver](abrirMatriculas/README.md) |
+| `abrirUsuarios()` | Administrador | [ver](abrirUsuarios/README.md) |
+
+---
+
 ## Crear
 
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
 | `crearUsuario()` | Administrador | [ver](crearUsuario/README.md) |
 | `crearSesionClase()` | Profesor | [ver](crearSesionClase/README.md) |
-| `crearSolicitudDispensa()` | Alumno - Secretaria | [ver](crearSolicitudDispensa/README.md) |
+| `crearSolicitudDispensa()` | Alumno · Secretaria | [ver](crearSolicitudDispensa/README.md) |
 
 ---
 
@@ -20,10 +31,10 @@
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
 | `consultarUsuario()` | Administrador | [ver](consultarUsuario/README.md) |
+| `consultarAlumno()` | Secretaria | [ver](consultarAlumno/README.md) |
 | `consultarDetalleAlumno()` | Profesor | [ver](consultarDetalleAlumno/README.md) |
-| `consultarListaAlumnos()` | Profesor - Secretaria | [ver](consultarListaAlumnos/README.md) |
-| `consultarSolicitudDispensa()` | Profesor - Secretaria | [ver](consultarSolicitudDispensa/README.md) |
 | `consultarDetalleMatricula()` | Secretaria | [ver](consultarDetalleMatricula/README.md) |
+| `consultarSolicitudDispensa()` | Alumno · Profesor · DirectorDeGrado · Secretaria | [ver](consultarSolicitudDispensa/README.md) |
 
 ---
 
@@ -33,15 +44,7 @@
 |-------------|---------|--------|
 | `editarUsuario()` | Administrador | [ver](editarUsuario/README.md) |
 | `editarSesionClase()` | Profesor | [ver](editarSesionClase/README.md) |
-| `editarSolicitudDispensa()` | Alumno - Secretaria - Director | [ver](editarSolicitudDispensa/README.md) |
-
----
-
-## Guardar
-
-| Caso de uso | Actores | Enlace |
-|-------------|---------|--------|
-| `guardarSolicitudDispensa()` | Secretaria - Director | [ver](guardarSolicitudDispensa/README.md) |
+| `editarSolicitudDispensa()` | Alumno · DirectorDeGrado · Secretaria | [ver](editarSolicitudDispensa/README.md) |
 
 ---
 
@@ -50,6 +53,7 @@
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
 | `cerrarSesionClase()` | Profesor | [ver](cerrarSesionClase/README.md) |
+| `cerrarCicloAcademico()` | Secretaria | [ver](cerrarCicloAcademico/README.md) |
 
 ---
 
@@ -66,7 +70,6 @@
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
 | `exportarHistorialAsistencias()` | Profesor | [ver](exportarHistorialAsistencias/README.md) |
-| `exportarDispensas()` | Secretaria | [ver](exportarDispensas/README.md) |
 
 ---
 
@@ -74,9 +77,9 @@
 
 | Caso de uso | Actores | Enlace |
 |-------------|---------|--------|
-| `importarListasAlumnos()` | Secretaria | [ver](importarListasAlumnos/README.md) |
+| `importarAlumnos()` | Secretaria | [ver](importarAlumnos/README.md) |
 | `importarMatriculas()` | Secretaria | [ver](importarMatriculas/README.md) |
 
 ---
 
-> **Total:** 18 casos de uso
+> **Total:** 21 casos de uso

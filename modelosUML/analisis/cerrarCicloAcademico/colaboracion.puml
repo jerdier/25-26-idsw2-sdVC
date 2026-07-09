@@ -1,0 +1,20 @@
+﻿@startuml cerrarCicloAcademico-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Matriculas Abierto" as MatriculasAbierto
+
+package cerrarCicloAcademico as "cerrarCicloAcademico()" {
+    rectangle #629EF9 CerrarCicloAcademicoView
+    rectangle #b5bd68 MatriculaController
+    rectangle #F2AC4E MatriculaRepository
+    rectangle #F2AC4E Matricula
+}
+
+MatriculasAbierto -r-> CerrarCicloAcademicoView: cerrarCicloAcademico()
+CerrarCicloAcademicoView -d-> MatriculaController: cerrarCicloAcademico()
+MatriculaController -d-> MatriculaRepository: actualizarEstado(Historica)
+MatriculaRepository -d-> Matricula: actualizarEstado(Historica)
+Matricula --u-> MatriculaRepository
+MatriculaRepository --u-> MatriculaController
+MatriculaController --u-> CerrarCicloAcademicoView
+@enduml

@@ -8,7 +8,7 @@ participant "SecretariaController" as Controller
 participant "SecretariaService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
 
-Secretaria -> Frontend : accede a la sección de alumnos\ny busca por nombre o registro
+Secretaria -> Frontend : accede a la sección de matrículas\ny busca por nombre o registro
 activate Frontend
 
 Frontend -> Controller : GET /api/secretaria/alumnos

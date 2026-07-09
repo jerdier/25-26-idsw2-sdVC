@@ -7,7 +7,6 @@ participant "Frontend\n(Vue 3)" as Frontend
 participant "AcademicController" as Controller
 participant "AcademicService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
-participant ":Collaboration\nRegistrarTomaAsistencia" as RegistrarTomaAsistencia
 
 Profesor -> Frontend : abre formulario de nueva sesión
 activate Frontend
@@ -53,7 +52,5 @@ deactivate Controller
 
 Frontend --> Profesor : sesión creada correctamente
 deactivate Frontend
-
-Frontend -> RegistrarTomaAsistencia : <<include>> registrarTomaAsistencia(sesionCreada)
 
 @enduml

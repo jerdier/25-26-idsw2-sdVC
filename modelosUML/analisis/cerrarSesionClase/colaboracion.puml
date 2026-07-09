@@ -1,8 +1,7 @@
-@startuml cerrarSesionClase-analisis
+﻿@startuml cerrarSesionClase-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
-rectangle #CDEBA5 ":Collaboration ExportarHistorialAsistencias" as ExportarHistorialAsistencias
+rectangle #CDEBA5 ":Sesion Clase Abierta" as SesionClaseAbierta
 
 package cerrarSesionClase as "cerrarSesionClase()" {
     rectangle #629EF9 CerrarSesionClaseView
@@ -13,24 +12,17 @@ package cerrarSesionClase as "cerrarSesionClase()" {
     rectangle #F2AC4E Asistencia
 }
 
-DashboardProfesorAbierto -r-> CerrarSesionClaseView: cerrarSesionClase()
-
-CerrarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId) : SesionDeClase
-
-SesionClaseController --> SesionClaseRepository: obtenerPorId(sesionId) : SesionDeClase
-
-SesionClaseRepository -- SesionDeClase
-
-CerrarSesionClaseView -d-> SesionClaseController: obtenerAsistencias(sesionId) : List<Asistencia>
-
-SesionClaseController --> AsistenciaRepository: obtenerPorSesion(sesionId) : List<Asistencia>
-
-AsistenciaRepository -- Asistencia
-
-CerrarSesionClaseView --> SesionClaseController: cerrarSesionClase(sesionId) : SesionDeClase
-
-SesionClaseController --> SesionClaseRepository: actualizarEstado(sesionId, CERRADA) : SesionDeClase
-
-CerrarSesionClaseView ..> ExportarHistorialAsistencias: <<include>> exportarHistorialAsistencias()
-
+SesionClaseAbierta -r-> CerrarSesionClaseView: cerrarSesionClase()
+CerrarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId)
+SesionClaseController -d-> SesionClaseRepository: obtenerPorId(sesionId)
+SesionClaseRepository -d-> SesionDeClase: findById(sesionId)
+SesionDeClase --u-> SesionClaseRepository
+SesionClaseRepository --u-> SesionClaseController
+SesionClaseController -d-> AsistenciaRepository: obtenerPorSesion(sesionId)
+AsistenciaRepository -d-> Asistencia: findBySesion(sesionId)
+Asistencia --u-> AsistenciaRepository
+AsistenciaRepository --u-> SesionClaseController
+SesionClaseController -d-> SesionClaseRepository: actualizarEstado(sesionId, CERRADA)
+SesionClaseRepository --u-> SesionClaseController
+SesionClaseController --u-> CerrarSesionClaseView
 @enduml

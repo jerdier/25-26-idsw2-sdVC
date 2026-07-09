@@ -1,7 +1,7 @@
-@startuml editarUsuario-analisis
+﻿@startuml editarUsuario-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Panel Admin Abierto" as PanelAdminAbierto
+rectangle #CDEBA5 ":Usuario Detalle Abierto" as UsuarioDetalleAbierto
 
 package editarUsuario as "editarUsuario()" {
     rectangle #629EF9 EditarUsuarioView
@@ -10,20 +10,15 @@ package editarUsuario as "editarUsuario()" {
     rectangle #F2AC4E Usuario
 }
 
-PanelAdminAbierto -r-> EditarUsuarioView: editarUsuario()
-
-EditarUsuarioView -d-> UsuarioController: obtenerUsuario(id) : Usuario
-
-UsuarioController --> UsuarioRepository: obtenerPorId(id) : Usuario
-
-UsuarioRepository -- Usuario
-
-EditarUsuarioView --> UsuarioController: validarDatos(nombre, email, rol) : boolean
-
-UsuarioController --> UsuarioRepository: verificarUnicidad(email, id) : boolean
-
-EditarUsuarioView --> UsuarioController: editarUsuario(id, nombre, email, rol) : Usuario
-
-UsuarioController --> UsuarioRepository: actualizar(id, nombre, email, rol) : Usuario
-
+UsuarioDetalleAbierto -r-> EditarUsuarioView: editarUsuario()
+EditarUsuarioView -d-> UsuarioController: obtenerUsuario(id)
+UsuarioController -d-> UsuarioRepository: obtenerPorId(id)
+UsuarioRepository -d-> Usuario: findById(id)
+Usuario --u-> UsuarioRepository
+UsuarioRepository --u-> UsuarioController
+UsuarioController -d-> UsuarioRepository: actualizar(id, nombre, email, rol)
+UsuarioRepository -d-> Usuario: update(datos)
+Usuario --u-> UsuarioRepository
+UsuarioRepository --u-> UsuarioController
+UsuarioController --u-> EditarUsuarioView
 @enduml

@@ -1,7 +1,7 @@
-@startuml consultarDetalleAlumno-analisis
+﻿@startuml consultarDetalleAlumno-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
+rectangle #CDEBA5 ":Alumnos Abierto" as AlumnosAbierto
 
 package consultarDetalleAlumno as "consultarDetalleAlumno()" {
     rectangle #629EF9 ConsultarDetalleAlumnoView
@@ -12,18 +12,15 @@ package consultarDetalleAlumno as "consultarDetalleAlumno()" {
     rectangle #F2AC4E Asistencia
 }
 
-DashboardProfesorAbierto -r-> ConsultarDetalleAlumnoView: consultarDetalleAlumno()
-
-ConsultarDetalleAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId) : Alumno
-
-AlumnoController --> AlumnoRepository: obtenerPorId(alumnoId) : Alumno
-
-AlumnoRepository -- Alumno
-
-ConsultarDetalleAlumnoView --> AlumnoController: obtenerAsistencias(alumnoId) : List<Asistencia>
-
-AlumnoController --> AsistenciaRepository: obtenerPorAlumno(alumnoId) : List<Asistencia>
-
-AsistenciaRepository -- Asistencia
-
+AlumnosAbierto -r-> ConsultarDetalleAlumnoView: consultarDetalleAlumno()
+ConsultarDetalleAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId)
+AlumnoController -d-> AlumnoRepository: obtenerPorId(alumnoId)
+AlumnoRepository -d-> Alumno: findById(alumnoId)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> AlumnoController
+AlumnoController -d-> AsistenciaRepository: obtenerPorAlumno(alumnoId)
+AsistenciaRepository -d-> Asistencia: findByAlumno(alumnoId)
+Asistencia --u-> AsistenciaRepository
+AsistenciaRepository --u-> AlumnoController
+AlumnoController --u-> ConsultarDetalleAlumnoView
 @enduml

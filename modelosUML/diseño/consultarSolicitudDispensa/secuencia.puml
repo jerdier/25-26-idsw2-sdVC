@@ -2,68 +2,51 @@
 
 title Diagrama de Secuencia - Consultar Solicitud de Dispensa (Vue 3 + Express + Prisma)
 
-actor "Profesor / Secretaria" as Actor
+actor "Usuario" as Usuario
 participant "Frontend\n(Vue 3)" as Frontend
 participant "DispensaController" as Controller
 participant "DispensaService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
 
-Actor -> Frontend : accede a la sección de dispensas
+Usuario -> Frontend : accede a consultar solicitudes de dispensa
 activate Frontend
 
-alt Profesor consulta dispensas de sus asignaturas
-
-    Frontend -> Controller : GET /api/dispensas/profesor/:profesorId
-    activate Controller
-
-    Controller -> Service : getDispensasByProfesor(profesorId)
-    activate Service
-
-    Service -> DB : SELECT * FROM Dispensa\nWHERE estado = 'APROBADA'\nAND asignaturas.some(profesorId = ?)\nINCLUDE alumno, asignaturas
-    activate DB
-    DB --> Service : dispensas : Dispensa[]
-    deactivate DB
-
-    Service --> Controller : dispensas : Dispensa[]
-    deactivate Service
-
-    Controller --> Frontend : 200 OK { dispensas }
-    deactivate Controller
-
-else Secretaria consulta todas las dispensas
-
-    Frontend -> Controller : GET /api/dispensas
-    activate Controller
-
-    Controller -> Service : getAllDispensas()
-    activate Service
-
-    Service -> DB : SELECT * FROM Dispensa\nINCLUDE alumno, asignaturas\nORDER BY fechaSolicitud DESC
-    activate DB
-    DB --> Service : dispensas : Dispensa[]
-    deactivate DB
-
-    Service --> Controller : dispensas : Dispensa[]
-    deactivate Service
-
-    Controller --> Frontend : 200 OK { dispensas }
-    deactivate Controller
-
-end
-
-Frontend --> Actor : muestra lista de dispensas
-deactivate Frontend
-
-Actor -> Frontend : selecciona una dispensa
-activate Frontend
-
-Frontend -> Controller : GET /api/dispensas/:id
+Frontend -> Controller : GET /api/dispensas
 activate Controller
 
-Controller -> Service : getDispensasByAlumno(alumnoId)
+note over Controller
+  Filtra según rol del usuario:
+  • Alumno → sus propias dispensas
+  • Profesor → dispensas de sus alumnos
+  • Secretaria → todas las dispensas
+  • DirectorDeGrado → dispensas de su grado
+end note
+
+Controller -> Service : getDispensas(usuarioId, rol)
 activate Service
 
-Service -> DB : SELECT * FROM Dispensa\nWHERE id = ?\nINCLUDE alumno, sesionesEximidas(asignatura), asignaturas
+Service -> DB : SELECT * FROM Dispensa\n(con filtros según rol)
+activate DB
+DB --> Service : dispensas : Dispensa[]
+deactivate DB
+
+Service --> Controller : dispensas : Dispensa[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { dispensas }
+deactivate Controller
+
+Frontend --> Usuario : muestra lista de solicitudes
+
+Usuario -> Frontend : selecciona una solicitud (dispensaId)
+
+Frontend -> Controller : GET /api/dispensas/:dispensaId
+activate Controller
+
+Controller -> Service : getDispensa(dispensaId)
+activate Service
+
+Service -> DB : SELECT * FROM Dispensa WHERE id = ?
 activate DB
 DB --> Service : dispensa : Dispensa
 deactivate DB
@@ -74,7 +57,7 @@ deactivate Service
 Controller --> Frontend : 200 OK { dispensa }
 deactivate Controller
 
-Frontend --> Actor : muestra detalle de la dispensa
+Frontend --> Usuario : muestra detalle de la solicitud
 deactivate Frontend
 
 @enduml

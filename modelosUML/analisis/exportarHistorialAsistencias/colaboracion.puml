@@ -1,31 +1,26 @@
-@startuml exportarHistorialAsistencias-analisis
+﻿@startuml exportarHistorialAsistencias-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Collaboration CerrarSesionClase" as CerrarSesionClase
+rectangle #CDEBA5 ":Asistencias Abierto" as AsistenciasAbierto
 
 package exportarHistorialAsistencias as "exportarHistorialAsistencias()" {
     rectangle #629EF9 ExportarHistorialAsistenciasView
     rectangle #b5bd68 AsistenciaController
-    rectangle #F2AC4E AsistenciaRepository
     rectangle #F2AC4E SesionClaseRepository
-    rectangle #F2AC4E Asistencia
+    rectangle #F2AC4E AsistenciaRepository
     rectangle #F2AC4E SesionDeClase
+    rectangle #F2AC4E Asistencia
 }
 
-CerrarSesionClase -r-> ExportarHistorialAsistenciasView: <<include>> exportarHistorialAsistencias()
-
-ExportarHistorialAsistenciasView -d-> AsistenciaController: obtenerAsistencias(sesionId) : List<Asistencia>
-
-AsistenciaController --> AsistenciaRepository: obtenerPorSesion(sesionId) : List<Asistencia>
-
-AsistenciaRepository -- Asistencia
-
-ExportarHistorialAsistenciasView --> AsistenciaController: obtenerSesion(sesionId) : SesionDeClase
-
-AsistenciaController --> SesionClaseRepository: obtenerPorId(sesionId) : SesionDeClase
-
-SesionClaseRepository -- SesionDeClase
-
-ExportarHistorialAsistenciasView --> AsistenciaController: generarInforme(sesionId, formato) : Archivo
-
+AsistenciasAbierto -r-> ExportarHistorialAsistenciasView: exportarHistorialAsistencias()
+ExportarHistorialAsistenciasView -d-> AsistenciaController: obtenerSesion(sesionId)
+AsistenciaController -d-> SesionClaseRepository: obtenerPorId(sesionId)
+SesionClaseRepository -d-> SesionDeClase: findById(sesionId)
+SesionDeClase --u-> SesionClaseRepository
+SesionClaseRepository --u-> AsistenciaController
+AsistenciaController -d-> AsistenciaRepository: obtenerPorSesion(sesionId)
+AsistenciaRepository -d-> Asistencia: findBySesion(sesionId)
+Asistencia --u-> AsistenciaRepository
+AsistenciaRepository --u-> AsistenciaController
+AsistenciaController --u-> ExportarHistorialAsistenciasView: generarInforme(sesionId, formato)
 @enduml

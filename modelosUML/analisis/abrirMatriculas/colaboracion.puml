@@ -1,0 +1,20 @@
+﻿@startuml abrirMatriculas-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Sistema Disponible" as SistemaDisponible
+
+package abrirMatriculas as "abrirMatriculas()" {
+    rectangle #629EF9 AbrirMatriculasView
+    rectangle #b5bd68 MatriculaController
+    rectangle #F2AC4E MatriculaRepository
+    rectangle #F2AC4E Matricula
+}
+
+SistemaDisponible -r-> AbrirMatriculasView: abrirMatriculas()
+AbrirMatriculasView -d-> MatriculaController: getMatriculas(filtros)
+MatriculaController -d-> MatriculaRepository: findAll(filtros)
+MatriculaRepository -d-> Matricula: findAll(filtros)
+Matricula --u-> MatriculaRepository
+MatriculaRepository --u-> MatriculaController
+MatriculaController --u-> AbrirMatriculasView
+@enduml

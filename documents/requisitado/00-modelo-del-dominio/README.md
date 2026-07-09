@@ -1,31 +1,48 @@
-# CGU -- Modelo del Dominio
+# Modelo del Dominio
 
-> | [Inicio](../../../README.md) | [Requisitado](../README.md) | **Modelo del Dominio** |
-> |---|---|---|
-
----
-
-## Diagrama de clases completo
-
-![ModeloCompleto](ModeloCompleto.svg)
-
-[Fuente PUML](ModeloCompleto.puml)
+> | [Inicio](../../../README.md) | [Requisitado](../README.md) | **Modelo del Dominio** | [Actores y CUs](../01-actores-casos-uso/README.md) | [Detallado CUs](../02-detalle/README.md) |
+> |---|---|---|---|---|
 
 ---
 
-## Diagrama de objetos
+## Diagrama de Clases
 
-![DiagramaDeObjetos](DiagramaDeObjetos.svg)
-
-[Fuente PUML](DiagramaDeObjetos.puml)
+| ![Diagrama de Clases](DiagramaDeClases.svg) |
+| :--- |
+| [Código UML](DiagramaDeClases.puml) |
 
 ---
 
-## Diagramas de estado
+## Diagrama de Objetos
 
-| Entidad | Diagrama | PUML |
-|---------|----------|------|
-| Alumno | ![estado-Alumno](estado-Alumno.svg) | [estado-Alumno.puml](estado-Alumno.puml) |
-| Asistencia | ![estado-Asistencia](estado-Asistencia.svg) | [estado-Asistencia.puml](estado-Asistencia.puml) |
-| Dispensas | ![estado-Dispensas](estado-Dispensas.svg) | [estado-Dispensas.puml](estado-Dispensas.puml) |
-| Matricula | ![estado-Matricula](estado-Matricula.svg) | [estado-Matricula.puml](estado-Matricula.puml) |
+| ![Diagrama de Objetos](DiagramaDeObjetos.svg) |
+| :--- |
+| [Código UML](DiagramaDeObjetos.puml) |
+
+---
+
+## Diagramas de Estado
+
+### Estado: Alumno
+
+| ![Estado Alumno](estado-Alumno.svg) |
+| :--- |
+| [Código UML](estado-Alumno.puml) |
+
+### Estado: Asistencia
+
+| ![Estado Asistencia](estado-Asistencia.svg) |
+| :--- |
+| [Código UML](estado-Asistencia.puml) |
+
+### Estado: Dispensas
+
+| ![Estado Dispensas](estado-Dispensas.svg) |
+| :--- |
+| [Código UML](estado-Dispensas.puml) |
+
+### Estado: Matrícula
+
+| ![Estado Matrícula](estado-Matricula.svg) |
+| :--- |
+| [Código UML](estado-Matricula.puml) |

@@ -1,0 +1,20 @@
+﻿@startuml abrirAlumnos-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Sistema Disponible" as SistemaDisponible
+
+package abrirAlumnos as "abrirAlumnos()" {
+    rectangle #629EF9 AbrirAlumnosView
+    rectangle #b5bd68 AlumnoController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E Alumno
+}
+
+SistemaDisponible -r-> AbrirAlumnosView: abrirAlumnos()
+AbrirAlumnosView -d-> AlumnoController: getAlumnos(filtros)
+AlumnoController -d-> AlumnoRepository: findAll(filtros)
+AlumnoRepository -d-> Alumno: findAll(filtros)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> AlumnoController
+AlumnoController --u-> AbrirAlumnosView
+@enduml

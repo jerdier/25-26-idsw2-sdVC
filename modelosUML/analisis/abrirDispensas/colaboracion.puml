@@ -1,0 +1,21 @@
+﻿@startuml abrirDispensas-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Sistema Disponible" as SistemaDisponible
+
+package abrirDispensas as "abrirDispensas()" {
+    rectangle #629EF9 AbrirDispensasView
+    rectangle #b5bd68 DispensaController
+    rectangle #F2AC4E DispensaRepository
+    rectangle #F2AC4E Dispensa
+}
+
+SistemaDisponible -r-> AbrirDispensasView: abrirDispensas()
+AbrirDispensasView -d-> DispensaController: getDispensas(usuarioId, rol)
+DispensaController -d-> DispensaRepository: findByUsuario(usuarioId, rol)
+DispensaRepository -d-> Dispensa: findAll(filtros)
+Dispensa --u-> DispensaRepository
+DispensaRepository --u-> DispensaController
+DispensaController --u-> AbrirDispensasView
+
+@enduml

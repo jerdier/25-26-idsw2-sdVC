@@ -1,4 +1,4 @@
-# Conversation log
+﻿# Conversation log
 
 ## [17:05] Inicio de sesión
 
@@ -718,3 +718,27 @@ Los SVG deben generarse manualmente con PlantUML y colocarse en `images/analisis
 8. **Fix TypeScript:** Añadido `"ignoreDeprecations": "6.0"` en `backend/tsconfig.json` para suprimir el warning de deprecación de `moduleResolution: "node"` en TypeScript 6.
 
 **Decisión:** Backend y frontend usan exactamente los mismos nombres que las carpetas de casos de uso en `documents/diseño/`. El código está alineado con los artefactos UML. La aplicación completa es funcional de extremo a extremo para todos los roles y casos de uso.
+## [10:50] Martes,  de julio de 2026 - Reestructuración del requisitado, corrección de casos de uso y revisión de diagramas de análisis
+
+**Prompt:** Completa la documentación del requisitado: añade el DiagramaDeContextoDetallado que falta, elimina los README innecesarios del modelosUML, corrige las carpetas de análisis y diseño dejando exactamente los 21 casos de uso canónicos con READMEs limpios listos para cuando se generen las imágenes, renombra ModeloCompleto a DiagramaDeClases en todos los sitios, arregla toda la navegación entre los READMEs del requisitado añadiendo breadcrumbs completos y las secciones de Índice Análisis e Índice Diseño, elimina los README individuales por actor del Detallado y deja solo el general, y por último revisa todos los PUML de análisis y diseño y corrige los que estén mal.
+
+**Resultado:**
+
+1. **DiagramaDeContextoDetallado en requisitado:** Se añadió la entrada del diagrama detallado de contexto en `documents/requisitado/01-actores-casos-uso/README.md`, que faltaba respecto a los archivos `.puml` y `.svg` ya presentes en la carpeta.
+
+2. **Eliminación de READMEs innecesarios en modelosUML:** Se borraron los archivos `README.md` que una sesión anterior había creado dentro de subcarpetas de `modelosUML/analisis/` y `modelosUML/diseño/`. Esas carpetas son de código fuente PlantUML, no de documentación; sus READMEs en `documents/` son la fuente de verdad.
+
+3. **Corrección de las 21 carpetas canónicas en analisis y diseño:** Se eliminaron 4 carpetas con nombres incorrectos o eliminados del requisitado (`consultarListaAlumnos`, `exportarDispensas`, `guardarSolicitudDispensa`, `importarListasAlumnos`) y se crearon las 7 que faltaban (`abrirAlumnos`, `abrirDispensas`, `abrirMatriculas`, `abrirUsuarios`, `cerrarCicloAcademico`, `consultarAlumno`, `importarAlumnos`), tanto en `documents/analisis/` como en `documents/diseño/`. Todos los 21 READMEs se reescribieron como plantillas limpias con breadcrumb correcto y la imagen embebida esperando a ser generada.
+
+4. **Renombrado ModeloCompleto → DiagramaDeClases:** Se renombraron los archivos `ModeloCompleto.puml` y `ModeloCompleto.svg` a `DiagramaDeClases.puml` y `DiagramaDeClases.svg` en `documents/requisitado/00-modelo-del-dominio/`. Se actualizaron todas las referencias en los READMEs afectados.
+
+5. **Navegación completa del requisitado:** Se crearon y reescribieron los tres READMEs de sección (`00-modelo-del-dominio/`, `01-actores-casos-uso/`, `02-detalle/`) con breadcrumbs que enlazan los cinco nodos: Inicio → Requisitado → Modelo del Dominio → Actores y CUs → Detallado CUs. El `requisitado/README.md` se actualizó para incluir `Índice Análisis` e `Índice Diseño` en su barra de navegación superior, eliminando los enlaces internos de subnivel que duplicaban la información.
+
+6. **Eliminación de READMEs por actor en Detallado:** Se borraron los cinco archivos `Administrador/README.md`, `Alumno/README.md`, `DirectorDeGrado/README.md`, `Profesor/README.md` y `Secretaria/README.md` de `documents/requisitado/02-detalle/`. El README general ya listaba todos los CUs de todos los actores; los individuales eran redundantes y rompían la navegación.
+
+7. **Revisión y corrección de los 42 PUML:** Se revisaron los 21 `colaboracion.puml` de análisis y los 21 `secuencia.puml` de diseño. Los de diseño estaban correctos. En análisis, 6 archivos ya usaban el patrón correcto; los 15 restantes tenían dos tipos de error:
+   - `-->` (flecha sin dirección de layout) en lugar de `-d->` (hacia abajo)
+   - `--` (asociación plana) en lugar de `-d->` + `--u->` (llamada bajando y retorno subiendo)
+   Se reescribieron los 15 archivos con el patrón uniforme: precondición `-r->` Vista, flujo de llamadas `-d->`, retornos `--u->`.
+
+**Decisión:** El requisitado estaba fragmentado en estructuras que habían crecido de forma orgánica sesión a sesión. Se optó por una reestructuración completa en lugar de parches individuales porque los errores eran sistémicos: nombres de carpetas divergentes del listado canónico, navegación rota entre secciones, y diagramas con sintaxis inconsistente que PlantUML renderizaba sin error pero que producía layouts incorrectos al no respetar las direcciones de flecha. El resultado es un conjunto coherente con 21 CUs bien nombrados, navegación funcional en todos los niveles y diagramas de colaboración con semántica uniforme.

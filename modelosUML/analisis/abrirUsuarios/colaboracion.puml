@@ -1,0 +1,20 @@
+﻿@startuml abrirUsuarios-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Sistema Disponible" as SistemaDisponible
+
+package abrirUsuarios as "abrirUsuarios()" {
+    rectangle #629EF9 AbrirUsuariosView
+    rectangle #b5bd68 UsuarioController
+    rectangle #F2AC4E UsuarioRepository
+    rectangle #F2AC4E Usuario
+}
+
+SistemaDisponible -r-> AbrirUsuariosView: abrirUsuarios()
+AbrirUsuariosView -d-> UsuarioController: obtenerUsuarios()
+UsuarioController -d-> UsuarioRepository: findAll()
+UsuarioRepository -d-> Usuario: findAll()
+Usuario --u-> UsuarioRepository
+UsuarioRepository --u-> UsuarioController
+UsuarioController --u-> AbrirUsuariosView
+@enduml

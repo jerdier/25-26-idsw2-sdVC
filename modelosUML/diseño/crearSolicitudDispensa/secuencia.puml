@@ -2,70 +2,59 @@
 
 title Diagrama de Secuencia - Crear Solicitud de Dispensa (Vue 3 + Express + Prisma)
 
-actor "Alumno" as Alumno
+actor "Usuario" as Usuario
 participant "Frontend\n(Vue 3)" as Frontend
-participant "AcademicController" as AcademicController
-participant "AcademicService" as AcademicService
-participant "DispensaController" as DispensaController
-participant "DispensaService" as DispensaService
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
-participant ":Collaboration\nEditarSolicitudDispensa" as EditarSolicitudDispensa
 
-Alumno -> Frontend : abre formulario de solicitud de dispensa
+Usuario -> Frontend : accede a crear solicitud de dispensa
 activate Frontend
 
-Frontend -> AcademicController : GET /api/academic/alumno/:alumnoId/sessions
-activate AcademicController
+Frontend -> Controller : GET /api/dispensas/datos
+activate Controller
 
-AcademicController -> AcademicService : getSessionsForAlumno(alumnoId)
-activate AcademicService
+Controller -> Service : getDatosCrearDispensa(usuarioId, rol)
+activate Service
 
-AcademicService -> DB : SELECT gradoId FROM Matricula\nWHERE alumnoId = ?
+Service -> DB : SELECT * FROM Asignatura\n(y Alumno si rol=Secretaria)
 activate DB
-DB --> AcademicService : gradoIds[]
+DB --> Service : datos
 deactivate DB
 
-AcademicService -> DB : SELECT * FROM SesionDeClase\nWHERE asignatura.gradoId IN (gradoIds)\nINCLUDE Asignatura
+Service --> Controller : datos
+deactivate Service
+
+Controller --> Frontend : 200 OK { datos }
+deactivate Controller
+
+Frontend --> Usuario : muestra formulario
+
+note over Usuario
+  Alumno: selecciona asignatura propia
+  Secretaria: selecciona alumno y asignatura
+end note
+
+Usuario -> Frontend : rellena datos y envía\n(alumnoId, asignaturaId, periodo, horario, motivo)
+
+Frontend -> Controller : POST /api/dispensas\n{ alumnoId, asignaturaId, periodo, horario, motivo }
+activate Controller
+
+Controller -> Service : crearSolicitudDispensa(alumnoId, asignaturaId, periodo, horario, motivo)
+activate Service
+
+Service -> DB : INSERT INTO Dispensa\n(alumnoId, asignaturaId, periodo, horario, motivo,\nestado='PENDIENTE')
 activate DB
-DB --> AcademicService : sesiones : SesionDeClase[]
+DB --> Service : dispensa : Dispensa
 deactivate DB
 
-AcademicService --> AcademicController : sesiones : SesionDeClase[]
-deactivate AcademicService
+Service --> Controller : dispensa : Dispensa
+deactivate Service
 
-AcademicController --> Frontend : 200 OK { sesiones }
-deactivate AcademicController
+Controller --> Frontend : 201 Created { dispensa }
+deactivate Controller
 
-Frontend --> Alumno : muestra formulario con sesiones disponibles
-
-Alumno -> Frontend : introduce motivo y selecciona sesiones a dispensar
-activate Frontend
-
-Frontend -> DispensaController : POST /api/dispensas\n{ alumnoId, motivo, secretariaId,\n  sesionesIds, asignaturasIds }
-activate DispensaController
-
-DispensaController -> DispensaService : createDispensa\n({ alumnoId, motivo, secretariaId,\n  sesionesIds, asignaturasIds })
-activate DispensaService
-
-DispensaService -> DB : INSERT INTO Dispensa\n(alumnoId, motivo, secretariaId, estado)\nVALUES (?, ?, ?, 'PENDIENTE')
-activate DB
-DB --> DispensaService : dispensaCreada : Dispensa
-deactivate DB
-
-DispensaService -> DB : INSERT INTO _DispensaToSesion\n(dispensaId, sesionId) VALUES ...\nINSERT INTO _DispensaToAsignatura\n(dispensaId, asignaturaId) VALUES ...
-activate DB
-DB --> DispensaService : relaciones m2m creadas
-deactivate DB
-
-DispensaService --> DispensaController : dispensaCreada : Dispensa
-deactivate DispensaService
-
-DispensaController --> Frontend : 201 Created { dispensaCreada }
-deactivate DispensaController
-
-Frontend --> Alumno : solicitud enviada correctamente\n(estado: PENDIENTE)
+Frontend --> Usuario : solicitud creada correctamente
 deactivate Frontend
-
-Frontend -> EditarSolicitudDispensa : <<include>> editarSolicitudDispensa(dispensaCreada)
 
 @enduml

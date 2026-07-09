@@ -3,7 +3,6 @@
 title Diagrama de Secuencia - Exportar Historial de Asistencias (Vue 3 + Express + Prisma)
 
 actor "Profesor" as Profesor
-participant ":Collaboration\nCerrarSesionClase" as CerrarSesionClase
 participant "Frontend\n(Vue 3)" as Frontend
 participant "AttendanceController" as AttendanceController
 participant "AcademicController" as AcademicController
@@ -11,7 +10,7 @@ participant "AttendanceService" as AttendanceService
 participant "AcademicService" as AcademicService
 database "Base de Datos\n(PostgreSQL)" as DB
 
-CerrarSesionClase -> Frontend : <<include>> exportarHistorialAsistencias(sesionId)
+Profesor -> Frontend : solicita exportar historial de asistencias
 activate Frontend
 
 Frontend -> AttendanceController : GET /api/attendance/session/:sesionId

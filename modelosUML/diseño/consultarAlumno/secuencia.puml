@@ -1,0 +1,34 @@
+@startuml consultarAlumno-diseno-secuencia
+
+title Diagrama de Secuencia - Consultar Alumno (Vue 3 + Express + Prisma)
+
+actor "Secretaria\nAcademica" as Secretaria
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AlumnoController" as Controller
+participant "AlumnoService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Secretaria -> Frontend : selecciona un alumno de la lista
+activate Frontend
+
+Frontend -> Controller : GET /api/secretaria/alumnos/:alumnoId
+activate Controller
+
+Controller -> Service : obtenerAlumno(alumnoId)
+activate Service
+
+Service -> DB : SELECT * FROM Alumno WHERE id = ?
+activate DB
+DB --> Service : Alumno
+deactivate DB
+
+Service --> Controller : Alumno
+deactivate Service
+
+Controller --> Frontend : 200 OK { alumno }
+deactivate Controller
+
+Frontend --> Secretaria : muestra ficha del alumno\n(nombre, dni, email, matrículas)
+deactivate Frontend
+
+@enduml

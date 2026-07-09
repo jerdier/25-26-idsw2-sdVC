@@ -1,7 +1,7 @@
-@startuml consultarDetalleMatricula-analisis
+﻿@startuml consultarDetalleMatricula-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+rectangle #CDEBA5 ":Matriculas Abierto" as MatriculasAbierto
 
 package consultarDetalleMatricula as "consultarDetalleMatricula()" {
     rectangle #629EF9 ConsultarDetalleMatriculaView
@@ -12,22 +12,15 @@ package consultarDetalleMatricula as "consultarDetalleMatricula()" {
     rectangle #F2AC4E Alumno
 }
 
-DashboardSecretariaAbierto -r-> ConsultarDetalleMatriculaView: consultarDetalleMatricula()
-
-ConsultarDetalleMatriculaView -d-> MatriculaController: buscarMatriculas(filtro) : List<Matricula>
-
-MatriculaController --> MatriculaRepository: buscarPorFiltro(filtro) : List<Matricula>
-
-MatriculaRepository -- Matricula
-
-ConsultarDetalleMatriculaView --> MatriculaController: obtenerDetalle(matriculaId) : Matricula
-
-MatriculaController --> MatriculaRepository: obtenerPorId(matriculaId) : Matricula
-
-ConsultarDetalleMatriculaView --> MatriculaController: obtenerAlumno(alumnoId) : Alumno
-
-MatriculaController --> AlumnoRepository: obtenerPorId(alumnoId) : Alumno
-
-AlumnoRepository -- Alumno
-
+MatriculasAbierto -r-> ConsultarDetalleMatriculaView: consultarDetalleMatricula()
+ConsultarDetalleMatriculaView -d-> MatriculaController: buscarMatriculas(filtro)
+MatriculaController -d-> MatriculaRepository: buscarPorFiltro(filtro)
+MatriculaRepository -d-> Matricula: findAll(filtro)
+Matricula --u-> MatriculaRepository
+MatriculaRepository --u-> MatriculaController
+MatriculaController -d-> AlumnoRepository: obtenerPorId(alumnoId)
+AlumnoRepository -d-> Alumno: findById(alumnoId)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> MatriculaController
+MatriculaController --u-> ConsultarDetalleMatriculaView
 @enduml

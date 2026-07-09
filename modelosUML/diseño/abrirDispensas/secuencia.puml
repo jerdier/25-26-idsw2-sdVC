@@ -1,0 +1,34 @@
+@startuml abrirDispensas-diseno-secuencia
+
+title Diagrama de Secuencia - Abrir Dispensas (Vue 3 + Express + Prisma)
+
+actor "Alumno" as Alumno
+participant "Frontend\n(Vue 3)" as Frontend
+participant "DispensaController" as Controller
+participant "DispensaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Alumno -> Frontend : solicita abrir gestión de dispensas
+activate Frontend
+
+Frontend -> Controller : GET /api/alumno/dispensas
+activate Controller
+
+Controller -> Service : obtenerDispensas(alumnoId)
+activate Service
+
+Service -> DB : SELECT * FROM Dispensa WHERE alumnoId = ?
+activate DB
+DB --> Service : List<Dispensa>
+deactivate DB
+
+Service --> Controller : List<Dispensa>
+deactivate Service
+
+Controller --> Frontend : 200 OK { dispensas }
+deactivate Controller
+
+Frontend --> Alumno : muestra lista de solicitudes de dispensa\n(asignatura, periodo, horario, estado)
+deactivate Frontend
+
+@enduml

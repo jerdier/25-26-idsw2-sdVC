@@ -1,0 +1,20 @@
+﻿@startuml consultarAlumno-analisis
+skinparam linetype polyline
+
+rectangle #CDEBA5 ":Alumnos Abierto" as AlumnosAbierto
+
+package consultarAlumno as "consultarAlumno()" {
+    rectangle #629EF9 ConsultarAlumnoView
+    rectangle #b5bd68 AlumnoController
+    rectangle #F2AC4E AlumnoRepository
+    rectangle #F2AC4E Alumno
+}
+
+AlumnosAbierto -r-> ConsultarAlumnoView: consultarAlumno()
+ConsultarAlumnoView -d-> AlumnoController: obtenerAlumno(alumnoId)
+AlumnoController -d-> AlumnoRepository: findById(alumnoId)
+AlumnoRepository -d-> Alumno: findById(alumnoId)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> AlumnoController
+AlumnoController --u-> ConsultarAlumnoView
+@enduml

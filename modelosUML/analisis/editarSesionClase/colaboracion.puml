@@ -1,7 +1,7 @@
-@startuml editarSesionClase-analisis
+﻿@startuml editarSesionClase-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Dashboard Profesor Abierto" as DashboardProfesorAbierto
+rectangle #CDEBA5 ":Sesion Clase Abierta" as SesionClaseAbierta
 
 package editarSesionClase as "editarSesionClase()" {
     rectangle #629EF9 EditarSesionClaseView
@@ -12,24 +12,19 @@ package editarSesionClase as "editarSesionClase()" {
     rectangle #F2AC4E SesionDeClase
 }
 
-DashboardProfesorAbierto -r-> EditarSesionClaseView: editarSesionClase()
-
-EditarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId) : SesionDeClase
-
-SesionClaseController --> SesionClaseRepository: obtenerPorId(sesionId) : SesionDeClase
-
-SesionClaseRepository -- SesionDeClase
-
-EditarSesionClaseView -d-> SesionClaseController: cargarAsignaturas(profesorId) : List<Asignatura>
-
-SesionClaseController --> AsignaturaRepository: obtenerPorProfesor(profesorId) : List<Asignatura>
-
-AsignaturaRepository -- Asignatura
-
-EditarSesionClaseView --> SesionClaseController: validarDatos(asignaturaId, fecha, aula) : boolean
-
-EditarSesionClaseView --> SesionClaseController: editarSesionClase(sesionId, asignaturaId, fecha, aula, duracion) : SesionDeClase
-
-SesionClaseController --> SesionClaseRepository: actualizar(sesionId, asignaturaId, fecha, aula, duracion) : SesionDeClase
-
+SesionClaseAbierta -r-> EditarSesionClaseView: editarSesionClase()
+EditarSesionClaseView -d-> SesionClaseController: obtenerSesion(sesionId)
+SesionClaseController -d-> SesionClaseRepository: obtenerPorId(sesionId)
+SesionClaseRepository -d-> SesionDeClase: findById(sesionId)
+SesionDeClase --u-> SesionClaseRepository
+SesionClaseRepository --u-> SesionClaseController
+SesionClaseController -d-> AsignaturaRepository: obtenerPorProfesor(profesorId)
+AsignaturaRepository -d-> Asignatura: findByProfesor(profesorId)
+Asignatura --u-> AsignaturaRepository
+AsignaturaRepository --u-> SesionClaseController
+SesionClaseController -d-> SesionClaseRepository: actualizar(sesionId, datos)
+SesionClaseRepository -d-> SesionDeClase: update(datos)
+SesionDeClase --u-> SesionClaseRepository
+SesionClaseRepository --u-> SesionClaseController
+SesionClaseController --u-> EditarSesionClaseView
 @enduml

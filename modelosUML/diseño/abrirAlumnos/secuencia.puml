@@ -1,0 +1,56 @@
+@startuml abrirAlumnos-diseno-secuencia
+
+title Diagrama de Secuencia - Abrir Alumnos (Vue 3 + Express + Prisma)
+
+actor "Usuario" as Usuario
+participant "Frontend\n(Vue 3)" as Frontend
+participant "AlumnoController" as Controller
+participant "AlumnoService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+note over Usuario
+  Actores: Profesor, Secretaria
+end note
+
+Usuario -> Frontend : accede al módulo de alumnos
+activate Frontend
+
+Frontend -> Controller : GET /api/alumnos
+activate Controller
+
+Controller -> Service : getAlumnos(filtros)
+activate Service
+
+Service -> DB : SELECT * FROM Alumno\nWHERE filtros
+activate DB
+DB --> Service : alumnos : Alumno[]
+deactivate DB
+
+Service --> Controller : alumnos : Alumno[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { alumnos }
+deactivate Controller
+
+Frontend --> Usuario : muestra lista de alumnos\n(nombre, documento, correo, estado)
+
+opt filtrar lista
+  Usuario -> Frontend : aplica filtros
+  Frontend -> Controller : GET /api/alumnos?filtros=...
+  activate Controller
+  Controller -> Service : getAlumnos(filtros)
+  activate Service
+  Service -> DB : SELECT * FROM Alumno WHERE filtros
+  activate DB
+  DB --> Service : alumnos : Alumno[]
+  deactivate DB
+  Service --> Controller : alumnos : Alumno[]
+  deactivate Service
+  Controller --> Frontend : 200 OK { alumnos }
+  deactivate Controller
+  Frontend --> Usuario : muestra lista filtrada
+end
+
+deactivate Frontend
+
+@enduml

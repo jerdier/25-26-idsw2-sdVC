@@ -1,0 +1,52 @@
+@startuml abrirMatriculas-diseno-secuencia
+
+title Diagrama de Secuencia - Abrir Matrículas (Vue 3 + Express + Prisma)
+
+actor "Secretaria" as Secretaria
+participant "Frontend\n(Vue 3)" as Frontend
+participant "MatriculaController" as Controller
+participant "MatriculaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Secretaria -> Frontend : accede al módulo de matrículas
+activate Frontend
+
+Frontend -> Controller : GET /api/matriculas
+activate Controller
+
+Controller -> Service : getMatriculas(filtros)
+activate Service
+
+Service -> DB : SELECT * FROM Matricula\nINCLUDE alumno, asignaturas
+activate DB
+DB --> Service : matriculas : Matricula[]
+deactivate DB
+
+Service --> Controller : matriculas : Matricula[]
+deactivate Service
+
+Controller --> Frontend : 200 OK { matriculas }
+deactivate Controller
+
+Frontend --> Secretaria : muestra lista de matrículas\n(alumno, asignatura, periodo, estado)
+
+opt filtrar lista
+  Secretaria -> Frontend : aplica filtros
+  Frontend -> Controller : GET /api/matriculas?filtros=...
+  activate Controller
+  Controller -> Service : getMatriculas(filtros)
+  activate Service
+  Service -> DB : SELECT * FROM Matricula WHERE filtros
+  activate DB
+  DB --> Service : matriculas : Matricula[]
+  deactivate DB
+  Service --> Controller : matriculas : Matricula[]
+  deactivate Service
+  Controller --> Frontend : 200 OK { matriculas }
+  deactivate Controller
+  Frontend --> Secretaria : muestra lista filtrada
+end
+
+deactivate Frontend
+
+@enduml

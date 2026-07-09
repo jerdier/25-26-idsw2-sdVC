@@ -1,0 +1,49 @@
+@startuml importarAlumnos-diseno-secuencia
+
+title Diagrama de Secuencia - Importar Alumnos (Vue 3 + Express + Prisma)
+
+actor "Secretaria\nAcademica" as Secretaria
+participant "Frontend\n(Vue 3)" as Frontend
+participant "SecretariaController" as Controller
+participant "SecretariaService" as Service
+database "Base de Datos\n(PostgreSQL)" as DB
+
+Secretaria -> Frontend : selecciona archivo de alumnos (CSV / Excel)
+activate Frontend
+
+Frontend -> Controller : POST /api/secretaria/import/alumnos\n(multipart/form-data: archivo)
+activate Controller
+
+Controller -> Service : validarArchivo(archivo)
+activate Service
+
+Service --> Controller : valido : Boolean
+deactivate Service
+
+alt archivo válido
+
+    Controller -> Service : importAlumnos(archivo)
+    activate Service
+
+    Service -> DB : INSERT INTO Alumno\n(nombre, email, dni, ...)\nON CONFLICT (dni) DO UPDATE
+    activate DB
+    DB --> Service : resultados : { creados, actualizados, errores }
+    deactivate DB
+
+    Service --> Controller : informe : ImportResult
+    deactivate Service
+
+    Controller --> Frontend : 200 OK { informe }
+    deactivate Controller
+
+    Frontend --> Secretaria : muestra informe de importación\n(creados, actualizados, errores)
+    deactivate Frontend
+
+else archivo inválido
+
+    Controller --> Frontend : 400 Bad Request\n{ message: "Formato de archivo no válido" }
+    Frontend --> Secretaria : muestra error de formato
+
+end
+
+@enduml

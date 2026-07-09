@@ -1,8 +1,7 @@
-@startuml registrarTomaAsistencia-analisis
+﻿@startuml registrarTomaAsistencia-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Collaboration CrearSesionClase" as CrearSesionClase
-rectangle #CDEBA5 ":Collaboration CerrarSesionClase" as CerrarSesionClase
+rectangle #CDEBA5 ":Sesion Clase Abierta" as SesionClaseAbierta
 
 package registrarTomaAsistencia as "registrarTomaAsistencia()" {
     rectangle #629EF9 RegistrarTomaAsistenciaView
@@ -13,20 +12,15 @@ package registrarTomaAsistencia as "registrarTomaAsistencia()" {
     rectangle #F2AC4E Asistencia
 }
 
-CrearSesionClase -r-> RegistrarTomaAsistenciaView: <<include>> registrarTomaAsistencia(sesionId)
-
-RegistrarTomaAsistenciaView -d-> AsistenciaController: cargarAlumnos(sesionId) : List<Alumno>
-
-AsistenciaController --> AlumnoRepository: obtenerPorSesion(sesionId) : List<Alumno>
-
-AlumnoRepository -- Alumno
-
-RegistrarTomaAsistenciaView --> AsistenciaController: registrarAsistencia(sesionId, alumnoId, presente) : Asistencia
-
-AsistenciaController --> AsistenciaRepository: guardarOActualizar(sesionId, alumnoId, presente) : Asistencia
-
-AsistenciaRepository -- Asistencia
-
-RegistrarTomaAsistenciaView ..> CerrarSesionClase: <<include>> cerrarSesionClase(sesionId)
-
+SesionClaseAbierta -r-> RegistrarTomaAsistenciaView: registrarTomaAsistencia(sesionId)
+RegistrarTomaAsistenciaView -d-> AsistenciaController: cargarAlumnos(sesionId)
+AsistenciaController -d-> AlumnoRepository: obtenerPorSesion(sesionId)
+AlumnoRepository -d-> Alumno: findBySesion(sesionId)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> AsistenciaController
+AsistenciaController -d-> AsistenciaRepository: guardarOActualizar(sesionId, alumnoId, presente)
+AsistenciaRepository -d-> Asistencia: new(sesionId, alumnoId, presente)
+Asistencia --u-> AsistenciaRepository
+AsistenciaRepository --u-> AsistenciaController
+AsistenciaController --u-> RegistrarTomaAsistenciaView
 @enduml

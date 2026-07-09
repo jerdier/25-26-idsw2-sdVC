@@ -3,16 +3,14 @@
 title Diagrama de Secuencia - Registrar Toma de Asistencia (Vue 3 + Express + Prisma)
 
 actor "Profesor" as Profesor
-participant ":Collaboration\nCrearSesionClase" as CrearSesionClase
 participant "Frontend\n(Vue 3)" as Frontend
 participant "AcademicController" as AcademicController
 participant "AttendanceController" as AttendanceController
 participant "AcademicService" as AcademicService
 participant "AttendanceService" as AttendanceService
 database "Base de Datos\n(PostgreSQL)" as DB
-participant ":Collaboration\nCerrarSesionClase" as CerrarSesionClase
 
-CrearSesionClase -> Frontend : <<include>> registrarTomaAsistencia(sesionCreada)
+Profesor -> Frontend : accede a registrar asistencia en sesión abierta
 activate Frontend
 
 Frontend -> AcademicController : GET /api/academic/sessions/:sesionId/alumnos
@@ -54,11 +52,6 @@ AttendanceController --> Frontend : 200 OK { asistencia }
 deactivate AttendanceController
 
 Frontend --> Profesor : lista actualizada
-deactivate Frontend
-
-Profesor -> Frontend : solicita cerrar sesión
-activate Frontend
-Frontend -> CerrarSesionClase : <<include>> cerrarSesionClase(sesionId)
 deactivate Frontend
 
 @enduml

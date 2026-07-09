@@ -2,14 +2,13 @@
 
 title Diagrama de Secuencia - Editar Solicitud de Dispensa (Vue 3 + Express + Prisma)
 
-actor "Alumno /\nSecretaria" as AlumnoSecretaria
-actor "Director\nde Grado" as Director
+actor "Usuario" as Usuario
 participant "Frontend\n(Vue 3)" as Frontend
 participant "DispensaController" as Controller
 participant "DispensaService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
 
-AlumnoSecretaria -> Frontend : selecciona dispensa a editar
+Usuario -> Frontend : accede a editar solicitud de dispensa (dispensaId)
 activate Frontend
 
 Frontend -> Controller : GET /api/dispensas/:dispensaId
@@ -18,7 +17,7 @@ activate Controller
 Controller -> Service : getDispensa(dispensaId)
 activate Service
 
-Service -> DB : SELECT * FROM Dispensa\nWHERE id = ?
+Service -> DB : SELECT * FROM Dispensa WHERE id = ?
 activate DB
 DB --> Service : dispensa : Dispensa
 deactivate DB
@@ -29,75 +28,33 @@ deactivate Service
 Controller --> Frontend : 200 OK { dispensa }
 deactivate Controller
 
-Frontend -> Controller : GET /api/academic/alumno/:alumnoId/sessions
+Frontend --> Usuario : muestra formulario con datos actuales
+
+note over Usuario
+  Alumno / Secretaria: edita motivo y documentación
+  DirectorDeGrado: edita estado y observaciones
+end note
+
+Usuario -> Frontend : modifica datos y confirma
+
+Frontend -> Controller : PUT /api/dispensas/:dispensaId\n{ datos }
 activate Controller
 
-Controller -> Service : getSessionsForAlumno(alumnoId)
+Controller -> Service : editarSolicitudDispensa(dispensaId, datos)
 activate Service
 
-Service -> DB : SELECT * FROM SesionDeClase\nJOIN Matricula ON ...\nWHERE alumnoId = ?
+Service -> DB : UPDATE Dispensa SET ...\nWHERE id = ?
 activate DB
-DB --> Service : sesiones : SesionDeClase[]
+DB --> Service : dispensa : Dispensa
 deactivate DB
 
-Service --> Controller : sesiones : SesionDeClase[]
+Service --> Controller : dispensa : Dispensa
 deactivate Service
 
-Controller --> Frontend : 200 OK { sesiones }
+Controller --> Frontend : 200 OK { dispensa }
 deactivate Controller
 
-Frontend --> AlumnoSecretaria : muestra formulario con datos actuales\ny sesiones disponibles
-
-alt Alumno / Secretaria: modifica contenido
-
-    AlumnoSecretaria -> Frontend : confirma cambios\n(motivo, sesionesIds)
-
-    Frontend -> Controller : PUT /api/dispensas/:id/rectificar\n{ motivo, sesionesIds }
-    activate Controller
-
-    Controller -> Service : updateDispensa(id, motivo, sesionesIds)
-    activate Service
-
-    Service -> DB : UPDATE Dispensa SET motivo=?\nWHERE id=?
-    activate DB
-    DB --> Service : dispensaActualizada : Dispensa
-    deactivate DB
-
-    Service --> Controller : dispensaActualizada : Dispensa
-    deactivate Service
-
-    Controller --> Frontend : 200 OK { dispensaActualizada }
-    deactivate Controller
-
-    Frontend --> AlumnoSecretaria : solicitud actualizada correctamente
-    deactivate Frontend
-
-else Director de Grado: modifica estado
-
-    Director -> Frontend : confirma resolución\n(estado: APROBADA/RECHAZADA, observaciones)
-
-    Frontend -> Controller : PATCH /api/dispensas/:id/status\n{ estado, observaciones }
-    activate Controller
-
-    Controller -> Service : updateStatus(id, estado, observaciones)
-    activate Service
-
-    Service -> DB : UPDATE Dispensa\nSET estado=?, observaciones=?\nWHERE id=?
-    activate DB
-    DB --> Service : dispensaActualizada : Dispensa
-    deactivate DB
-
-    Service --> Controller : dispensaActualizada : Dispensa
-    deactivate Service
-
-    Controller --> Frontend : 200 OK { dispensaActualizada }
-    deactivate Controller
-
-    Frontend --> Director : solicitud resuelta correctamente
-    deactivate Frontend
-
-    note over Frontend : Sistema notifica al Alumno\nsobre el nuevo estado
-
-end
+Frontend --> Usuario : solicitud actualizada correctamente
+deactivate Frontend
 
 @enduml

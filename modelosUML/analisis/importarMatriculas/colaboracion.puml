@@ -1,7 +1,7 @@
-@startuml importarMatriculas-analisis
+﻿@startuml importarMatriculas-analisis
 skinparam linetype polyline
 
-rectangle #CDEBA5 ":Dashboard Secretaria Abierto" as DashboardSecretariaAbierto
+rectangle #CDEBA5 ":Matriculas Abierto" as MatriculasAbierto
 
 package importarMatriculas as "importarMatriculas()" {
     rectangle #629EF9 ImportarMatriculasView
@@ -12,18 +12,17 @@ package importarMatriculas as "importarMatriculas()" {
     rectangle #F2AC4E Matricula
 }
 
-DashboardSecretariaAbierto -r-> ImportarMatriculasView: importarMatriculas()
-
-ImportarMatriculasView -d-> MatriculaController: validarArchivo(archivo) : Boolean
-
-ImportarMatriculasView --> MatriculaController: importarMatriculas(archivo) : List<Matricula>
-
-MatriculaController --> AlumnoRepository: obtenerPorDni(dni) : Alumno
-
-AlumnoRepository -- Alumno
-
-MatriculaController --> MatriculaRepository: crearOActualizar(alumnoId, asignaturaId) : Matricula
-
-MatriculaRepository -- Matricula
-
+MatriculasAbierto -r-> ImportarMatriculasView: importarMatriculas()
+ImportarMatriculasView -d-> MatriculaController: validarArchivo(archivo)
+MatriculaController --u-> ImportarMatriculasView
+ImportarMatriculasView -d-> MatriculaController: importarMatriculas(archivo)
+MatriculaController -d-> AlumnoRepository: obtenerPorDni(dni)
+AlumnoRepository -d-> Alumno: findByDni(dni)
+Alumno --u-> AlumnoRepository
+AlumnoRepository --u-> MatriculaController
+MatriculaController -d-> MatriculaRepository: crearOActualizar(alumnoId, asignaturaId)
+MatriculaRepository -d-> Matricula: new(alumnoId, asignaturaId)
+Matricula --u-> MatriculaRepository
+MatriculaRepository --u-> MatriculaController
+MatriculaController --u-> ImportarMatriculasView
 @enduml

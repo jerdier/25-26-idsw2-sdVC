@@ -7,7 +7,6 @@ participant "Frontend\n(Vue 3)" as Frontend
 participant "UsuarioController" as Controller
 participant "UsuarioService" as Service
 database "Base de Datos\n(PostgreSQL)" as DB
-participant ":Collaboration\nConsultarUsuario" as ConsultarUsuario
 
 Admin -> Frontend : selecciona usuario y modifica campos\n(nombre, email, rol)
 activate Frontend
@@ -59,8 +58,6 @@ alt email no en uso
 
     Frontend --> Admin : usuario actualizado correctamente
     deactivate Frontend
-
-    Frontend -> ConsultarUsuario : <<include>> consultarUsuario(id)
 
 else email ya en uso
 

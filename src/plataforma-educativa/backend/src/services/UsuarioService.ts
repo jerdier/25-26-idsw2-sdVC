@@ -59,6 +59,25 @@ export class UsuarioService {
     throw new Error('Usuario no encontrado');
   }
 
+  async getAlumnoAsignaturas(alumnoId: string) {
+    const alumno = await prisma.alumno.findUnique({
+      where: { id: alumnoId },
+      include: { asignaturas: { include: { grado: { select: { nombre: true } }, profesor: { select: { nombre: true } } } } }
+    });
+    if (!alumno) throw new Error('Alumno no encontrado');
+    return alumno.asignaturas;
+  }
+
+  async asignarAsignaturas(alumnoId: string, asignaturaIds: string[]) {
+    const alumno = await prisma.alumno.findUnique({ where: { id: alumnoId } });
+    if (!alumno) throw new Error('Alumno no encontrado');
+    await prisma.alumno.update({
+      where: { id: alumnoId },
+      data: { asignaturas: { set: asignaturaIds.map(id => ({ id })) } }
+    });
+    return this.getAlumnoAsignaturas(alumnoId);
+  }
+
   // CU: crearUsuario
   async crearUsuario(data: { nombre: string; email: string; password?: string; rol: string; numeroRegistro?: string }) {
     const password = data.password || 'password123';

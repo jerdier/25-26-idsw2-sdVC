@@ -75,6 +75,28 @@ export class AcademicController {
       res.json(await academicService.cerrarSesionClase(id));
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
+
+  // CU: eliminarSesionClase
+  async eliminarSesionClase(req: Request, res: Response) {
+    try {
+      const id = req.params['id'] as string;
+      await academicService.eliminarSesionClase(id);
+      res.status(204).send();
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  async getTeacherAlumnos(req: Request, res: Response) {
+    try {
+      const profesorId = req.params['profesorId'] as string;
+      res.json(await academicService.getTeacherAlumnos(profesorId));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  async getAllAsignaturas(req: Request, res: Response) {
+    try {
+      res.json(await academicService.getAllAsignaturas());
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
 }
 
 export const academicController = new AcademicController();

@@ -37,6 +37,19 @@ export const academicService = {
   // CU: cerrarSesionClase
   async cerrarSesionClase(id: string) {
     return (await api.put(`/academic/sessions/${id}/cerrar`)).data;
+  },
+
+  // CU: eliminarSesionClase
+  async eliminarSesionClase(id: string) {
+    await api.delete(`/academic/sessions/${id}`);
+  },
+
+  async getTeacherAlumnos(profesorId: string) {
+    return (await api.get(`/academic/teacher/${profesorId}/alumnos`)).data;
+  },
+
+  async getAllAsignaturas() {
+    return (await api.get('/academic/asignaturas')).data;
   }
 };
 

@@ -39,6 +39,21 @@ export class UsuarioController {
       res.status(201).json(await usuarioService.crearUsuario(req.body));
     } catch (error: any) { res.status(400).json({ message: error.message }); }
   }
+
+  async getAlumnoAsignaturas(req: Request, res: Response) {
+    try {
+      const id = req.params['id'] as string;
+      res.json(await usuarioService.getAlumnoAsignaturas(id));
+    } catch (error: any) { res.status(404).json({ message: error.message }); }
+  }
+
+  async asignarAsignaturas(req: Request, res: Response) {
+    try {
+      const id = req.params['id'] as string;
+      const { asignaturaIds } = req.body as { asignaturaIds: string[] };
+      res.json(await usuarioService.asignarAsignaturas(id, asignaturaIds));
+    } catch (error: any) { res.status(400).json({ message: error.message }); }
+  }
 }
 
 export const usuarioController = new UsuarioController();

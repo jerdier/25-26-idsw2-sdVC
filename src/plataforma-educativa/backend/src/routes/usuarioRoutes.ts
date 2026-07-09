@@ -11,4 +11,8 @@ router.get('/:id', usuarioController.getUsuario);
 router.put('/:id', usuarioController.editarUsuario);
 router.delete('/:id', usuarioController.deleteUsuario);
 
+// Asignación de asignaturas a alumno
+router.get('/:id/asignaturas', usuarioController.getAlumnoAsignaturas);
+router.put('/:id/asignaturas', usuarioController.asignarAsignaturas);
+
 export default router;

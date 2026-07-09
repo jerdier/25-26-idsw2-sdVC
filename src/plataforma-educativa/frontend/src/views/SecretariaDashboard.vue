@@ -3,7 +3,6 @@ import { ref, reactive, watch } from 'vue';
 import { useAuth } from '../services/authService';
 import secretariaService from '../services/secretariaService';
 import dispensaService from '../services/dispensaService';
-import attendanceService from '../services/attendanceService';
 
 const { state } = useAuth();
 const uid = state.user?.id ?? '';
@@ -14,71 +13,108 @@ const ok = (m: string) => { msg.value = m; err.value = ''; };
 const ko = (e: any) => { err.value = e.response?.data?.message ?? e.message; msg.value = ''; };
 
 const alumnos = ref<any[]>([]);
-const alumnoSel = ref<any>(null);
-const matriculasSel = ref<any[]>([]);
-const dispensasSel = ref<any[]>([]);
+const dispensas = ref<any[]>([]);
 
 watch(panel, async (v) => {
-  msg.value = ''; err.value = ''; alumnoSel.value = null; matriculasSel.value = []; dispensasSel.value = [];
-  if (v === 'lista' || v === 'detalle-alumno' || v === 'detalle-matricula') {
-    try { alumnos.value = await secretariaService.consultarListaAlumnos(); } catch {}
+  msg.value = ''; err.value = '';
+  if (!v) return;
+  if (['abrir-alumnos', 'consultar-alumno', 'consultar-matricula', 'crear-dispensa'].includes(v)) {
+    try { alumnos.value = await secretariaService.consultarListaAlumnos(); } catch (e: any) { ko(e); }
+  }
+  if (['abrir-dispensas', 'consultar-dispensa', 'editar-dispensa'].includes(v)) {
+    try { dispensas.value = await dispensaService.consultarSolicitudDispensa({}); } catch (e: any) { ko(e); }
   }
 });
 
-const selAlumno = async (a: any) => {
+// CU: abrirAlumnos — con filtro
+const filtroAlumnos = ref('');
+const handleFiltrarAlumnos = async () => {
+  try { alumnos.value = await secretariaService.consultarListaAlumnos(filtroAlumnos.value || undefined); }
+  catch (e: any) { ko(e); }
+};
+
+// CU: consultarAlumno
+const alumnoSel = ref<any>(null);
+const alumnoDetalle = ref<any>(null);
+const handleConsultarAlumno = async (a: any) => {
   alumnoSel.value = a;
-  if (panel.value === 'detalle-matricula') {
-    try { matriculasSel.value = await secretariaService.consultarDetalleMatricula(a.id); } catch {}
-  }
-  if (panel.value === 'detalle-alumno') {
-    try { dispensasSel.value = await dispensaService.consultarSolicitudDispensa({ alumnoId: a.id }); } catch {}
-  }
+  try { alumnoDetalle.value = await secretariaService.consultarAlumno(a.id); }
+  catch { alumnoDetalle.value = a; }
 };
 
-const handleEliminarDispensa = async (id: string) => {
+// CU: abrirMatriculas — con filtro
+const filtroMat = ref('');
+const matriculas = ref<any[]>([]);
+const handleAbrirMatriculas = async () => {
+  try { matriculas.value = await secretariaService.abrirMatriculas(filtroMat.value || undefined); }
+  catch (e: any) { ko(e); }
+};
+
+// CU: consultarDetalleMatricula
+const alumnoMatSel = ref<any>(null);
+const detalleMatriculas = ref<any[]>([]);
+const handleConsultarMatricula = async (a: any) => {
+  alumnoMatSel.value = a;
+  try { detalleMatriculas.value = await secretariaService.consultarDetalleMatricula(a.id); }
+  catch (e: any) { ko(e); }
+};
+
+// CU: cerrarCicloAcademico
+const confirmarCierre = ref(false);
+const handleCerrarCiclo = async () => {
   try {
-    await dispensaService.deleteDispensa(id);
-    dispensasSel.value = dispensasSel.value.filter(d => d.id !== id);
-    ok('Dispensa eliminada.');
+    const res = await secretariaService.cerrarCicloAcademico();
+    ok(`Ciclo académico cerrado. Matrículas archivadas: ${res.matriculasArchivadas ?? 0}.`);
+    confirmarCierre.value = false;
   } catch (e: any) { ko(e); }
 };
 
-// Exportar Dispensas
-const handleExportar = async () => {
-  try {
-    const blob = await dispensaService.exportarDispensas(undefined, 'CSV');
-    const url = URL.createObjectURL(blob); const a = document.createElement('a');
-    a.href = url; a.download = 'dispensas.csv'; a.click(); ok('Descarga iniciada.');
-  } catch (e: any) { ko(e); }
-};
-
-// Importar Alumnos
+// CU: importarListasAlumnos
 const importAlumnosJson = ref('[\n  {"nombre":"Nuevo Alumno","email":"nuevo@cgu.es","dni":"12345678Z"}\n]');
 const handleImportAlumnos = async () => {
   try {
-    const alumnos = JSON.parse(importAlumnosJson.value);
-    const res = await secretariaService.importarListasAlumnos({ alumnos });
-    ok(`Importación: ${res.informe.creados} creados, ${res.informe.actualizados} actualizados, ${res.informe.errores} errores.`);
+    const data = JSON.parse(importAlumnosJson.value);
+    const res = await secretariaService.importarListasAlumnos({ alumnos: data });
+    ok(`Importación: ${res.informe?.creados ?? 0} creados, ${res.informe?.actualizados ?? 0} actualizados, ${res.informe?.errores ?? 0} errores.`);
   } catch (e: any) { ko(e); }
 };
 
-// Importar Matrículas
+// CU: importarMatriculas
 const importMatJson = ref('');
-const gradoIdImport = ref('grado1-id');
-const handleImportMat = async () => {
+const gradoIdImport = ref('');
+const handleImportMatriculas = async () => {
   try {
-    const matriculas = JSON.parse(importMatJson.value || '[]');
-    const res = await secretariaService.importMatriculas({ matriculas, secretariaId: uid, gradoId: gradoIdImport.value });
-    ok(`Importación: ${res.informe.creadas} creadas, ${res.informe.actualizadas} actualizadas, ${res.informe.errores} errores.`);
+    const data = JSON.parse(importMatJson.value || '[]');
+    const res = await secretariaService.importarMatriculas({ matriculas: data, secretariaId: uid, gradoId: gradoIdImport.value });
+    ok(`Importación: ${res.informe?.creadas ?? 0} creadas, ${res.informe?.actualizadas ?? 0} actualizadas, ${res.informe?.errores ?? 0} errores.`);
   } catch (e: any) { ko(e); }
 };
 
-// Crear Dispensa
+// CU: crearSolicitudDispensa
 const crearDispForm = reactive({ alumnoId: '', motivo: '' });
 const handleCrearDisp = async () => {
   try {
     await dispensaService.crearSolicitudDispensa({ alumnoId: crearDispForm.alumnoId, motivo: crearDispForm.motivo, secretariaId: uid, sesionesIds: [], asignaturasIds: [] });
     ok('Solicitud de dispensa creada.'); crearDispForm.alumnoId = ''; crearDispForm.motivo = '';
+  } catch (e: any) { ko(e); }
+};
+
+// CU: consultarSolicitudDispensa
+const dispensaSel = ref<any>(null);
+const handleConsultarDisp = async (d: any) => {
+  try { dispensaSel.value = await dispensaService.getDispensa(d.id); }
+  catch { dispensaSel.value = d; }
+};
+
+// CU: editarSolicitudDispensa
+const editDispSel = ref<any>(null);
+const editDispForm = reactive({ motivo: '' });
+const selEditarDisp = (d: any) => { editDispSel.value = d; editDispForm.motivo = d.motivo; };
+const handleEditarDisp = async () => {
+  try {
+    await dispensaService.editarSolicitudDispensa(editDispSel.value.id, { motivo: editDispForm.motivo });
+    ok('Dispensa actualizada.'); editDispSel.value = null;
+    dispensas.value = await dispensaService.consultarSolicitudDispensa({}).catch(() => []);
   } catch (e: any) { ko(e); }
 };
 
@@ -93,21 +129,29 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
     </div>
     <p class="section-lbl">Casos de uso</p>
     <div class="grid">
-      <button :class="['cu-btn', { active: panel === 'lista' }]" @click="toggle('lista')">Consultar Lista de Alumnos</button>
-      <button :class="['cu-btn', { active: panel === 'detalle-alumno' }]" @click="toggle('detalle-alumno')">Consultar Detalle de Alumno</button>
-      <button :class="['cu-btn', { active: panel === 'detalle-matricula' }]" @click="toggle('detalle-matricula')">Consultar Detalle de Matrícula</button>
-      <button :class="['cu-btn', { active: panel === 'exportar' }]" @click="toggle('exportar')">Exportar Dispensas</button>
-      <button :class="['cu-btn', { active: panel === 'import-alumnos' }]" @click="toggle('import-alumnos')">Importar Listas de Alumnos</button>
-      <button :class="['cu-btn', { active: panel === 'import-matriculas' }]" @click="toggle('import-matriculas')">Importar Matrículas</button>
-      <button :class="['cu-btn', { active: panel === 'crear-dispensa' }]" @click="toggle('crear-dispensa')">Crear Solicitud de Dispensa</button>
+      <button :class="['cu-btn', { active: panel === 'abrir-alumnos' }]" @click="toggle('abrir-alumnos')">Abrir alumnos</button>
+      <button :class="['cu-btn', { active: panel === 'import-alumnos' }]" @click="toggle('import-alumnos')">Importar listas de alumnos</button>
+      <button :class="['cu-btn', { active: panel === 'consultar-alumno' }]" @click="toggle('consultar-alumno')">Consultar alumno</button>
+      <button :class="['cu-btn', { active: panel === 'abrir-matriculas' }]" @click="toggle('abrir-matriculas')">Abrir matrículas</button>
+      <button :class="['cu-btn', { active: panel === 'import-matriculas' }]" @click="toggle('import-matriculas')">Importar matrículas</button>
+      <button :class="['cu-btn', { active: panel === 'consultar-matricula' }]" @click="toggle('consultar-matricula')">Consultar detalle de matrícula</button>
+      <button :class="['cu-btn', { active: panel === 'cerrar-ciclo' }]" @click="toggle('cerrar-ciclo')">Cerrar ciclo académico</button>
+      <button :class="['cu-btn', { active: panel === 'abrir-dispensas' }]" @click="toggle('abrir-dispensas')">Abrir dispensas</button>
+      <button :class="['cu-btn', { active: panel === 'crear-dispensa' }]" @click="toggle('crear-dispensa')">Crear solicitud de dispensa</button>
+      <button :class="['cu-btn', { active: panel === 'consultar-dispensa' }]" @click="toggle('consultar-dispensa')">Consultar solicitud de dispensa</button>
+      <button :class="['cu-btn', { active: panel === 'editar-dispensa' }]" @click="toggle('editar-dispensa')">Editar solicitud de dispensa</button>
     </div>
 
     <div v-if="msg" class="fb-ok">{{ msg }}</div>
     <div v-if="err" class="fb-ko">{{ err }}</div>
 
-    <!-- Lista de Alumnos -->
-    <div v-if="panel === 'lista'" class="panel card-base">
-      <h2 class="panel-h">Consultar Lista de Alumnos</h2>
+    <!-- CU: abrirAlumnos -->
+    <div v-if="panel === 'abrir-alumnos'" class="panel card-base">
+      <h2 class="panel-h">Abrir alumnos</h2>
+      <div class="row-h">
+        <input class="form-input" v-model="filtroAlumnos" placeholder="Filtrar por nombre o email…" @keyup.enter="handleFiltrarAlumnos" />
+        <button class="btn-primary" @click="handleFiltrarAlumnos">Filtrar</button>
+      </div>
       <table v-if="alumnos.length" class="table-corp">
         <thead><tr><th>Nombre</th><th>Nº Registro</th><th>Email</th></tr></thead>
         <tbody>
@@ -117,61 +161,86 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
       <p v-else class="dim">Sin alumnos registrados.</p>
     </div>
 
-    <!-- Detalle Alumno -->
-    <div v-if="panel === 'detalle-alumno'" class="panel card-base">
-      <h2 class="panel-h">Consultar Detalle de Alumno</h2>
+    <!-- CU: importarListasAlumnos -->
+    <div v-if="panel === 'import-alumnos'" class="panel card-base">
+      <h2 class="panel-h">Importar listas de alumnos</h2>
+      <div class="frow">
+        <label class="form-label">JSON de alumnos <span class="dim">[{nombre, email, dni}]</span></label>
+        <textarea class="form-input mono" v-model="importAlumnosJson" rows="6" />
+      </div>
+      <button class="btn-primary" style="align-self:start" @click="handleImportAlumnos">Importar</button>
+    </div>
+
+    <!-- CU: consultarAlumno -->
+    <div v-if="panel === 'consultar-alumno'" class="panel card-base">
+      <h2 class="panel-h">Consultar alumno</h2>
       <template v-if="!alumnoSel">
         <div class="lista">
-          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="selAlumno(a)">
+          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="handleConsultarAlumno(a)">
             <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
           </div>
         </div>
+        <p v-if="!alumnos.length" class="dim">Sin alumnos.</p>
       </template>
       <template v-else>
-        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null">← Volver</button>
+        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null; alumnoDetalle = null">← Volver</button>
         <div class="info-grid">
-          <div class="info-block"><p class="form-label">Nombre</p><p>{{ alumnoSel.nombre }}</p></div>
-          <div class="info-block"><p class="form-label">Email</p><p>{{ alumnoSel.email }}</p></div>
-          <div class="info-block"><p class="form-label">Nº Registro</p><p>{{ alumnoSel.numeroRegistro }}</p></div>
-          <div class="info-block"><p class="form-label">DNI</p><p>{{ alumnoSel.dni ?? '—' }}</p></div>
-        </div>
-        <div v-if="alumnoSel.matriculas?.length">
-          <p class="form-label">Matrículas</p>
-          <div v-for="m in alumnoSel.matriculas" :key="m.id" class="info-block">{{ m.grado?.nombre ?? m.gradoId }}</div>
-        </div>
-        <div>
-          <p class="form-label" style="margin-bottom:.5rem">Dispensas</p>
-          <div v-if="dispensasSel.length" class="lista">
-            <div v-for="d in dispensasSel" :key="d.id" class="dispensa-row">
-              <div style="flex:1;min-width:0">
-                <p style="font-size:.85rem;margin-bottom:2px">{{ d.motivo }}</p>
-                <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
-              </div>
-              <button class="btn-del" @click.stop="handleEliminarDispensa(d.id)">Eliminar</button>
-            </div>
-          </div>
-          <p v-else class="dim">Sin dispensas.</p>
+          <div class="info-block"><p class="form-label">Nombre</p><p>{{ alumnoDetalle?.nombre ?? alumnoSel.nombre }}</p></div>
+          <div class="info-block"><p class="form-label">Email</p><p>{{ alumnoDetalle?.email ?? alumnoSel.email }}</p></div>
+          <div class="info-block"><p class="form-label">Nº Registro</p><p>{{ alumnoDetalle?.numeroRegistro ?? alumnoSel.numeroRegistro }}</p></div>
+          <div class="info-block"><p class="form-label">DNI</p><p>{{ alumnoDetalle?.dni ?? '—' }}</p></div>
         </div>
       </template>
     </div>
 
-    <!-- Detalle Matrícula -->
-    <div v-if="panel === 'detalle-matricula'" class="panel card-base">
-      <h2 class="panel-h">Consultar Detalle de Matrícula</h2>
-      <template v-if="!alumnoSel">
+    <!-- CU: abrirMatriculas -->
+    <div v-if="panel === 'abrir-matriculas'" class="panel card-base">
+      <h2 class="panel-h">Abrir matrículas</h2>
+      <div class="row-h">
+        <input class="form-input" v-model="filtroMat" placeholder="Filtrar…" @keyup.enter="handleAbrirMatriculas" />
+        <button class="btn-primary" @click="handleAbrirMatriculas">Buscar</button>
+      </div>
+      <table v-if="matriculas.length" class="table-corp">
+        <thead><tr><th>Alumno</th><th>Grado</th></tr></thead>
+        <tbody>
+          <tr v-for="m in matriculas" :key="m.id">
+            <td>{{ m.alumno?.nombre ?? '—' }}</td>
+            <td>{{ m.grado?.nombre ?? m.gradoId ?? '—' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="dim">Pulsa Buscar para cargar matrículas.</p>
+    </div>
+
+    <!-- CU: importarMatriculas -->
+    <div v-if="panel === 'import-matriculas'" class="panel card-base">
+      <h2 class="panel-h">Importar matrículas</h2>
+      <div class="frow"><label class="form-label">ID del Grado</label><input class="form-input" v-model="gradoIdImport" placeholder="ID del grado" /></div>
+      <div class="frow">
+        <label class="form-label">JSON de matrículas <span class="dim">[{dni, asignaturaId}]</span></label>
+        <textarea class="form-input mono" v-model="importMatJson" rows="5" placeholder='[{"dni":"00000001A","asignaturaId":"asignatura1-id"}]' />
+      </div>
+      <button class="btn-primary" style="align-self:start" @click="handleImportMatriculas">Importar</button>
+    </div>
+
+    <!-- CU: consultarDetalleMatricula -->
+    <div v-if="panel === 'consultar-matricula'" class="panel card-base">
+      <h2 class="panel-h">Consultar detalle de matrícula</h2>
+      <template v-if="!alumnoMatSel">
         <div class="lista">
-          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="selAlumno(a)">
+          <div v-for="a in alumnos" :key="a.id" class="list-item" @click="handleConsultarMatricula(a)">
             <span>{{ a.nombre }}</span><span class="dim">{{ a.numeroRegistro }}</span>
           </div>
         </div>
+        <p v-if="!alumnos.length" class="dim">Sin alumnos.</p>
       </template>
       <template v-else>
-        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoSel = null">← Volver</button>
-        <p class="form-label">Matrículas de {{ alumnoSel.nombre }}</p>
-        <table v-if="matriculasSel.length" class="table-corp">
+        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="alumnoMatSel = null; detalleMatriculas = []">← Volver</button>
+        <p class="form-label">Matrículas de {{ alumnoMatSel.nombre }}</p>
+        <table v-if="detalleMatriculas.length" class="table-corp">
           <thead><tr><th>Grado</th><th>Secretaría</th></tr></thead>
           <tbody>
-            <tr v-for="m in matriculasSel" :key="m.id">
+            <tr v-for="m in detalleMatriculas" :key="m.id">
               <td>{{ m.grado?.nombre ?? m.gradoId }}</td>
               <td>{{ m.grado?.secretaria?.nombre ?? '—' }}</td>
             </tr>
@@ -181,37 +250,42 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
       </template>
     </div>
 
-    <!-- Exportar Dispensas -->
-    <div v-if="panel === 'exportar'" class="panel card-base">
-      <h2 class="panel-h">Exportar Dispensas</h2>
-      <p class="dim">Descarga todas las solicitudes de dispensa en formato CSV.</p>
-      <button class="btn-primary" style="align-self:start" @click="handleExportar">Descargar CSV</button>
+    <!-- CU: cerrarCicloAcademico -->
+    <div v-if="panel === 'cerrar-ciclo'" class="panel card-base">
+      <h2 class="panel-h">Cerrar ciclo académico</h2>
+      <p class="dim">Esta acción archivará todas las matrículas del ciclo actual.</p>
+      <template v-if="!confirmarCierre">
+        <button class="btn-primary" style="align-self:start" @click="confirmarCierre = true">Iniciar cierre</button>
+      </template>
+      <template v-else>
+        <p><strong>¿Confirmas el cierre del ciclo académico?</strong> Esta acción no se puede deshacer.</p>
+        <div class="row-h">
+          <button class="btn-del" @click="handleCerrarCiclo">Confirmar cierre</button>
+          <button class="btn-outline" @click="confirmarCierre = false">Cancelar</button>
+        </div>
+      </template>
     </div>
 
-    <!-- Importar Alumnos -->
-    <div v-if="panel === 'import-alumnos'" class="panel card-base">
-      <h2 class="panel-h">Importar Listas de Alumnos</h2>
-      <div class="frow">
-        <label class="form-label">JSON de alumnos <span class="dim">[{nombre, email, dni}]</span></label>
-        <textarea class="form-input" v-model="importAlumnosJson" rows="6" style="font-family:monospace;font-size:.82rem" />
-      </div>
-      <button class="btn-primary" style="align-self:start" @click="handleImportAlumnos">Importar</button>
+    <!-- CU: abrirDispensas -->
+    <div v-if="panel === 'abrir-dispensas'" class="panel card-base">
+      <h2 class="panel-h">Abrir dispensas</h2>
+      <table v-if="dispensas.length" class="table-corp">
+        <thead><tr><th>Alumno</th><th>Motivo</th><th>Estado</th><th>Fecha</th></tr></thead>
+        <tbody>
+          <tr v-for="d in dispensas" :key="d.id">
+            <td>{{ d.alumno?.nombre ?? '—' }}</td>
+            <td>{{ d.motivo.slice(0, 50) }}{{ d.motivo.length > 50 ? '…' : '' }}</td>
+            <td><span :class="estadoClass(d.estado)">{{ d.estado }}</span></td>
+            <td>{{ new Date(d.fechaSolicitud).toLocaleDateString() }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <p v-else class="dim">No hay solicitudes de dispensa.</p>
     </div>
 
-    <!-- Importar Matrículas -->
-    <div v-if="panel === 'import-matriculas'" class="panel card-base">
-      <h2 class="panel-h">Importar Matrículas</h2>
-      <div class="frow"><label class="form-label">ID del Grado</label><input class="form-input" v-model="gradoIdImport" /></div>
-      <div class="frow">
-        <label class="form-label">JSON de matrículas <span class="dim">[{dni, asignaturaId}]</span></label>
-        <textarea class="form-input" v-model="importMatJson" rows="5" placeholder='[{"dni":"00000001A","asignaturaId":"asignatura1-id"}]' style="font-family:monospace;font-size:.82rem" />
-      </div>
-      <button class="btn-primary" style="align-self:start" @click="handleImportMat">Importar</button>
-    </div>
-
-    <!-- Crear Dispensa -->
+    <!-- CU: crearSolicitudDispensa -->
     <div v-if="panel === 'crear-dispensa'" class="panel card-base">
-      <h2 class="panel-h">Crear Solicitud de Dispensa</h2>
+      <h2 class="panel-h">Crear solicitud de dispensa</h2>
       <div class="frow">
         <label class="form-label">Alumno</label>
         <select class="form-input" v-model="crearDispForm.alumnoId">
@@ -222,11 +296,54 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
       <div class="frow"><label class="form-label">Motivo</label><textarea class="form-input" v-model="crearDispForm.motivo" rows="3" /></div>
       <button class="btn-primary" style="align-self:start" @click="handleCrearDisp">Crear</button>
     </div>
+
+    <!-- CU: consultarSolicitudDispensa -->
+    <div v-if="panel === 'consultar-dispensa'" class="panel card-base">
+      <h2 class="panel-h">Consultar solicitud de dispensa</h2>
+      <template v-if="!dispensaSel">
+        <div class="lista">
+          <div v-for="d in dispensas" :key="d.id" class="list-item" @click="handleConsultarDisp(d)">
+            <span>{{ d.alumno?.nombre ?? '—' }} — {{ d.motivo.slice(0, 40) }}{{ d.motivo.length > 40 ? '…' : '' }}</span>
+            <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
+          </div>
+        </div>
+        <p v-if="!dispensas.length" class="dim">No hay solicitudes de dispensa.</p>
+      </template>
+      <template v-else>
+        <button class="btn-outline" style="align-self:start;font-size:.8rem" @click="dispensaSel = null">← Volver</button>
+        <div class="info-grid">
+          <div class="info-block"><p class="form-label">Estado</p><span :class="estadoClass(dispensaSel.estado)">{{ dispensaSel.estado }}</span></div>
+          <div class="info-block"><p class="form-label">Fecha</p><p>{{ new Date(dispensaSel.fechaSolicitud).toLocaleDateString() }}</p></div>
+          <div class="info-block"><p class="form-label">Alumno</p><p>{{ dispensaSel.alumno?.nombre ?? '—' }}</p></div>
+        </div>
+        <div class="info-block"><p class="form-label">Motivo</p><p>{{ dispensaSel.motivo }}</p></div>
+        <div class="info-block" v-if="dispensaSel.observaciones"><p class="form-label">Observaciones</p><p>{{ dispensaSel.observaciones }}</p></div>
+      </template>
+    </div>
+
+    <!-- CU: editarSolicitudDispensa -->
+    <div v-if="panel === 'editar-dispensa'" class="panel card-base">
+      <h2 class="panel-h">Editar solicitud de dispensa</h2>
+      <template v-if="!editDispSel">
+        <div class="lista">
+          <div v-for="d in dispensas.filter(x => x.estado === 'PENDIENTE')" :key="d.id" class="list-item" @click="selEditarDisp(d)">
+            <span>{{ d.alumno?.nombre ?? '—' }} — {{ d.motivo.slice(0, 40) }}{{ d.motivo.length > 40 ? '…' : '' }}</span>
+            <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
+          </div>
+        </div>
+        <p v-if="!dispensas.filter(x => x.estado === 'PENDIENTE').length" class="dim">No hay solicitudes pendientes de editar.</p>
+      </template>
+      <template v-else>
+        <div class="info-block"><p class="form-label">Alumno</p><p>{{ editDispSel.alumno?.nombre ?? '—' }}</p></div>
+        <div class="frow"><label class="form-label">Motivo</label><textarea class="form-input" v-model="editDispForm.motivo" rows="3" /></div>
+        <div class="row-h"><button class="btn-primary" @click="handleEditarDisp">Guardar</button><button class="btn-outline" @click="editDispSel = null">Cancelar</button></div>
+      </template>
+    </div>
   </div>
 </template>
 
 <style scoped>
-.page { max-width: 900px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.page { max-width: 960px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; }
 .hero { padding: 2rem 2.5rem; }
 .role-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 4px; }
 h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
@@ -238,6 +355,7 @@ h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
 .panel { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
 .panel-h { font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: .75rem; }
 .frow { display: flex; flex-direction: column; gap: .35rem; }
+.row-h { display: flex; gap: .75rem; align-items: center; }
 .lista { display: flex; flex-direction: column; gap: .5rem; }
 .list-item { display: flex; justify-content: space-between; align-items: center; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background .1s; }
 .list-item:hover { background: var(--bg-main); }
@@ -250,8 +368,8 @@ h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
 .dim { color: var(--text-secondary); font-size: .85rem; }
 .fb-ok { padding: .75rem 1rem; background: var(--success-bg); color: var(--success); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
 .fb-ko { padding: .75rem 1rem; background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
-textarea.form-input { resize: vertical; }
-.dispensa-row { display: flex; align-items: center; gap: .75rem; padding: .6rem .75rem; border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.btn-del { background: var(--error-bg); border: 1px solid var(--error); color: var(--error); padding: .35rem .7rem; border-radius: var(--radius-sm); cursor: pointer; font-size: .78rem; font-weight: 600; font-family: inherit; white-space: nowrap; flex-shrink: 0; }
+textarea.form-input { resize: vertical; min-height: 70px; }
+.mono { font-family: monospace; font-size: .82rem; }
+.btn-del { background: var(--error-bg); border: 1px solid var(--error); color: var(--error); padding: .5rem 1rem; border-radius: var(--radius-sm); cursor: pointer; font-size: .82rem; font-weight: 600; font-family: inherit; }
 .btn-del:hover { background: var(--error); color: #fff; }
 </style>

@@ -54,7 +54,8 @@ export class AcademicService {
     });
 
     const eximidos = new Set(dispensasAprobadas.map(d => d.alumnoId));
-    return asignatura.alumnos.filter(a => !eximidos.has(a.id));
+    // Devuelve todos los alumnos, marcando los dispensados en lugar de ocultarlos
+    return asignatura.alumnos.map(a => ({ ...a, dispensado: eximidos.has(a.id) }));
   }
 
   async getTeacherSessions(profesorId: string) {
@@ -100,6 +101,42 @@ export class AcademicService {
     return await prisma.sesionDeClase.update({
       where: { id },
       data: { estado: 'CERRADA' }
+    });
+  }
+
+  // CU: eliminarSesionClase
+  async eliminarSesionClase(id: string) {
+    return await prisma.sesionDeClase.delete({ where: { id } });
+  }
+
+  async getTeacherAlumnos(profesorId: string) {
+    const asignaturas = await prisma.asignatura.findMany({
+      where: { profesorId },
+      include: {
+        alumnos: { select: { id: true, nombre: true, numeroRegistro: true, email: true } },
+        grado: { select: { nombre: true } }
+      }
+    });
+    const seen = new Set<string>();
+    const result: any[] = [];
+    for (const a of asignaturas) {
+      for (const al of a.alumnos) {
+        if (!seen.has(al.id)) {
+          seen.add(al.id);
+          result.push({ ...al, asignatura: { id: a.id, nombre: a.nombre } });
+        }
+      }
+    }
+    return result;
+  }
+
+  async getAllAsignaturas() {
+    return await prisma.asignatura.findMany({
+      include: {
+        grado: { select: { nombre: true } },
+        profesor: { select: { nombre: true } }
+      },
+      orderBy: { nombre: 'asc' }
     });
   }
 }

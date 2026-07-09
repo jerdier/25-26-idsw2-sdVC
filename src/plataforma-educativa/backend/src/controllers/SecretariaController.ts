@@ -2,22 +2,44 @@ import { Request, Response } from 'express';
 import { secretariaService } from '../services/SecretariaService';
 
 export class SecretariaController {
-  // CU: consultarListaAlumnos / consultarDetalleAlumno
+  // CU: abrirAlumnos
   async consultarListaAlumnos(req: Request, res: Response) {
     try {
-      res.json(await secretariaService.consultarListaAlumnos());
+      const filtro = req.query['filtro'] as string | undefined;
+      res.json(await secretariaService.consultarListaAlumnos(filtro));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: consultarAlumno
+  async consultarAlumno(req: Request, res: Response) {
+    try {
+      res.json(await secretariaService.consultarAlumno(req.params['alumnoId'] as string));
+    } catch (error: any) { res.status(404).json({ message: error.message }); }
+  }
+
+  // CU: abrirMatriculas
+  async abrirMatriculas(req: Request, res: Response) {
+    try {
+      const filtro = req.query['filtro'] as string | undefined;
+      res.json(await secretariaService.abrirMatriculas(filtro));
+    } catch (error: any) { res.status(500).json({ message: error.message }); }
+  }
+
+  // CU: cerrarCicloAcademico
+  async cerrarCicloAcademico(req: Request, res: Response) {
+    try {
+      res.json(await secretariaService.cerrarCicloAcademico());
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
   // CU: consultarDetalleMatricula
   async consultarDetalleMatricula(req: Request, res: Response) {
     try {
-      const alumnoId = req.params['alumnoId'] as string;
-      res.json(await secretariaService.consultarDetalleMatricula(alumnoId));
+      res.json(await secretariaService.consultarDetalleMatricula(req.params['alumnoId'] as string));
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
-  // CU: importarListasAlumnos
+  // CU: importarAlumnos
   async importarListasAlumnos(req: Request, res: Response) {
     try {
       const archivo = req.body;

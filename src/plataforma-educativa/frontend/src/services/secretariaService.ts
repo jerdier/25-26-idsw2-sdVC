@@ -1,9 +1,24 @@
 import api from './api';
 
 export const secretariaService = {
-  // CU: consultarListaAlumnos / consultarDetalleAlumno
-  async consultarListaAlumnos() {
-    return (await api.get('/secretaria/alumnos')).data;
+  // CU: abrirAlumnos
+  async consultarListaAlumnos(filtro?: string) {
+    return (await api.get('/secretaria/alumnos', { params: filtro ? { filtro } : undefined })).data;
+  },
+
+  // CU: consultarAlumno
+  async consultarAlumno(alumnoId: string) {
+    return (await api.get(`/secretaria/alumnos/${alumnoId}`)).data;
+  },
+
+  // CU: abrirMatriculas
+  async abrirMatriculas(filtro?: string) {
+    return (await api.get('/secretaria/matriculas', { params: filtro ? { filtro } : undefined })).data;
+  },
+
+  // CU: cerrarCicloAcademico
+  async cerrarCicloAcademico() {
+    return (await api.post('/secretaria/ciclos/cerrar')).data;
   },
 
   // CU: consultarDetalleMatricula
@@ -11,7 +26,7 @@ export const secretariaService = {
     return (await api.get(`/secretaria/alumnos/${alumnoId}/matriculas`)).data;
   },
 
-  // CU: importarListasAlumnos
+  // CU: importarAlumnos
   async importarListasAlumnos(data: { alumnos: { nombre: string; email: string; dni: string }[] }) {
     return (await api.post('/secretaria/import/alumnos', data)).data;
   },

@@ -1,149 +1,195 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from 'vue';
+import { ref, reactive, onMounted } from 'vue';
 import { useAuth } from '../services/authService';
 import dispensaService from '../services/dispensaService';
 
 const { state } = useAuth();
 const uid = state.user?.id ?? '';
-const panel = ref<string | null>(null);
-const toggle = (c: string) => { panel.value = panel.value === c ? null : c; };
+
+// Navegación: 'lista' | 'detalle' | 'editar'
+const vista = ref<'lista' | 'detalle' | 'editar'>('lista');
 const msg = ref(''); const err = ref('');
 const ok = (m: string) => { msg.value = m; err.value = ''; };
 const ko = (e: any) => { err.value = e.response?.data?.message ?? e.message; msg.value = ''; };
 
 const dispensas = ref<any[]>([]);
+const sel = ref<any>(null);
+const editForm = reactive({ estado: 'APROBADA' as 'APROBADA' | 'RECHAZADA', observaciones: '' });
 
-watch(panel, async (v) => {
+const cargarDispensas = async () => {
+  try { dispensas.value = await dispensaService.consultarSolicitudDispensa({}); }
+  catch (e: any) { ko(e); }
+};
+
+onMounted(cargarDispensas);
+
+const irDetalle = async (d: any) => {
   msg.value = ''; err.value = '';
-  if (v) { try { dispensas.value = await dispensaService.consultarSolicitudDispensa({ estado: 'PENDIENTE' }); } catch {} }
-});
+  try { sel.value = await dispensaService.getDispensa(d.id); }
+  catch { sel.value = d; }
+  vista.value = 'detalle';
+};
 
-// Consultar
-// (solo muestra lista, sin acción)
+const irEditar = () => {
+  editForm.estado = sel.value.estado === 'RECHAZADA' ? 'RECHAZADA' : 'APROBADA';
+  editForm.observaciones = sel.value.observaciones ?? '';
+  vista.value = 'editar';
+};
 
-// Editar / Guardar (ambos usan el mismo flujo)
-const selD = ref<any>(null);
-const accionForm = reactive({ estado: 'APROBADA', observaciones: '' });
-const selDispensa = (d: any) => { selD.value = d; accionForm.estado = 'APROBADA'; accionForm.observaciones = ''; };
-
-const handleGuardar = async () => {
+const guardar = async () => {
   try {
-    await dispensaService.guardarSolicitudDispensa(selD.value.id, { estado: accionForm.estado as 'APROBADA' | 'RECHAZADA', directorId: uid, observaciones: accionForm.observaciones });
-    ok(`Dispensa ${accionForm.estado.toLowerCase()}.`);
-    selD.value = null;
-    dispensas.value = await dispensaService.consultarSolicitudDispensa({ estado: 'PENDIENTE' }).catch(() => []);
+    await dispensaService.guardarSolicitudDispensa(sel.value.id, { estado: editForm.estado, directorId: uid, observaciones: editForm.observaciones });
+    ok(`Dispensa ${editForm.estado === 'APROBADA' ? 'aprobada' : 'rechazada'}.`);
+    sel.value = { ...sel.value, estado: editForm.estado, observaciones: editForm.observaciones };
+    vista.value = 'detalle';
+    await cargarDispensas();
   } catch (e: any) { ko(e); }
 };
 
-const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZADA' ? 'tag-ko' : 'tag';
+const volver = () => { msg.value = ''; err.value = ''; vista.value = vista.value === 'editar' ? 'detalle' : 'lista'; };
+const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZADA' ? 'tag-ko' : 'tag-pend';
 </script>
 
 <template>
   <div class="page">
-    <div class="hero card-base">
-      <p class="role-label">Director de Grado</p>
-      <h1>{{ state.user?.nombre }}</h1>
-    </div>
-    <p class="section-lbl">Casos de uso</p>
-    <div class="grid">
-      <button :class="['cu-btn', { active: panel === 'consultar' }]" @click="toggle('consultar')">Consultar Solicitud de Dispensa</button>
-      <button :class="['cu-btn', { active: panel === 'editar' }]" @click="toggle('editar')">Editar Solicitud de Dispensa</button>
-      <button :class="['cu-btn', { active: panel === 'guardar' }]" @click="toggle('guardar')">Guardar Solicitud de Dispensa</button>
+    <!-- Cabecera con breadcrumb -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <span class="bc-root" @click="vista = 'lista'; sel = null">Dispensas</span>
+        <template v-if="vista !== 'lista'">
+          <span class="bc-sep">›</span>
+          <span class="bc-item" :class="{ 'bc-root': vista === 'editar' }" @click="vista === 'editar' ? volver() : null">
+            {{ sel?.alumno?.nombre ?? '—' }}
+          </span>
+        </template>
+        <template v-if="vista === 'editar'">
+          <span class="bc-sep">›</span>
+          <span class="bc-item">Editar</span>
+        </template>
+      </div>
+      <div class="user-chip">
+        <span class="role-pill">Director de Grado</span>
+        <span class="uname">{{ state.user?.nombre }}</span>
+      </div>
     </div>
 
     <div v-if="msg" class="fb-ok">{{ msg }}</div>
     <div v-if="err" class="fb-ko">{{ err }}</div>
 
-    <!-- Consultar -->
-    <div v-if="panel === 'consultar'" class="panel card-base">
-      <h2 class="panel-h">Consultar Solicitud de Dispensa</h2>
-      <table v-if="dispensas.length" class="table-corp">
-        <thead><tr><th>Alumno</th><th>Motivo</th><th>Estado</th><th>Fecha</th></tr></thead>
-        <tbody>
-          <tr v-for="d in dispensas" :key="d.id">
-            <td>{{ d.alumno?.nombre }}</td>
-            <td>{{ d.motivo }}</td>
-            <td><span :class="estadoClass(d.estado)">{{ d.estado }}</span></td>
-            <td>{{ new Date(d.fechaSolicitud).toLocaleDateString() }}</td>
-          </tr>
-        </tbody>
-      </table>
-      <p v-else class="dim">No hay solicitudes pendientes.</p>
-    </div>
-
-    <!-- Editar -->
-    <div v-if="panel === 'editar'" class="panel card-base">
-      <h2 class="panel-h">Editar Solicitud de Dispensa</h2>
-      <template v-if="!selD">
-        <div class="lista">
-          <div v-for="d in dispensas" :key="d.id" class="list-item" @click="selDispensa(d)">
-            <div><p style="font-size:.9rem">{{ d.alumno?.nombre }}</p><p class="dim">{{ d.motivo.slice(0,60) }}...</p></div>
+    <!-- VISTA: lista de dispensas (Abrir dispensas) -->
+    <template v-if="vista === 'lista'">
+      <div class="section-header">
+        <h2 class="section-title">Solicitudes de dispensa</h2>
+        <span class="count-badge">{{ dispensas.length }}</span>
+      </div>
+      <div v-if="dispensas.length" class="disp-list">
+        <div v-for="d in dispensas" :key="d.id" class="disp-card" @click="irDetalle(d)">
+          <div class="disp-card-main">
+            <p class="disp-alumno">{{ d.alumno?.nombre ?? '—' }}</p>
+            <p class="disp-motivo">{{ d.motivo.slice(0, 80) }}{{ d.motivo.length > 80 ? '…' : '' }}</p>
+          </div>
+          <div class="disp-card-meta">
             <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
+            <span class="disp-fecha">{{ new Date(d.fechaSolicitud).toLocaleDateString() }}</span>
           </div>
         </div>
-        <p v-if="!dispensas.length" class="dim">No hay solicitudes.</p>
-      </template>
-      <template v-else>
-        <div class="info-block"><p class="form-label">Alumno</p><p>{{ selD.alumno?.nombre }}</p></div>
-        <div class="info-block"><p class="form-label">Motivo</p><p>{{ selD.motivo }}</p></div>
-        <div class="frow"><label class="form-label">Observaciones</label><textarea class="form-input" v-model="accionForm.observaciones" rows="3" placeholder="Añadir observaciones..." /></div>
-        <div class="row-h"><button class="btn-primary" @click="handleGuardar">Guardar cambios</button><button class="btn-outline" @click="selD = null">Cancelar</button></div>
-      </template>
-    </div>
+      </div>
+      <div v-else class="empty-state">
+        <p>No hay solicitudes de dispensa.</p>
+      </div>
+    </template>
 
-    <!-- Guardar (Aprobar/Rechazar) -->
-    <div v-if="panel === 'guardar'" class="panel card-base">
-      <h2 class="panel-h">Guardar Solicitud de Dispensa</h2>
-      <template v-if="!selD">
-        <div class="lista">
-          <div v-for="d in dispensas" :key="d.id" class="list-item" @click="selDispensa(d)">
-            <div><p style="font-size:.9rem">{{ d.alumno?.nombre }}</p><p class="dim">{{ d.motivo.slice(0,60) }}...</p></div>
-            <span :class="estadoClass(d.estado)">{{ d.estado }}</span>
+    <!-- VISTA: detalle de dispensa (Consultar solicitud de dispensa) -->
+    <template v-else-if="vista === 'detalle'">
+      <div class="detail-card card-base">
+        <div class="detail-header">
+          <button class="back-btn" @click="volver">← Volver</button>
+          <button class="btn-primary" @click="irEditar">Editar resolución</button>
+        </div>
+        <div class="detail-kv-grid">
+          <div class="kv"><p class="kv-label">Alumno</p><p class="kv-val">{{ sel?.alumno?.nombre ?? '—' }}</p></div>
+          <div class="kv"><p class="kv-label">Nº Registro</p><p class="kv-val">{{ sel?.alumno?.numeroRegistro ?? '—' }}</p></div>
+          <div class="kv"><p class="kv-label">Estado</p><span :class="estadoClass(sel?.estado)">{{ sel?.estado }}</span></div>
+          <div class="kv"><p class="kv-label">Fecha</p><p class="kv-val">{{ sel ? new Date(sel.fechaSolicitud).toLocaleDateString() : '' }}</p></div>
+        </div>
+        <div class="kv full"><p class="kv-label">Motivo</p><p class="kv-val">{{ sel?.motivo }}</p></div>
+        <div v-if="sel?.observaciones" class="kv full"><p class="kv-label">Observaciones</p><p class="kv-val">{{ sel.observaciones }}</p></div>
+        <div v-if="sel?.asignaturas?.length" class="kv full">
+          <p class="kv-label">Asignaturas afectadas</p>
+          <div class="tag-list">
+            <span v-for="a in sel.asignaturas" :key="a.id" class="asig-tag">{{ a.nombre }}</span>
           </div>
         </div>
-        <p v-if="!dispensas.length" class="dim">No hay solicitudes pendientes.</p>
-      </template>
-      <template v-else>
-        <div class="info-block"><p class="form-label">Alumno</p><p>{{ selD.alumno?.nombre }}</p></div>
-        <div class="info-block"><p class="form-label">Motivo</p><p>{{ selD.motivo }}</p></div>
+      </div>
+    </template>
+
+    <!-- VISTA: editar dispensa (Editar solicitud de dispensa) -->
+    <template v-else-if="vista === 'editar'">
+      <div class="detail-card card-base">
+        <div class="detail-header">
+          <button class="back-btn" @click="volver">← Cancelar</button>
+          <button class="btn-primary" @click="guardar">Guardar resolución</button>
+        </div>
+        <div class="kv full"><p class="kv-label">Alumno</p><p class="kv-val">{{ sel?.alumno?.nombre ?? '—' }}</p></div>
+        <div class="kv full"><p class="kv-label">Motivo</p><p class="kv-val">{{ sel?.motivo }}</p></div>
         <div class="frow">
           <label class="form-label">Resolución</label>
-          <select class="form-input" v-model="accionForm.estado">
-            <option value="APROBADA">Aprobar</option>
-            <option value="RECHAZADA">Rechazar</option>
-          </select>
+          <div class="radio-row">
+            <label class="radio-item"><input type="radio" value="APROBADA" v-model="editForm.estado" /><span class="tag-ok">Aprobar</span></label>
+            <label class="radio-item"><input type="radio" value="RECHAZADA" v-model="editForm.estado" /><span class="tag-ko">Rechazar</span></label>
+          </div>
         </div>
-        <div class="frow"><label class="form-label">Observaciones</label><textarea class="form-input" v-model="accionForm.observaciones" rows="3" /></div>
-        <div class="row-h"><button class="btn-primary" @click="handleGuardar">Guardar resolución</button><button class="btn-outline" @click="selD = null">Cancelar</button></div>
-      </template>
-    </div>
+        <div class="frow">
+          <label class="form-label">Observaciones para el alumno</label>
+          <textarea class="form-input" v-model="editForm.observaciones" rows="4" placeholder="Añade observaciones…" />
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <style scoped>
-.page { max-width: 860px; margin: 0 auto; padding: 2.5rem 2rem; display: flex; flex-direction: column; gap: 1.25rem; }
-.hero { padding: 2rem 2.5rem; }
-.role-label { font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-secondary); margin-bottom: 4px; }
-h1 { font-size: 1.5rem; font-weight: 700; letter-spacing: -.02em; }
-.section-lbl { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--text-dim); }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: .75rem; }
-.cu-btn { background: var(--bg-card); border: 1px solid var(--border); color: var(--text-primary); padding: 1rem 1.4rem; font-size: .88rem; font-weight: 500; border-radius: var(--radius-md); cursor: pointer; text-align: left; transition: all .15s; box-shadow: var(--shadow-sm); font-family: inherit; }
-.cu-btn:hover { background: var(--bg-main); border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
-.cu-btn.active { border-color: var(--text-primary); background: var(--bg-main); }
-.panel { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
-.panel-h { font-size: 1rem; font-weight: 700; border-bottom: 1px solid var(--border); padding-bottom: .75rem; }
-.frow { display: flex; flex-direction: column; gap: .35rem; }
-.row-h { display: flex; gap: .75rem; align-items: center; }
-.lista { display: flex; flex-direction: column; gap: .5rem; }
-.list-item { display: flex; justify-content: space-between; align-items: center; padding: .85rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: background .1s; }
-.list-item:hover { background: var(--bg-main); }
-.info-block { background: var(--bg-main); padding: .75rem 1rem; border-radius: var(--radius-sm); }
-.info-block .form-label { margin-bottom: 4px; }
-.tag { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--bg-input); color: var(--text-secondary); text-transform: uppercase; }
+.page { max-width: 780px; margin: 0 auto; padding: 1.5rem 2rem 3rem; display: flex; flex-direction: column; gap: 1.25rem; }
+.topbar { display: flex; justify-content: space-between; align-items: center; }
+.breadcrumb { display: flex; align-items: center; gap: .4rem; font-size: .85rem; }
+.bc-root { color: var(--text-primary); font-weight: 600; cursor: pointer; }
+.bc-root:hover { text-decoration: underline; }
+.bc-sep { color: var(--text-dim); }
+.bc-item { color: var(--text-secondary); }
+.bc-item.bc-root { color: var(--text-primary); font-weight: 600; }
+.user-chip { display: flex; align-items: center; gap: .6rem; }
+.role-pill { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; background: var(--bg-input); color: var(--text-secondary); padding: 3px 8px; border-radius: 99px; }
+.uname { font-size: .82rem; font-weight: 600; color: var(--text-primary); }
+.section-header { display: flex; align-items: baseline; gap: .75rem; }
+.section-title { font-size: 1.2rem; font-weight: 700; letter-spacing: -.02em; }
+.count-badge { font-size: .72rem; font-weight: 700; background: var(--bg-input); color: var(--text-secondary); padding: 2px 8px; border-radius: 99px; }
+.disp-list { display: flex; flex-direction: column; gap: .6rem; }
+.disp-card { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; padding: 1rem 1.25rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-md); cursor: pointer; transition: all .15s; box-shadow: var(--shadow-sm); }
+.disp-card:hover { border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.disp-card-main { flex: 1; min-width: 0; }
+.disp-alumno { font-size: .9rem; font-weight: 600; margin-bottom: 3px; }
+.disp-motivo { font-size: .8rem; color: var(--text-secondary); }
+.disp-card-meta { display: flex; flex-direction: column; align-items: flex-end; gap: .4rem; flex-shrink: 0; }
+.disp-fecha { font-size: .72rem; color: var(--text-dim); }
+.detail-card { padding: 1.75rem 2rem; display: flex; flex-direction: column; gap: 1rem; }
+.detail-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+.back-btn { background: none; border: none; color: var(--text-secondary); font-size: .85rem; cursor: pointer; font-family: inherit; padding: 0; }
+.back-btn:hover { color: var(--text-primary); }
+.detail-kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+.kv { background: var(--bg-main); padding: .7rem .9rem; border-radius: var(--radius-sm); }
+.kv.full { grid-column: 1/-1; }
+.kv-label { font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-dim); margin-bottom: 4px; }
+.kv-val { font-size: .9rem; }
+.tag-list { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .35rem; }
+.asig-tag { font-size: .75rem; padding: 3px 9px; background: var(--bg-input); border-radius: 99px; color: var(--text-secondary); }
+.frow { display: flex; flex-direction: column; gap: .4rem; }
+.radio-row { display: flex; gap: 1.5rem; padding: .5rem 0; }
+.radio-item { display: flex; align-items: center; gap: .5rem; cursor: pointer; }
+.tag-pend { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--bg-input); color: var(--text-secondary); text-transform: uppercase; }
 .tag-ok { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--success-bg); color: var(--success); text-transform: uppercase; }
 .tag-ko { font-size: .68rem; font-weight: 700; padding: 3px 8px; border-radius: 99px; background: var(--error-bg); color: var(--error); text-transform: uppercase; }
-.dim { color: var(--text-secondary); font-size: .85rem; }
+.empty-state { text-align: center; padding: 3rem 2rem; color: var(--text-secondary); font-size: .9rem; }
 .fb-ok { padding: .75rem 1rem; background: var(--success-bg); color: var(--success); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
 .fb-ko { padding: .75rem 1rem; background: var(--error-bg); color: var(--error); border-radius: var(--radius-sm); font-size: .85rem; font-weight: 600; }
-textarea.form-input { resize: vertical; min-height: 70px; }
+textarea.form-input { resize: vertical; min-height: 90px; }
 </style>

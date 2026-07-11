@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { usuarioService } from '../services/UsuarioService';
 
 export class UsuarioController {
-  async getUsuario(req: Request, res: Response) {
+  // CU: consultarUsuario
+  async consultarUsuario(req: Request, res: Response) {
     try {
       const id = req.params['id'] as string;
-      res.json(await usuarioService.getUsuario(id));
+      res.json(await usuarioService.consultarUsuario(id));
     } catch (error: any) { res.status(404).json({ message: error.message }); }
   }
 
@@ -17,11 +18,11 @@ export class UsuarioController {
     } catch (error: any) { res.status(400).json({ message: error.message }); }
   }
 
-  // CU: consultarUsuario
-  async consultarUsuario(req: Request, res: Response) {
+  // CU: abrirUsuarios
+  async abrirUsuarios(req: Request, res: Response) {
     try {
       const filtro = req.query['filtro'] as string | undefined;
-      res.json(await usuarioService.consultarUsuario(filtro));
+      res.json(await usuarioService.abrirUsuarios(filtro));
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 

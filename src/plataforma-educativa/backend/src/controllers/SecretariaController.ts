@@ -3,10 +3,10 @@ import { secretariaService } from '../services/SecretariaService';
 
 export class SecretariaController {
   // CU: abrirAlumnos
-  async consultarListaAlumnos(req: Request, res: Response) {
+  async abrirAlumnos(req: Request, res: Response) {
     try {
       const filtro = req.query['filtro'] as string | undefined;
-      res.json(await secretariaService.consultarListaAlumnos(filtro));
+      res.json(await secretariaService.abrirAlumnos(filtro));
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
@@ -40,11 +40,11 @@ export class SecretariaController {
   }
 
   // CU: importarAlumnos
-  async importarListasAlumnos(req: Request, res: Response) {
+  async importarAlumnos(req: Request, res: Response) {
     try {
       const archivo = req.body;
       if (!secretariaService.validarArchivo(archivo)) return res.status(400).json({ message: 'Formato no válido' });
-      const informe = await secretariaService.importarListasAlumnos(archivo);
+      const informe = await secretariaService.importarAlumnos(archivo);
       res.json({ informe });
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }

@@ -2,10 +2,11 @@ import { Request, Response } from 'express';
 import { dispensaService } from '../services/DispensaService';
 
 export class DispensaController {
-  async getDispensa(req: Request, res: Response) {
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(req: Request, res: Response) {
     try {
       const id = req.params['id'] as string;
-      res.json(await dispensaService.getDispensa(id));
+      res.json(await dispensaService.consultarSolicitudDispensa(id));
     } catch (error: any) { res.status(404).json({ message: error.message }); }
   }
 
@@ -31,10 +32,10 @@ export class DispensaController {
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 
-  // CU: consultarSolicitudDispensa
-  async consultarSolicitudDispensa(req: Request, res: Response) {
+  // CU: abrirDispensas
+  async abrirDispensas(req: Request, res: Response) {
     try {
-      res.json(await dispensaService.consultarSolicitudDispensa(req.query));
+      res.json(await dispensaService.abrirDispensas(req.query));
     } catch (error: any) { res.status(500).json({ message: error.message }); }
   }
 

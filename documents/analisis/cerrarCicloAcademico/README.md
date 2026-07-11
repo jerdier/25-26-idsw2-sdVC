@@ -1,7 +1,7 @@
 # CGU > cerrarCicloAcademico > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/cerrarCicloAcademico/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/cerrarCicloAcademico/README.md) | [Desarrollo](../../desarrollo/cerrarCicloAcademico/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Secretaria
 

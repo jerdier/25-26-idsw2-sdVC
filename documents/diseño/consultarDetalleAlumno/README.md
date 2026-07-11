@@ -1,7 +1,7 @@
 # CGU > consultarDetalleAlumno > Diseño
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/consultarDetalleAlumno/README.md) | [Índice Diseño](../README.md) | **Diseño** |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/consultarDetalleAlumno/README.md) | [Índice Diseño](../README.md) | **Diseño** | [Desarrollo](../../desarrollo/consultarDetalleAlumno/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Profesor
 

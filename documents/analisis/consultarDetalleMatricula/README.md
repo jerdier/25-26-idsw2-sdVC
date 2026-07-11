@@ -1,7 +1,7 @@
 # CGU > consultarDetalleMatricula > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarDetalleMatricula/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarDetalleMatricula/README.md) | [Desarrollo](../../desarrollo/consultarDetalleMatricula/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Secretaria
 

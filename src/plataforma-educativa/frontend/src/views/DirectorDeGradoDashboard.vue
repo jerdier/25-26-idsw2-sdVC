@@ -17,7 +17,7 @@ const sel = ref<any>(null);
 const editForm = reactive({ estado: 'APROBADA' as 'APROBADA' | 'RECHAZADA', observaciones: '' });
 
 const cargarDispensas = async () => {
-  try { dispensas.value = await dispensaService.consultarSolicitudDispensa({}); }
+  try { dispensas.value = await dispensaService.abrirDispensas({}); }
   catch (e: any) { ko(e); }
 };
 
@@ -29,7 +29,7 @@ const irLista = () => {
 
 const irDetalle = async (d: any) => {
   msg.value = ''; err.value = '';
-  try { sel.value = await dispensaService.getDispensa(d.id); }
+  try { sel.value = await dispensaService.consultarSolicitudDispensa(d.id); }
   catch { sel.value = d; }
   vista.value = 'detalle';
 };

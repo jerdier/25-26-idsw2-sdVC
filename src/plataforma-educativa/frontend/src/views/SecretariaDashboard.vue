@@ -19,17 +19,17 @@ watch(panel, async (v) => {
   msg.value = ''; err.value = '';
   if (!v) return;
   if (['abrir-alumnos', 'consultar-alumno', 'consultar-matricula', 'crear-dispensa'].includes(v)) {
-    try { alumnos.value = await secretariaService.consultarListaAlumnos(); } catch (e: any) { ko(e); }
+    try { alumnos.value = await secretariaService.abrirAlumnos(); } catch (e: any) { ko(e); }
   }
   if (['abrir-dispensas', 'consultar-dispensa', 'editar-dispensa'].includes(v)) {
-    try { dispensas.value = await dispensaService.consultarSolicitudDispensa({}); } catch (e: any) { ko(e); }
+    try { dispensas.value = await dispensaService.abrirDispensas({}); } catch (e: any) { ko(e); }
   }
 });
 
 // CU: abrirAlumnos — con filtro
 const filtroAlumnos = ref('');
 const handleFiltrarAlumnos = async () => {
-  try { alumnos.value = await secretariaService.consultarListaAlumnos(filtroAlumnos.value || undefined); }
+  try { alumnos.value = await secretariaService.abrirAlumnos(filtroAlumnos.value || undefined); }
   catch (e: any) { ko(e); }
 };
 
@@ -69,12 +69,12 @@ const handleCerrarCiclo = async () => {
   } catch (e: any) { ko(e); }
 };
 
-// CU: importarListasAlumnos
+// CU: importarAlumnos
 const importAlumnosJson = ref('[\n  {"nombre":"Nuevo Alumno","email":"nuevo@cgu.es","dni":"12345678Z"}\n]');
 const handleImportAlumnos = async () => {
   try {
     const data = JSON.parse(importAlumnosJson.value);
-    const res = await secretariaService.importarListasAlumnos({ alumnos: data });
+    const res = await secretariaService.importarAlumnos({ alumnos: data });
     ok(`Importación: ${res.informe?.creados ?? 0} creados, ${res.informe?.actualizados ?? 0} actualizados, ${res.informe?.errores ?? 0} errores.`);
   } catch (e: any) { ko(e); }
 };
@@ -102,7 +102,7 @@ const handleCrearDisp = async () => {
 // CU: consultarSolicitudDispensa
 const dispensaSel = ref<any>(null);
 const handleConsultarDisp = async (d: any) => {
-  try { dispensaSel.value = await dispensaService.getDispensa(d.id); }
+  try { dispensaSel.value = await dispensaService.consultarSolicitudDispensa(d.id); }
   catch { dispensaSel.value = d; }
 };
 
@@ -114,7 +114,7 @@ const handleEditarDisp = async () => {
   try {
     await dispensaService.editarSolicitudDispensa(editDispSel.value.id, { motivo: editDispForm.motivo });
     ok('Dispensa actualizada.'); editDispSel.value = null;
-    dispensas.value = await dispensaService.consultarSolicitudDispensa({}).catch(() => []);
+    dispensas.value = await dispensaService.abrirDispensas({}).catch(() => []);
   } catch (e: any) { ko(e); }
 };
 
@@ -164,7 +164,7 @@ const estadoClass = (e: string) => e === 'APROBADA' ? 'tag-ok' : e === 'RECHAZAD
       <p v-else class="dim">Sin alumnos registrados.</p>
     </div>
 
-    <!-- CU: importarListasAlumnos -->
+    <!-- CU: importarAlumnos -->
     <div v-if="panel === 'import-alumnos'" class="panel card-base">
       <div class="detail-header"><button class="back-btn" @click="panel = 'abrir-alumnos'">← abrirAlumnos</button></div>
       <h2 class="panel-h">importarAlumnos</h2>

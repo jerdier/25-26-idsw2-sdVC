@@ -1,7 +1,7 @@
 # CGU > abrirAlumnos > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/abrirAlumnos/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/abrirAlumnos/README.md) | [Desarrollo](../../desarrollo/abrirAlumnos/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Secretaria · Profesor
 

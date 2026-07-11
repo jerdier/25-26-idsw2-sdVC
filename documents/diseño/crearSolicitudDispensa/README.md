@@ -1,7 +1,7 @@
 # CGU > crearSolicitudDispensa > Diseño
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/crearSolicitudDispensa/README.md) | [Índice Diseño](../README.md) | **Diseño** |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/crearSolicitudDispensa/README.md) | [Índice Diseño](../README.md) | **Diseño** | [Desarrollo](../../desarrollo/crearSolicitudDispensa/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Alumno · Secretaria
 

@@ -2,7 +2,7 @@ import api from './api';
 
 export const secretariaService = {
   // CU: abrirAlumnos
-  async consultarListaAlumnos(filtro?: string) {
+  async abrirAlumnos(filtro?: string) {
     return (await api.get('/secretaria/alumnos', { params: filtro ? { filtro } : undefined })).data;
   },
 
@@ -27,7 +27,7 @@ export const secretariaService = {
   },
 
   // CU: importarAlumnos
-  async importarListasAlumnos(data: { alumnos: { nombre: string; email: string; dni: string }[] }) {
+  async importarAlumnos(data: { alumnos: { nombre: string; email: string; dni: string }[] }) {
     return (await api.post('/secretaria/import/alumnos', data)).data;
   },
 

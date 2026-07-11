@@ -6,7 +6,7 @@ export class SecretariaService {
   }
 
   // CU: abrirAlumnos (con filtro opcional)
-  async consultarListaAlumnos(filtro?: string) {
+  async abrirAlumnos(filtro?: string) {
     const where: any = filtro
       ? { OR: [
           { nombre: { contains: filtro, mode: 'insensitive' as const } },
@@ -63,7 +63,7 @@ export class SecretariaService {
   }
 
   // CU: importarAlumnos
-  async importarListasAlumnos(archivo: { alumnos: { nombre: string; email: string; dni: string; numeroRegistro?: string }[] }) {
+  async importarAlumnos(archivo: { alumnos: { nombre: string; email: string; dni: string; numeroRegistro?: string }[] }) {
     const resultados = { creados: 0, actualizados: 0, errores: 0 };
     for (const fila of archivo.alumnos) {
       try {

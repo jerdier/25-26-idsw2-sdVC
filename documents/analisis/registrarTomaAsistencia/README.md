@@ -1,7 +1,7 @@
 # CGU > registrarTomaAsistencia > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/registrarTomaAsistencia/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/registrarTomaAsistencia/README.md) | [Desarrollo](../../desarrollo/registrarTomaAsistencia/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Profesor
 

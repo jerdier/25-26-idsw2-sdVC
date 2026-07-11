@@ -1,7 +1,7 @@
 # CGU > consultarUsuario > Diseño
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/consultarUsuario/README.md) | [Índice Diseño](../README.md) | **Diseño** |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/consultarUsuario/README.md) | [Índice Diseño](../README.md) | **Diseño** | [Desarrollo](../../desarrollo/consultarUsuario/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Administrador
 

@@ -1,7 +1,8 @@
 import api from './api';
 
 export const dispensaService = {
-  async getDispensa(dispensaId: string) {
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(dispensaId: string) {
     return (await api.get(`/dispensas/${dispensaId}`)).data;
   },
 
@@ -18,8 +19,8 @@ export const dispensaService = {
     return (await api.post('/dispensas', data)).data;
   },
 
-  // CU: consultarSolicitudDispensa
-  async consultarSolicitudDispensa(filtros?: { estado?: string; alumnoId?: string }) {
+  // CU: abrirDispensas
+  async abrirDispensas(filtros?: { estado?: string; alumnoId?: string }) {
     return (await api.get('/dispensas', { params: filtros })).data;
   },
 

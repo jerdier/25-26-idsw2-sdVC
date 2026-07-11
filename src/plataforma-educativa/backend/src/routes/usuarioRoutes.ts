@@ -3,9 +3,10 @@ import { usuarioController } from '../controllers/UsuarioController';
 
 const router = Router();
 
+// CU: abrirUsuarios
+router.get('/', usuarioController.abrirUsuarios);
 // CU: consultarUsuario
-router.get('/', usuarioController.consultarUsuario);
-router.get('/:id', usuarioController.getUsuario);
+router.get('/:id', usuarioController.consultarUsuario);
 
 // CU: editarUsuario
 router.put('/:id', usuarioController.editarUsuario);

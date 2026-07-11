@@ -1,7 +1,7 @@
 # CGU > abrirDispensas > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/abrirDispensas/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/abrirDispensas/README.md) | [Desarrollo](../../desarrollo/abrirDispensas/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Alumno · Profesor · DirectorDeGrado · Secretaria
 

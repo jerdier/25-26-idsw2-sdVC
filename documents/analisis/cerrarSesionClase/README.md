@@ -1,7 +1,7 @@
 # CGU > cerrarSesionClase > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/cerrarSesionClase/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/cerrarSesionClase/README.md) | [Desarrollo](../../desarrollo/cerrarSesionClase/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Profesor
 

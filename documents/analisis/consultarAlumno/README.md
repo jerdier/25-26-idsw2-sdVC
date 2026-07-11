@@ -1,7 +1,7 @@
 # CGU > consultarAlumno > Análisis
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarAlumno/README.md) |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Índice Análisis](../README.md) | **Análisis** | [Diseño](../../diseño/consultarAlumno/README.md) | [Desarrollo](../../desarrollo/consultarAlumno/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Secretaria
 

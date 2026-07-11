@@ -174,7 +174,7 @@ const irDispensas = async () => {
 
 const irDetalleDispensa = async (d: any) => {
   msg.value = ''; err.value = '';
-  try { dispensaSel.value = await dispensaService.getDispensa(d.id); }
+  try { dispensaSel.value = await dispensaService.consultarSolicitudDispensa(d.id); }
   catch { dispensaSel.value = d; }
   vista.value = 'dispensa-detalle';
 };

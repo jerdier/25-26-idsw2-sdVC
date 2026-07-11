@@ -26,7 +26,7 @@ const rolLabel = (r: string) => ({ alumno: 'Alumno', profesor: 'Profesor', direc
 
 // CU: abrirUsuarios
 const cargarUsuarios = async (f?: string) => {
-  try { usuarios.value = await usuarioService.consultarUsuario(f); }
+  try { usuarios.value = await usuarioService.abrirUsuarios(f); }
   catch (e: any) { ko(e); }
 };
 
@@ -41,7 +41,7 @@ const irLista = async () => {
 // CU: consultarUsuario
 const irDetalle = async (u: any) => {
   msg.value = ''; err.value = '';
-  try { sel.value = await usuarioService.getUsuario(u.id); }
+  try { sel.value = await usuarioService.consultarUsuario(u.id); }
   catch { sel.value = u; }
   vista.value = 'detalle';
 };

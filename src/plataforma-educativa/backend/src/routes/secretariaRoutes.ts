@@ -4,7 +4,7 @@ import { secretariaController } from '../controllers/SecretariaController';
 const router = Router();
 
 // CU: abrirAlumnos (con ?filtro= opcional)
-router.get('/alumnos', secretariaController.consultarListaAlumnos);
+router.get('/alumnos', secretariaController.abrirAlumnos);
 // CU: consultarAlumno
 router.get('/alumnos/:alumnoId', secretariaController.consultarAlumno);
 // CU: consultarDetalleMatricula
@@ -14,7 +14,7 @@ router.get('/matriculas', secretariaController.abrirMatriculas);
 // CU: cerrarCicloAcademico
 router.post('/ciclos/cerrar', secretariaController.cerrarCicloAcademico);
 // CU: importarAlumnos
-router.post('/import/alumnos', secretariaController.importarListasAlumnos);
+router.post('/import/alumnos', secretariaController.importarAlumnos);
 // CU: importarMatriculas
 router.post('/import/matriculas', secretariaController.importarMatriculas);
 

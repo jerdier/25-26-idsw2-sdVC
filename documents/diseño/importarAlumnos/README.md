@@ -1,7 +1,7 @@
 # CGU > importarAlumnos > Diseño
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/importarAlumnos/README.md) | [Índice Diseño](../README.md) | **Diseño** |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/importarAlumnos/README.md) | [Índice Diseño](../README.md) | **Diseño** | [Desarrollo](../../desarrollo/importarAlumnos/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Secretaria
 

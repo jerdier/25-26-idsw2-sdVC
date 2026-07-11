@@ -30,7 +30,7 @@ onMounted(async () => {
 });
 
 const cargarDispensas = async () => {
-  try { dispensas.value = await dispensaService.consultarSolicitudDispensa({ alumnoId: uid }); }
+  try { dispensas.value = await dispensaService.abrirDispensas({ alumnoId: uid }); }
   catch (e: any) { ko(e); }
 };
 
@@ -42,7 +42,7 @@ const irLista = async () => {
 
 const irDetalle = async (d: any) => {
   msg.value = ''; err.value = '';
-  try { sel.value = await dispensaService.getDispensa(d.id); }
+  try { sel.value = await dispensaService.consultarSolicitudDispensa(d.id); }
   catch { sel.value = d; }
   vista.value = 'detalle';
 };

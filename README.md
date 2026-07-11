@@ -13,6 +13,7 @@
 | [Requisitado](documents/requisitado/README.md) | Actores, casos de uso y modelo del dominio |
 | [Análisis](documents/analisis/README.md) | Diagramas de colaboración MVC por caso de uso |
 | [Diseño](documents/diseño/README.md) | Diagramas de secuencia por caso de uso |
+| [Desarrollo](documents/desarrollo/README.md) | Desarrollo de los casos de uso en el código |
 | [Implementación](src/README.md) | Backend (Node.js + Prisma) y Frontend (Vue 3) |
 | [Qué hace](QUE_HACE.md) | Descripción funcional del sistema (primer commit) |
 | [Conversation log](conversation-log.md) | Registro cronológico de sesiones de construcción |
@@ -69,7 +70,7 @@ El frontend arranca en `http://localhost:5173` y el backend en `http://localhost
 ├── README.md               ← este archivo
 ├── QUE_HACE.md             ← descripción funcional (primer commit)
 ├── conversation-log.md     ← log de construcción
-├── documents/              ← documentación de análisis y diseño
+├── documents/              ← documentación de análisis, diseño y desarrollo
 ├── images/                 ← SVGs exportados de los diagramas
 ├── modelosUML/             ← fuentes .puml de todos los diagramas
 └── src/                    ← código fuente de la aplicación

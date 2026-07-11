@@ -1,7 +1,8 @@
 import api from './api';
 
 export const usuarioService = {
-  async getUsuario(id: string) {
+  // CU: consultarUsuario
+  async consultarUsuario(id: string) {
     return (await api.get(`/usuarios/${id}`)).data;
   },
 
@@ -9,8 +10,8 @@ export const usuarioService = {
     await api.delete(`/usuarios/${id}`);
   },
 
-  // CU: consultarUsuario
-  async consultarUsuario(filtro?: string) {
+  // CU: abrirUsuarios
+  async abrirUsuarios(filtro?: string) {
     return (await api.get('/usuarios', { params: filtro ? { filtro } : undefined })).data;
   },
 

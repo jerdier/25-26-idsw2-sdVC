@@ -1,7 +1,8 @@
 import prisma from '../lib/prisma';
 
 export class UsuarioService {
-  async getUsuario(id: string) {
+  // CU: consultarUsuario
+  async consultarUsuario(id: string) {
     const alumno = await prisma.alumno.findUnique({ where: { id } });
     if (alumno) return { ...alumno, rol: 'alumno' };
     const profesor = await prisma.profesor.findUnique({ where: { id } });
@@ -21,8 +22,8 @@ export class UsuarioService {
     throw new Error('Usuario no encontrado');
   }
 
-  // CU: consultarUsuario
-  async consultarUsuario(filtro?: string) {
+  // CU: abrirUsuarios
+  async abrirUsuarios(filtro?: string) {
     const where = filtro
       ? { OR: [{ nombre: { contains: filtro, mode: 'insensitive' as const } }, { email: { contains: filtro, mode: 'insensitive' as const } }] }
       : {};

@@ -2,7 +2,8 @@ import prisma from '../lib/prisma';
 import { CreateDispensaDTO, UpdateDispensaStatusDTO } from '../types';
 
 export class DispensaService {
-  async getDispensa(dispensaId: string) {
+  // CU: consultarSolicitudDispensa
+  async consultarSolicitudDispensa(dispensaId: string) {
     const dispensa = await prisma.dispensa.findUnique({
       where: { id: dispensaId },
       include: { alumno: true, sesionesEximidas: { include: { asignatura: true } }, asignaturas: true }
@@ -36,8 +37,8 @@ export class DispensaService {
     });
   }
 
-  // CU: consultarSolicitudDispensa
-  async consultarSolicitudDispensa(filtros: any) {
+  // CU: abrirDispensas
+  async abrirDispensas(filtros: any) {
     const where: any = {};
     if (filtros.estado) where.estado = filtros.estado;
     if (filtros.alumnoId) where.alumnoId = filtros.alumnoId;
@@ -71,7 +72,7 @@ export class DispensaService {
 
   // CU: exportarDispensas
   async exportarDispensas(filtros: any, formato: string) {
-    const dispensas = await this.consultarSolicitudDispensa(filtros);
+    const dispensas = await this.abrirDispensas(filtros);
     const csv = [
       'Fecha,Alumno,Motivo,Estado',
       ...dispensas.map((d: any) =>

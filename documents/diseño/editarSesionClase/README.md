@@ -1,7 +1,7 @@
 # CGU > editarSesionClase > Diseño
 
-> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/editarSesionClase/README.md) | [Índice Diseño](../README.md) | **Diseño** |
-> |---|---|---|---|---|
+> | [Inicio](../../../README.md) | [Requisitado](../../requisitado/README.md) | [Análisis](../../analisis/editarSesionClase/README.md) | [Índice Diseño](../README.md) | **Diseño** | [Desarrollo](../../desarrollo/editarSesionClase/README.md) |
+> |---|---|---|---|---|---|
 
 **Actor:** Profesor
 
